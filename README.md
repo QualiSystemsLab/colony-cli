@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/gh/ddovbii/colony-cli/branch/master/graph/badge.svg?token=HC27IG7713)](https://codecov.io/gh/ddovbii/colony-cli)
+![CI](https://github.com/ddovbii/colony-cli/workflows/CI/badge.svg?branch=master)
 
 ---
 
