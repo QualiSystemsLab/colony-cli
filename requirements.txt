@@ -1,0 +1,4 @@
+click
+requests
+setuptools
+flake8
