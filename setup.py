@@ -22,7 +22,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'colony=colony:main',
+            'colony=colony.colonyshell:cli',
         ],
     },
 )

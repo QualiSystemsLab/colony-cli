@@ -1,0 +1,2 @@
+class Colony(object):
+    pass
