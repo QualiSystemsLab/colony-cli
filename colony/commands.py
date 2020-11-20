@@ -29,7 +29,14 @@ class BlueprintsCommand(BaseCommand):
        -h --help        Show this message
     """
     def execute(self):
-        if "validate" in self.args:
+        if self.args['list']:
+            bps = self.client.blueprints.list()
+            template = "{0:65}|{1:50}"
+            print(template.format("Blueprint", "Url"))
+
+            for bp in bps:
+                print(template.format(bp.name,bp.url))
+        if self.args['validate']:
             name = self.args.get('<name>')
             branch = self.args.get('<branch>')
             commit = self.args.get('<commitId>')
@@ -56,7 +63,12 @@ class BlueprintsCommand(BaseCommand):
                 return
             errors = bp.errors
             if errors:
-                pprint(errors)
+                template = "{0:35}|{1:85}|{2:30}"
+                print(template.format("Code", "Message", "Name"))
+
+                for er in errors:
+                    print(template.format(er['code'], er['message'], er['name']))
+                # pprint(errors)
 
             else:
                 print("Valid!")

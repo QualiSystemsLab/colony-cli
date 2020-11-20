@@ -29,6 +29,11 @@ class BlueprintsManager(ResourceManager):
 
         return Blueprint.json_deserialize(self, bp_json)
 
+    def list(self):
+        url = 'blueprints'
+        result_json = self._list(path=url)
+        return [self.resource_obj.json_deserialize(self, obj) for obj in result_json]
+
     def validate(self, blueprint: str, env_type: str = 'sandbox',
                  branch: str = None, commit: str = None) -> Blueprint:
         url = 'validations/blueprints'
