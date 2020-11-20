@@ -1,6 +1,6 @@
 """
-Usage:
-    colony [--help] [--space=<space>] [--token=<token>] <command> [<args>...]
+Usage: colony [--space=<space>] [--token=<token>] [--help]
+              <command> [<args>...]
 
 Options:
   -h --help             Show this screen.
@@ -25,7 +25,6 @@ commands_table = {
 
 def main():
     args = docopt(__doc__, options_first=True)
-    client = None
 
     # Take command
     command_name = args['<command>']
