@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 from .exceptions import Unauthorized
 from .blueprints import BlueprintsManager
 
+
 class ColonyClient(object):
     """Base class for Colony API access"""
     API_URL = 'api/'
