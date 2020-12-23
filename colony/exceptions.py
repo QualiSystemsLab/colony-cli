@@ -4,3 +4,7 @@ class Unauthorized(Exception):
 
 class ConfigError(Exception):
     pass
+
+
+class BadBlueprintRepo(Exception):
+    pass

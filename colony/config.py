@@ -1,5 +1,8 @@
 import os
 import colony.exceptions
+import logging
+
+logger = logging.getLogger(__name__)
 
 from configparser import ConfigParser, ParsingError
 
@@ -18,7 +21,6 @@ class ColonyConfigProvider(object):
 
         path = os.path.expandvars(config_path)
         path = os.path.expanduser(path)
-        print(path)
 
         if not os.path.isfile(path):
             raise colony.exceptions.ConfigError("Config file doesn't exist")

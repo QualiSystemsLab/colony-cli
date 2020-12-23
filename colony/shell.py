@@ -1,5 +1,5 @@
 """
-Usage: colony ( [(--space=<space> --token=<token>)] | [--profile=<profile>] ) [--help]
+Usage: colony ( [(--space=<space> --token=<token>)] | [--profile=<profile>] ) [--help] [--debug]
               <command> [<args>...]
 
 Options:
@@ -12,14 +12,16 @@ Commands:
     bp, blueprints      list, get, validate colony blueprints
 """
 import os
+import logging
 
-#TODO(ddovbii): refactor. split on modules, add subcommands
 from colony import commands
 from docopt import docopt, DocoptExit
 
 from .exceptions import ConfigError
 from .config import ColonyConnection, ColonyConfigProvider
 from .client import ColonyClient
+
+logger = logging.getLogger(__name__)
 
 
 commands_table = {
@@ -35,6 +37,7 @@ def _get_connection_params(args) -> ColonyConnection:
 
     # then try to load them from file
     if not all([token, space]):
+        logger.warning("Couldn't fetch token/space neither from command line nor environment variables")
         profile = args.pop('--profile', None)
         config_file = os.environ.get("COLONY_CONFIG_PATH", None)
         try:
@@ -45,8 +48,14 @@ def _get_connection_params(args) -> ColonyConnection:
 
     return ColonyConnection(token=token, space=space)
 
+
 def main():
     args = docopt(__doc__, options_first=True)
+
+    debug = args.pop('--debug', None)
+
+    level = logging.DEBUG if debug else logging.WARNING
+    logging.basicConfig(format='%(levelname)s - %(name)s - %(message)s', level=level)
 
     # Take command
     command_name = args['<command>']
