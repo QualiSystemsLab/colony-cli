@@ -25,15 +25,14 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Colony Cli Binary
+          name: win10x64
           path: dist\colony.exe
 
   create-release:
     name: Create Release Entry
     runs-on: ubuntu-20.04
+    needs: build-windows
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -46,6 +45,18 @@ jobs:
           prerelease: false
       - name: Get All Artifacts
         uses: actions/download-artifact@v2
+        with:
+          path: binaries
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory:
+          binaries
+      - name: Archive Artifacts
+        run: |
+          pushd ./binaries
+          zip -r ../colony-cli.zip .
+          popd
+#          zip colony-cli binaries/*
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -53,6 +64,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist/colony.exe
-          asset_name: my-colony-cli.zip
+          asset_path: ./colony-cli.zip
+          asset_name: colony-cli.zip
           asset_content_type: application/zip
