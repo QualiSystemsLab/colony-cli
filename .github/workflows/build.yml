@@ -29,7 +29,6 @@ jobs:
           path: dist\colony.exe
 
   create-release:
-    if: false
     name: Create Release Entry
     runs-on: ubuntu-20.04
     steps:
