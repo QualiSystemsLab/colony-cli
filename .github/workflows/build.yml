@@ -4,6 +4,34 @@ on:
     branches: dev
 
 jobs:
+  build-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+#      - name: APT Install
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y python3-pip
+      - name: Pip Installer
+        uses: BSFishy/pip-action@v1
+        with:
+          packages: pyinstaller
+          requirements: requirements.txt
+      - name: build with pyinstaller
+        run: |
+           pyinstaller -F cli.py --name colony
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux_x64
+          path: dist/colony
+
   build-windows:
     runs-on: [ windows-latest ]
     steps:
@@ -31,7 +59,7 @@ jobs:
   create-release:
     name: Create Release Entry
     runs-on: ubuntu-20.04
-    needs: build-windows
+    needs: [build-windows, build-linux]
     steps:
       - name: Create Release
         id: create_release
