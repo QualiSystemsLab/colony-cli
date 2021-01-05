@@ -1,5 +1,6 @@
 from .base import Resource, ResourceManager
 
+
 class Blueprint(Resource):
 
     def __init__(self, manager: ResourceManager, name: str, url: str):
@@ -19,6 +20,7 @@ class Blueprint(Resource):
         bp.errors = json_obj.get("errors", [])
         bp.description = json_obj.get("description", "")
         return bp
+
 
 class BlueprintsManager(ResourceManager):
     resource_obj = Blueprint

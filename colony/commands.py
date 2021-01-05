@@ -5,6 +5,7 @@ from colony.client import ColonyClient
 
 from colony.utils import BlueprintRepo, BadBlueprintRepo
 import logging
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -81,16 +82,6 @@ class BlueprintsCommand(BaseCommand):
                         logger.warning("No branch has been specified and it couldn't be identified. "
                                        "Blueprint branch attached to Colony will be used")
 
-                # work_branch = colony.utils.get_blueprint_branch()
-                # if work_branch:
-                #
-                #     logger.warning(f"Since you haven't specified a branch, "
-                #           f"current work branch '{work_branch}' is used")
-                #     branch = work_branch
-                # else:
-                #     logger.warning("No branch has been specified and it couldn't be identified. "
-                #           "Using branch attached to Colony")
-
             try:
                 bp = self.client.blueprints.validate(blueprint=name, branch=branch, commit=commit)
             except Exception as e:
@@ -106,3 +97,61 @@ class BlueprintsCommand(BaseCommand):
 
             else:
                 print("Valid!")
+
+
+class SandboxesCommand(BaseCommand):
+    """
+    usage:
+        colony sb start <blueprint_name> [-n --name <sandbox_name>] [-d --duration <minutes>]
+                                         [-i --inputs <input_params>] [-a --artifacts <artifacts>]
+                                         [-b --branch <branch>] [-c --commit <commitId>]
+    """
+
+    def execute(self):
+        if self.args["start"]:
+            bp_name = self.args["<blueprint_name>"]
+            branch = self.args.get('<branch>')
+            commit = self.args.get('<commitId>')
+
+            name = self.args["sandbox_name"]
+            if name is None:
+                suffix = datetime.datetime.now().timestamp()
+                name = f"{bp_name}-{suffix}"
+
+            inputs = self._parse_comma_separated_string(self.args["<inputs>"])
+            artifacts = self._parse_comma_separated_string(self.args["<artifacts>"])
+
+            try:
+                duration = int(self.args["<duration>"])
+                if duration <= 0:
+                    raise DocoptExit("duration must be positive")
+
+            except ValueError:
+                raise DocoptExit("Duration must be a numner")
+
+
+            # TODO: it should be possible to handle it by docopt initially
+            if commit and branch is None:
+                raise DocoptExit("Since commit is specified, branch is required")
+
+            if not branch:
+                logger.warning("Branch hasn't been specified. "
+                             "Trying to identify branch from current working directory")
+
+    def _parse_comma_separated_string(self, params_string: str = None) -> dict:
+        res = {}
+
+        if not params_string:
+            return res
+
+        key_vals = params_string.split(",")
+
+        for item in key_vals:
+            parts = item.split("=")
+            key = parts[0].strip()
+            val = parts[1].strip()
+            res[key] = val
+
+        return res
+
+

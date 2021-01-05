@@ -2,6 +2,7 @@ from urllib.parse import urljoin
 
 # TODO(ddovbii): Make classes abstract
 
+
 class ResourceManager(object):
     resource_obj = None
 
@@ -42,6 +43,7 @@ class ResourceManager(object):
         url = urljoin(self.endpoint, path)
         result_json = self.client.request(url, "POST", params, headers)
         return result_json
+
 
 class Resource(object):
 
