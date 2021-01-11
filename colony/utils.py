@@ -1,9 +1,11 @@
 import os
 
-from typing import List
-
 from colony.exceptions import BadBlueprintRepo
 from git import Repo, InvalidGitRepositoryError
+import yaml
+import logging
+
+logging.getLogger("git").setLevel(logging.WARNING)
 
 
 class BlueprintRepo(Repo):
@@ -22,7 +24,7 @@ class BlueprintRepo(Repo):
 
     def repo_has_blueprint(self, blueprint_name) -> bool:
         """Check if repo contains provided blueprint"""
-        return blueprint_name in self.blueprints
+        return blueprint_name in list(self.blueprints.keys())
 
     def is_repo_detached(self):
         return self.head.is_detached
@@ -38,10 +40,48 @@ class BlueprintRepo(Repo):
         local_branch = self.active_branch
         for remote in self.remote().refs:
             if local_branch.name == remote.remote_head:
-                return local_branch.__eq__(remote.commit)
+                return local_branch.commit.__eq__(remote.commit)
+        return False
 
-    def _fetch_blueprints_list(self) -> List[str]:
-        bps = []
+    def get_blueprint_artifacts(self, blueprint_name: str) -> dict:
+        yaml_obj = self.get_blueprint_yaml(blueprint_name)
+        artifacts = yaml_obj.get('artifacts', None)
+
+        if not artifacts:
+            return {}
+
+        else:
+            res = {}
+            for art in artifacts:
+                for name, path in art.items():
+                    res[name] = path
+            return res
+
+    def get_blueprint_default_inputs(self, blueprint_name):
+        yaml_obj = self.get_blueprint_yaml(blueprint_name)
+        inputs = yaml_obj.get('inputs', None)
+
+        if not inputs:
+            return {}
+        else:
+            res = {}
+            for inp in inputs:
+                for input_name, specs in inp.items():
+                    if specs:
+                        res[input_name] = specs.get('default_value', None)
+            return res
+
+    def get_blueprint_yaml(self, blueprint_name: str) -> dict:
+        if not self.repo_has_blueprint(blueprint_name):
+            raise BadBlueprintRepo(f"Blueprint Git repo does not contain blueprint {blueprint_name}")
+
+        with open(self.blueprints[blueprint_name]) as bp_file:
+            yaml_obj = yaml.full_load(bp_file)
+
+        return yaml_obj
+
+    def _fetch_blueprints_list(self) -> dict:
+        bps = {}
         work_dir = self.working_dir
         bp_dir = os.path.join(work_dir, self.bp_dir)
 
@@ -51,38 +91,9 @@ class BlueprintRepo(Repo):
         for bp_file in os.listdir(bp_dir):
             blueprint, extension = os.path.splitext(bp_file)
             if extension in self.bp_file_extensions:
-                bps.append(blueprint)
+                bps[blueprint] = os.path.abspath(os.path.join(bp_dir,bp_file))
 
         return bps
 
     def _get_remote_branches_names(self):
         return [ref.remote_head for ref in self.remote().refs]
-
-
-
-def get_blueprint_branch(path: str = None):
-    if path is None:
-        path = os.getcwd()
-    try:
-        repo = Repo(path)
-    except InvalidGitRepositoryError:
-        return None
-
-    if repo.head.is_detached:
-        return None
-
-    local_branch = repo.active_branch.name
-    remote_branches = [ref.remote_head for ref in repo.remote().refs]
-
-    if local_branch in remote_branches:
-        return local_branch
-    else:
-        return None
-
-#
-# path = "/mnt/c/Users/ddovbii/jenkins-colony"
-#
-# a = BlueprintRepo(path)
-# print(a.current_branch_exists_on_remote())
-#
-# print(a.blueprints)

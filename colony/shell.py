@@ -9,7 +9,8 @@ Options:
   --profile=<profile>   Profile indicates a section in config file. If set neither --token or --space must not be specified
 
 Commands:
-    bp, blueprints      list, get, validate colony blueprints
+    bp, blueprint      list, get, validate colony blueprints
+    sb, sandbox
 """
 import os
 import logging
@@ -26,7 +27,9 @@ logger = logging.getLogger(__name__)
 
 commands_table = {
     'bp': commands.BlueprintsCommand,
-    'blueprints': commands.BlueprintsCommand
+    'blueprint': commands.BlueprintsCommand,
+    'sb': commands.SandboxesCommand,
+    'sandbox': commands.SandboxesCommand,
 }
 
 
@@ -37,7 +40,7 @@ def _get_connection_params(args) -> ColonyConnection:
 
     # then try to load them from file
     if not all([token, space]):
-        logger.warning("Couldn't fetch token/space neither from command line nor environment variables")
+        logger.debug("Couldn't fetch token/space neither from command line nor environment variables")
         profile = args.pop('--profile', None)
         config_file = os.environ.get("COLONY_CONFIG_PATH", None)
         try:

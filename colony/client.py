@@ -3,6 +3,10 @@ from requests import Session
 from urllib.parse import urljoin
 from .exceptions import Unauthorized
 from .blueprints import BlueprintsManager
+from .sandboxes import SandboxesManager
+import logging
+
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
 class ColonyClient(object):
@@ -34,6 +38,7 @@ class ColonyClient(object):
         # Remove cyclic dependency. Split client to high-level colony client and low-level
         # transport http client. Then, pass http client instead of self
         self.blueprints = BlueprintsManager(self, self.space)
+        self.sandboxes = SandboxesManager(self, self.space)
 
     def __del__(self):
         if self.session:
