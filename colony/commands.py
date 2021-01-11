@@ -58,7 +58,6 @@ def get_working_branch() -> str:
 class BlueprintsCommand(BaseCommand):
     """
     usage:
-        colony bp list
         colony bp validate <name> [-b --branch <branch>]
         colony blueprint validate <name> [--help] [-b --branch <branch>] [-c --commit <commitId>]
 
@@ -69,13 +68,13 @@ class BlueprintsCommand(BaseCommand):
     """
 
     def execute(self):
-        if self.args['list']:
-            bps = self.client.blueprints.list()
-            template = "{0:65}|{1:50}"
-            print(template.format("Blueprint", "Url"))
-
-            for bp in bps:
-                print(template.format(bp.name, bp.url))
+        # if self.args['list']:
+        #     bps = self.client.blueprints.list()
+        #     template = "{0:65}|{1:50}"
+        #     print(template.format("Blueprint", "Url"))
+        #
+        #     for bp in bps:
+        #         print(template.format(bp.name, bp.url))
         if self.args['validate']:
             name = self.args.get('<name>')
             branch = self.args.get('<branch>')

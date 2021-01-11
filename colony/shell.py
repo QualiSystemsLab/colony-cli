@@ -9,8 +9,8 @@ Options:
   --profile=<profile>   Profile indicates a section in config file. If set neither --token or --space must not be specified
 
 Commands:
-    bp, blueprint      list, get, validate colony blueprints
-    sb, sandbox
+    bp, blueprint       validate colony blueprints
+    sb, sandbox         start sandbox
 """
 import os
 import logging
