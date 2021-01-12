@@ -1,4 +1,5 @@
 import os
+import sys
 
 from docopt import docopt, DocoptExit
 from colony.client import ColonyClient
@@ -6,6 +7,7 @@ from colony.client import ColonyClient
 from colony.utils import BlueprintRepo, BadBlueprintRepo
 import logging
 import datetime
+import tabulate
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +21,16 @@ class BaseCommand(object):
 
     def execute(self):
         pass
+
+    def success(self, message: str = ''):
+        if message:
+            sys.stdout.write(message)
+        sys.exit()
+
+    def die(self, message: str = ''):
+        if message:
+            sys.stderr.write(message)
+        sys.exit(1)
 
 
 def get_working_branch() -> str:
@@ -89,18 +101,15 @@ class BlueprintsCommand(BaseCommand):
             try:
                 bp = self.client.blueprints.validate(blueprint=name, branch=working_branch, commit=commit)
             except Exception as e:
-                logger.exception(e, exc_info=True)
-                return
+                logger.exception(e, exc_info=False)
+                self.die()
             errors = bp.errors
             if errors:
-                template = "{0:35}|{1:85}|{2:30}"
-                print(template.format("Code", "Message", "Name"))
-
-                for er in errors:
-                    print(template.format(er['code'], er['message'], er['name']))
+                self.die(tabulate.tabulate(errors, headers="keys"))
 
             else:
-                print("Valid!")
+                self.success("Valid")
+                # print("Valid!")
 
 
 def parse_comma_separated_string(params_string: str = None) -> dict:
@@ -189,9 +198,9 @@ class SandboxesCommand(BaseCommand):
                                                          commit, artifacts, inputs)
             except Exception as e:
                 logger.exception(e, exc_info=False)
-                return
+                self.die()
 
-            print(sandbox_id)
+            self.success(sandbox_id)
 
 
 
