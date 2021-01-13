@@ -90,7 +90,6 @@ class BlueprintsCommand(BaseCommand):
         #     for bp in bps:
         #         print(template.format(bp.name, bp.url))
         if self.args['validate']:
-            print(self.args)
             name = self.args.get('<name>')
             branch = self.args.get('--branch')
             commit = self.args.get('--commit')
