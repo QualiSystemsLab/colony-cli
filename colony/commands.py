@@ -3,6 +3,8 @@ import sys
 
 from docopt import docopt, DocoptExit
 from colony.client import ColonyClient
+from colony.blueprints import BlueprintsManager
+from colony.sandboxes import SandboxesManager
 
 from colony.utils import BlueprintRepo, BadBlueprintRepo
 import logging
@@ -99,10 +101,13 @@ class BlueprintsCommand(BaseCommand):
             working_branch = branch or get_working_branch()
 
             try:
-                bp = self.client.blueprints.validate(blueprint=name, branch=working_branch, commit=commit)
+                bm = BlueprintsManager(self.client)
+                bp = bm.validate(blueprint=name, branch=working_branch, commit=commit)
+
             except Exception as e:
                 logger.exception(e, exc_info=False)
                 self.die()
+
             errors = bp.errors
             if errors:
                 self.die(tabulate.tabulate(errors, headers="keys"))
@@ -144,6 +149,7 @@ class SandboxesCommand(BaseCommand):
            -b, --branch <branch>
            -c, --commit <commitId>
         """
+
     def execute(self):
         if self.args["start"]:
             bp_name = self.args["<blueprint_name>"]
@@ -193,15 +199,11 @@ class SandboxesCommand(BaseCommand):
             working_branch = branch or get_working_branch()
 
             try:
-                sandbox_id = self.client.sandboxes.start(name, bp_name, duration, working_branch,
-                                                         commit, artifacts, inputs)
+                sm = SandboxesManager(self.client)
+                sandbox_id = sm.start(name, bp_name, duration, working_branch,
+                                      commit, artifacts, inputs)
             except Exception as e:
                 logger.exception(e, exc_info=False)
                 self.die()
 
             self.success(sandbox_id)
-
-
-
-
-

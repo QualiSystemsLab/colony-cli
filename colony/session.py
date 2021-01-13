@@ -1,5 +1,6 @@
 from requests import Session
 
+
 class ColonySession(Session):
     def __init__(self):
         """Creates new Colony Session"""

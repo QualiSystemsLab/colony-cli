@@ -1,10 +1,9 @@
 import os
 import colony.exceptions
 import logging
+from configparser import ConfigParser, ParsingError
 
 logger = logging.getLogger(__name__)
-
-from configparser import ConfigParser, ParsingError
 
 
 class ColonyConnection(object):
@@ -54,4 +53,3 @@ class ColonyConfigProvider(object):
 
     def save_profile(self, profile_name, token, space):
         pass
-
