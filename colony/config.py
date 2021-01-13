@@ -33,14 +33,18 @@ class ColonyConfigProvider(object):
                 self.config_obj = conf
 
             except ParsingError as e:
-                raise colony.exceptions.ConfigError(f"Wrong format of config file. Details {e}")
+                raise colony.exceptions.ConfigError(
+                    f"Wrong format of config file. Details {e}"
+                )
 
     def load_connection(self, profile_name: str = None):
-        profile = profile_name or 'default'
+        profile = profile_name or "default"
         config = self._parse_config()
 
         if profile not in config:
-            raise colony.exceptions.ConfigError("Provided profile does not exist in config file")
+            raise colony.exceptions.ConfigError(
+                "Provided profile does not exist in config file"
+            )
 
         return ColonyConnection(**config[profile])
 

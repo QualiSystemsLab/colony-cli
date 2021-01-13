@@ -45,7 +45,7 @@ class BlueprintRepo(Repo):
 
     def get_blueprint_artifacts(self, blueprint_name: str) -> dict:
         yaml_obj = self.get_blueprint_yaml(blueprint_name)
-        artifacts = yaml_obj.get('artifacts', None)
+        artifacts = yaml_obj.get("artifacts", None)
 
         if not artifacts:
             return {}
@@ -59,7 +59,7 @@ class BlueprintRepo(Repo):
 
     def get_blueprint_default_inputs(self, blueprint_name):
         yaml_obj = self.get_blueprint_yaml(blueprint_name)
-        inputs = yaml_obj.get('inputs', None)
+        inputs = yaml_obj.get("inputs", None)
 
         if not inputs:
             return {}
@@ -68,12 +68,14 @@ class BlueprintRepo(Repo):
             for inp in inputs:
                 for input_name, specs in inp.items():
                     if specs:
-                        res[input_name] = specs.get('default_value', None)
+                        res[input_name] = specs.get("default_value", None)
             return res
 
     def get_blueprint_yaml(self, blueprint_name: str) -> dict:
         if not self.repo_has_blueprint(blueprint_name):
-            raise BadBlueprintRepo(f"Blueprint Git repo does not contain blueprint {blueprint_name}")
+            raise BadBlueprintRepo(
+                f"Blueprint Git repo does not contain blueprint {blueprint_name}"
+            )
 
         with open(self.blueprints[blueprint_name]) as bp_file:
             yaml_obj = yaml.full_load(bp_file)
@@ -91,7 +93,7 @@ class BlueprintRepo(Repo):
         for bp_file in os.listdir(bp_dir):
             blueprint, extension = os.path.splitext(bp_file)
             if extension in self.bp_file_extensions:
-                bps[blueprint] = os.path.abspath(os.path.join(bp_dir,bp_file))
+                bps[blueprint] = os.path.abspath(os.path.join(bp_dir, bp_file))
 
         return bps
 

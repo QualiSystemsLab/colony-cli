@@ -44,12 +44,9 @@ class ResourceManager(object):
 
 
 class Resource(object):
-
     def __init__(self, manager: ResourceManager):
         self.manager = manager
 
     @classmethod
     def json_deserialize(cls, manager: ResourceManager, json_obj: dict):
         pass
-
-

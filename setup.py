@@ -2,34 +2,34 @@ import os
 from setuptools import setup
 
 
-with open(os.path.join('version.txt')) as version_file:
+with open(os.path.join("version.txt")) as version_file:
     version_from_file = version_file.read().strip()
 
-with open('requirements.txt') as f_required:
+with open("requirements.txt") as f_required:
     required = f_required.read().splitlines()
 
 
 setup(
-    name='colony-cli',
+    name="colony-cli",
     version=version_from_file,
-    packages=['colony'],
-    url='https://www.quali.com/',
-    license='Apache Software License',
-    author='Quali',
-    author_email='support@qualisystems.com',
-    description='A command line interface for colony',
+    packages=["colony"],
+    url="https://www.quali.com/",
+    license="Apache Software License",
+    author="Quali",
+    author_email="support@qualisystems.com",
+    description="A command line interface for colony",
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: User Interfaces',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: User Interfaces",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
     entry_points={
-        'console_scripts': [
-            'colony=colony.shell:main',
+        "console_scripts": [
+            "colony=colony.shell:main",
         ],
     },
     install_requires=required,

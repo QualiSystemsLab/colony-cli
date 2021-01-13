@@ -26,22 +26,24 @@ logger = logging.getLogger(__name__)
 
 
 commands_table = {
-    'bp': commands.BlueprintsCommand,
-    'blueprint': commands.BlueprintsCommand,
-    'sb': commands.SandboxesCommand,
-    'sandbox': commands.SandboxesCommand,
+    "bp": commands.BlueprintsCommand,
+    "blueprint": commands.BlueprintsCommand,
+    "sb": commands.SandboxesCommand,
+    "sandbox": commands.SandboxesCommand,
 }
 
 
 def _get_connection_params(args) -> ColonyConnection:
     # first try to get them as options or from env variable
-    token = args.pop('--token', None) or os.environ.get("COLONY_TOKEN", None)
-    space = args.pop('--space', None) or os.environ.get("COLONY_SPACE", None)
+    token = args.pop("--token", None) or os.environ.get("COLONY_TOKEN", None)
+    space = args.pop("--space", None) or os.environ.get("COLONY_SPACE", None)
 
     # then try to load them from file
     if not all([token, space]):
-        logger.debug("Couldn't fetch token/space neither from command line nor environment variables")
-        profile = args.pop('--profile', None)
+        logger.debug(
+            "Couldn't fetch token/space neither from command line nor environment variables"
+        )
+        profile = args.pop("--profile", None)
         config_file = os.environ.get("COLONY_CONFIG_PATH", None)
         try:
             colony_conn = ColonyConfigProvider(config_file).load_connection(profile)
@@ -55,20 +57,20 @@ def _get_connection_params(args) -> ColonyConnection:
 def main():
     args = docopt(__doc__, options_first=True)
 
-    debug = args.pop('--debug', None)
+    debug = args.pop("--debug", None)
 
     level = logging.DEBUG if debug else logging.WARNING
-    logging.basicConfig(format='%(levelname)s - %(name)s - %(message)s', level=level)
+    logging.basicConfig(format="%(levelname)s - %(name)s - %(message)s", level=level)
 
     # Take command
-    command_name = args['<command>']
+    command_name = args["<command>"]
     if command_name not in commands_table:
         raise DocoptExit("Wrong command")
 
     # Take auth parameters
     conn = _get_connection_params(args)
 
-    argv = [args['<command>']] + args['<args>']
+    argv = [args["<command>"]] + args["<args>"]
 
     # Create client
     try:
@@ -81,5 +83,5 @@ def main():
     command.execute()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
