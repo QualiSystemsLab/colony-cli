@@ -69,14 +69,14 @@ def get_working_branch() -> str:
 
 class BlueprintsCommand(BaseCommand):
     """
-    usage:
-        colony bp validate <name> [-b --branch <branch>]
-        colony blueprint validate <name> [--help] [-b --branch <branch>] [-c --commit <commitId>]
+        usage:
+            colony (bp | blueprint) validate <name> [options]
+            colony (bp | blueprint) [--help]
 
     options:
-       -b --branch      Specify the name of remote git branch
-       -c --commit      Specify commit ID. It's required if
-       -h --help        Show this message
+       -b --branch <branch>     Specify the name of remote git branch
+       -c --commit <commitId>   Specify commit ID. It's required if
+       -h --help                Show this message
     """
 
     def execute(self):
@@ -88,11 +88,11 @@ class BlueprintsCommand(BaseCommand):
         #     for bp in bps:
         #         print(template.format(bp.name, bp.url))
         if self.args['validate']:
+            print(self.args)
             name = self.args.get('<name>')
-            branch = self.args.get('<branch>')
-            commit = self.args.get('<commitId>')
+            branch = self.args.get('--branch')
+            commit = self.args.get('--commit')
 
-            # TODO: it should be possible to handle it by docopt initially
             if commit and branch is None:
                 raise DocoptExit("Since commit is specified, branch is required")
 
@@ -132,8 +132,8 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
 class SandboxesCommand(BaseCommand):
     """
         usage:
-            colony sb start <blueprint_name> [options]
-            colony sb [--help]
+            colony (sb | sandbox) start <blueprint_name> [options]
+            colony (sb | sandbox) [--help]
 
         options:
            -h --help        Show this message
@@ -165,7 +165,6 @@ class SandboxesCommand(BaseCommand):
                 if not repo.is_current_branch_synced():
                     logger.debug("Skipping obtaining values since local branch is not synced with remote")
                 else:
-
                     for art_name, art_path in repo.get_blueprint_artifacts(bp_name).items():
                         if art_name not in artifacts and art_path is not None:
                             logger.debug(f"Artifact `{art_name}` has been set with default path `{art_path}`")
