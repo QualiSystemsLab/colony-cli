@@ -1,7 +1,7 @@
 name: PyInstaller
 on:
   push:
-    branches: dev
+    branches: test
     tags: v*
 
 jobs:
