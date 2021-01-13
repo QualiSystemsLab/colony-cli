@@ -2,7 +2,10 @@ from .session import ColonySession
 from requests import Session
 from urllib.parse import urljoin
 from .exceptions import Unauthorized
-from .blueprints import BlueprintsManager
+import logging
+
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+
 
 class ColonyClient(object):
     """Base class for Colony API access"""
@@ -29,10 +32,6 @@ class ColonyClient(object):
                 account, email, password, self.session, self.base_url)
 
         self.session.init_bearer_auth(token)
-        # TODO(ddovbii):
-        # Remove cyclic dependency. Split client to high-level colony client and low-level
-        # transport http client. Then, pass http client instead of self
-        self.blueprints = BlueprintsManager(self, self.space)
 
     def __del__(self):
         if self.session:
