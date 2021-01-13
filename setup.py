@@ -1,8 +1,17 @@
+import os
 from setuptools import setup
+
+
+with open(os.path.join('version.txt')) as version_file:
+    version_from_file = version_file.read().strip()
+
+with open('requirements.txt') as f_required:
+    required = f_required.read().splitlines()
+
 
 setup(
     name='colony-cli',
-    version='1.0.0',
+    version=version_from_file,
     packages=['colony'],
     url='https://www.quali.com/',
     license='Apache Software License',
@@ -14,15 +23,16 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: User Interfaces',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3 :: Only',
     ],
     entry_points={
         'console_scripts': [
             'colony=colony.shell:main',
         ],
     },
+    install_requires=required,
+    keywords="colony sandbox cloud cloudshell quali command-line cli",
+    python_requires=">=3.6",
 )
