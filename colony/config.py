@@ -1,7 +1,8 @@
-import os
-import colony.exceptions
 import logging
+import os
 from configparser import ConfigParser, ParsingError
+
+import colony.exceptions
 
 logger = logging.getLogger(__name__)
 

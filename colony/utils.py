@@ -1,9 +1,10 @@
+import logging
 import os
 
-from colony.exceptions import BadBlueprintRepo
-from git import Repo, InvalidGitRepositoryError
 import yaml
-import logging
+from git import InvalidGitRepositoryError, Repo
+
+from colony.exceptions import BadBlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
 

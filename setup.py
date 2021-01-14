@@ -1,6 +1,6 @@
 import os
-from setuptools import setup
 
+from setuptools import setup
 
 with open(os.path.join("version.txt")) as version_file:
     version_from_file = version_file.read().strip()

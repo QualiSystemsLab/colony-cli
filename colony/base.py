@@ -1,4 +1,5 @@
 from urllib.parse import urljoin
+
 from colony.client import ColonyClient
 
 # TODO(ddovbii): Make classes abstract
