@@ -1,15 +1,14 @@
+import datetime
+import logging
 import os
 import sys
 
-from docopt import docopt, DocoptExit
-from colony.client import ColonyClient
-from colony.blueprints import BlueprintsManager
-from colony.sandboxes import SandboxesManager
-
-from colony.utils import BlueprintRepo, BadBlueprintRepo
-import logging
-import datetime
 import tabulate
+from colony.blueprints import BlueprintsManager
+from colony.client import ColonyClient
+from colony.sandboxes import SandboxesManager
+from colony.utils import BadBlueprintRepo, BlueprintRepo
+from docopt import DocoptExit, docopt
 
 logger = logging.getLogger(__name__)
 
