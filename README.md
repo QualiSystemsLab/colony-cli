@@ -1,4 +1,4 @@
-# CloudShell Colony CLI
+# Colony CLI
 
 [![Coverage Status](https://coveralls.io/repos/github/QualiSystemsLab/colony-cli/badge.svg?branch=dev)](https://coveralls.io/github/QualiSystemsLab/colony-cli?branch=dev)
 ![CI](https://github.com/QualiSystemsLab/colony-cli/workflows/CI/badge.svg)
