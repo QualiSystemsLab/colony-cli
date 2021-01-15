@@ -1,7 +1,9 @@
 # CloudShell Colony CLI
 
-[![codecov](https://codecov.io/gh/ddovbii/colony-cli/branch/master/graph/badge.svg?token=HC27IG7713)](https://codecov.io/gh/ddovbii/colony-cli)
-![CI](https://github.com/ddovbii/colony-cli/workflows/CI/badge.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/QualiSystemsLab/colony-cli/badge.svg)](https://coveralls.io/github/QualiSystemsLab/colony-cli)
+![CI](https://github.com/QualiSystemsLab/colony-cli/workflows/CI/badge.svg)
+[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
+
 
 ---
 
