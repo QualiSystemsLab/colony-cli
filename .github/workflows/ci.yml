@@ -56,14 +56,6 @@ jobs:
       run: |
         pip install pytest pytest-cov coveralls
         python -m pytest --cov=./ --cov-report xml
-#    - name: Coveralls
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      run: |
-#        coveralls
-    #  uses: coverallsapp/github-action@master
-    #  with:
-    #    github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Run coveralls
       env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALL_TOKEN }}

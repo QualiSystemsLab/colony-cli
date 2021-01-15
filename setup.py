@@ -8,6 +8,9 @@ with open(os.path.join("version.txt")) as version_file:
 with open("requirements.txt") as f_required:
     required = f_required.read().splitlines()
 
+with open(os.path.join('README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 
 setup(
     name="colony-cli",
@@ -18,11 +21,12 @@ setup(
     author="Quali",
     author_email="support@qualisystems.com",
     description="A command line interface for colony",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: User Interfaces",
-        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
