@@ -54,16 +54,22 @@ jobs:
         pip install -r requirements.txt
     - name: Test with pytest
       run: |
-        pip install pytest pytest-cov
+        pip install pytest pytest-cov coveralls
         python -m pytest --cov=./ --cov-report xml
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-#    - name: Run coveralls
+#    - name: Coveralls
 #      env:
-#          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALL_TOKEN }}
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #      run: |
+#        coveralls
+    #  uses: coverallsapp/github-action@master
+    #  with:
+    #    github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run coveralls
+      env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALL_TOKEN }}
+      run: |
+        coveralls
+
 
 
 
