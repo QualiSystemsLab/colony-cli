@@ -63,13 +63,7 @@ class ColonyClient(object):
 
         return resp.json().get("access_token", "")
 
-    def request(
-        self,
-        endpoint: str,
-        method: str = "GET",
-        params: dict = None,
-        headers: dict = None,
-    ) -> dict:
+    def request(self, endpoint: str, method: str = "GET", params: dict = None, headers: dict = None,) -> dict:
         """Gets response as Json"""
         if method not in ("GET", "PUT", "POST", "DELETE"):
             raise ValueError("Method must be in [GET, POST, PUT, DELETE]")

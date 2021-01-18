@@ -31,11 +31,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    entry_points={
-        "console_scripts": [
-            "colony=colony.shell:main",
-        ],
-    },
+    entry_points={"console_scripts": ["colony=colony.shell:main"]},
     install_requires=required,
     keywords="colony sandbox cloud cloudshell quali command-line cli",
     python_requires=">=3.6",

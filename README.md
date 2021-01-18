@@ -27,7 +27,7 @@ to Colony. You would like to be sure that your latest committed changes haven't 
 the main branch.
 
 This is where this tool might be handy for you. Instead of reconnecting Colony to your development branch in UI you can
-use Colony Cli to validate your current blueprints state and even launch sandboxed from them.
+use Colony Cli to validate your current blueprints state and even launch sandboxes from them.
 
 ## Installing
 
@@ -65,7 +65,7 @@ export COLONY_TOKEN = xxxzzzyyy
 export COLONY_SPACE = demo_space
 ```
 
-*  Specify _--space_ and _--token_ options then running command:
+* Specify _--space_ and _--token_ options then running command:
 
 `$ colony --space=trial --token=xxxyyyzzz <command>`
 
@@ -165,12 +165,10 @@ blueprint repo:
 `colony sb start MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
 
 * lets review another options you can set here:
-    * `-d, --duration <minutes>` - you can specify duration of sandbox reservation in minutes. Default is 120 minutes
-    * `-n, --name <sandbox_name>` - the name of sandbox you want to run. By default it will generate name using
-    current timestamp
-    * `-i, --inputs <input_params>` - comma-separated list of input parameters for sandbox, like:
-    _"param1=val1, param2=val2_
-    * `-a, --artifacts <artifacts>` - comma-separated list of sandbox artifacts, like: _app1=path1, app2=path2_
+  * `-d, --duration <minutes>` - you can specify duration of sandbox reservation in minutes. Default is 120 minutes
+  * `-n, --name <sandbox_name>` - the name of sandbox you want to run. By default it will generate name using current timestamp
+  * `-i, --inputs <input_params>` - comma-separated list of input parameters for sandbox, like: _"param1=val1, param2=val2_
+  * `-a, --artifacts <artifacts>` - comma-separated list of sandbox artifacts, like: _app1=path1, app2=path2_
 
 ---
 **NOTE**
@@ -180,7 +178,7 @@ start sandbox using blueprint with name "MyBlueprint" from branch currently atta
 
 2. If you omit artifacts and inputs options, you are inside a git enabled folder and the local is in sync with remote
 then Colony Cli will try to get default values for artifacts and inputs from blueprint yaml.
----    
+---
 
 Result of a command is a Sandbox ID.
 
