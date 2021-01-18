@@ -16,8 +16,7 @@
 Colony Cli is a command line interface to Colony.
 
 The main functionality this tool currently provides is a validation of your colony blueprints. But there are many
-plans to turn it to the unified tool for accessing and managing all Colony's services
-
+plans to turn it to the unified tool for accessing and managing all Colony's services.
 
 ## Why use Colony Cli
 
@@ -28,7 +27,7 @@ to Colony. You would like to be sure that your latest committed changes haven't 
 the main branch.
 
 This is where this tool might be handy for you. Instead of reconnecting Colony to your development branch in UI you can
-use Colony Cli to validate your current blueprints state and even launch sandboxed from them
+use Colony Cli to validate your current blueprints state and even launch sandboxed from them.
 
 ## Installing
 
@@ -42,7 +41,7 @@ Or if you want to install it for your user:
 
 ### Configuration
 
-First of all you need to generate access token in Colony UI in a Settings
+First of all you need to generate access token in Colony UI in a Settings.
 Then, you need to configure Colony Cli with generated token and colony space you are going to access.
 There are three ways how to do it:
 
@@ -135,7 +134,7 @@ specific point of time by setting --commit:
 **NOTE**
 
 If you are not it git-enabled folder of your blueprint repo and haven't set --branch/--commit arguments tool will
-validate blueprint with name "MyBlueprint" from branch currently attached to your Colony space
+validate blueprint with name "MyBlueprint" from branch currently attached to your Colony space.
 
 ---
 
@@ -177,7 +176,7 @@ blueprint repo:
 **NOTE**
 
 1. If you are not it git-enabled folder of your blueprint repo and haven't set --branch/--commit arguments tool will
-start sandbox using blueprint with name "MyBlueprint" from branch currently attached to your Colony space
+start sandbox using blueprint with name "MyBlueprint" from branch currently attached to your Colony space.
 
 2. If you omit artifacts and inputs options, you are inside a git enabled folder and the local is in sync with remote
 then Colony Cli will try to get default values for artifacts and inputs from blueprint yaml.
