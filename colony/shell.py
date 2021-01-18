@@ -42,9 +42,7 @@ def _get_connection_params(args) -> ColonyConnection:
 
     # then try to load them from file
     if not all([token, space]):
-        logger.debug(
-            "Couldn't fetch token/space neither from command line nor environment variables"
-        )
+        logger.debug("Couldn't fetch token/space neither from command line nor environment variables")
         profile = args.pop("--profile", None)
         config_file = os.environ.get("COLONY_CONFIG_PATH", None)
         try:

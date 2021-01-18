@@ -33,9 +33,7 @@ class ColonyClient(object):
             self.token = token
 
         elif all([account, email, password]):
-            self.token = ColonyClient.login(
-                account, email, password, self.session, self.base_url
-            )
+            self.token = ColonyClient.login(account, email, password, self.session, self.base_url)
 
         self.session.init_bearer_auth(token)
 
@@ -91,12 +89,7 @@ class ColonyClient(object):
 
         if response.status_code >= 400:
             # TODO(ddovbii): implement exceptions and error handler
-            message = ";".join(
-                [
-                    f"{err['name']}: {err['message']}"
-                    for err in response.json().get("errors", [])
-                ]
-            )
+            message = ";".join([f"{err['name']}: {err['message']}" for err in response.json().get("errors", [])])
             raise Exception(message)
 
         return response.json()

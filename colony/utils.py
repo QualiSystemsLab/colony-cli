@@ -74,9 +74,7 @@ class BlueprintRepo(Repo):
 
     def get_blueprint_yaml(self, blueprint_name: str) -> dict:
         if not self.repo_has_blueprint(blueprint_name):
-            raise BadBlueprintRepo(
-                f"Blueprint Git repo does not contain blueprint {blueprint_name}"
-            )
+            raise BadBlueprintRepo(f"Blueprint Git repo does not contain blueprint {blueprint_name}")
 
         with open(self.blueprints[blueprint_name]) as bp_file:
             yaml_obj = yaml.full_load(bp_file)

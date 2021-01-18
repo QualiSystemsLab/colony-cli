@@ -13,9 +13,7 @@ class Blueprint(Resource):
         try:
             bp = Blueprint(manager, json_obj["blueprint_name"], json_obj["url"])
         except KeyError as e:
-            raise NotImplementedError(
-                f"unable to create object. Missing keys in Json. Details: {e}"
-            )
+            raise NotImplementedError(f"unable to create object. Missing keys in Json. Details: {e}")
 
         # TODO(ddovbii): set all needed attributes
         bp.errors = json_obj.get("errors", [])

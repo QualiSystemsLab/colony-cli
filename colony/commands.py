@@ -35,10 +35,7 @@ class BaseCommand(object):
 
 
 def get_working_branch() -> str:
-    logger.debug(
-        "Branch hasn't been specified. "
-        "Trying to identify branch from current working directory"
-    )
+    logger.debug("Branch hasn't been specified. " "Trying to identify branch from current working directory")
     branch = None
 
     try:
@@ -59,10 +56,7 @@ def get_working_branch() -> str:
             logger.warning("Your local branch is not synced with remote")
 
     except BadBlueprintRepo as e:
-        logger.debug(
-            f"Unable to recognize current directory as a proper colony blueprints git repo. "
-            f"Details: {e}"
-        )
+        logger.debug(f"Unable to recognize current directory as a proper colony blueprints git repo. " f"Details: {e}")
     finally:
         if not branch:
             logger.warning(
@@ -169,38 +163,24 @@ class SandboxesCommand(BaseCommand):
             inputs = parse_comma_separated_string(self.args["--inputs"])
             artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-            logger.debug(
-                "Trying to obtain default values for artifacts and inputs from local git blueprint repo"
-            )
+            logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
             try:
                 repo = BlueprintRepo(os.getcwd())
                 if not repo.is_current_branch_synced():
-                    logger.debug(
-                        "Skipping obtaining values since local branch is not synced with remote"
-                    )
+                    logger.debug("Skipping obtaining values since local branch is not synced with remote")
                 else:
-                    for art_name, art_path in repo.get_blueprint_artifacts(
-                        bp_name
-                    ).items():
+                    for art_name, art_path in repo.get_blueprint_artifacts(bp_name).items():
                         if art_name not in artifacts and art_path is not None:
-                            logger.debug(
-                                f"Artifact `{art_name}` has been set with default path `{art_path}`"
-                            )
+                            logger.debug(f"Artifact `{art_name}` has been set with default path `{art_path}`")
                             artifacts[art_name] = art_path
 
-                    for input_name, input_value in repo.get_blueprint_default_inputs(
-                        bp_name
-                    ).items():
+                    for input_name, input_value in repo.get_blueprint_default_inputs(bp_name).items():
                         if input_name not in inputs and input_value is not None:
-                            logger.debug(
-                                f"Parameter `{input_name}` has been set with default value `{input_value}`"
-                            )
+                            logger.debug(f"Parameter `{input_name}` has been set with default value `{input_value}`")
                             inputs[input_name] = input_value
 
             except Exception as e:
-                logger.debug(
-                    f"Unable to recognize current directory as a blueprint repo. Details: {e}"
-                )
+                logger.debug(f"Unable to recognize current directory as a blueprint repo. Details: {e}")
 
             try:
                 duration = int(self.args["--duration"] or 120)
@@ -218,9 +198,7 @@ class SandboxesCommand(BaseCommand):
 
             try:
                 sm = SandboxesManager(self.client)
-                sandbox_id = sm.start(
-                    name, bp_name, duration, working_branch, commit, artifacts, inputs
-                )
+                sandbox_id = sm.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
             except Exception as e:
                 logger.exception(e, exc_info=False)
                 self.die()

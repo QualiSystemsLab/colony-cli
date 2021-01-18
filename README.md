@@ -47,7 +47,7 @@ There are three ways how to do it:
 
 * Create a configuration file ~/.colony/config where you can have several profiles:
 
-```
+```bash
 [default]
 token = xxxyyyzzz
 space = DemoSpace
@@ -60,7 +60,7 @@ space = TestSpace
 
 * Set environment variables:
 
-```
+```bash
 export COLONY_TOKEN = xxxzzzyyy
 export COLONY_SPACE = demo_space
 ```
@@ -84,7 +84,7 @@ In order to get help run:
 
 It will give you detailed output with usage:
 
-```
+```bash
 $ colony --help
 Usage: colony ( [(--space=<space> --token=<token>)] | [--profile=<profile>] ) [--help] [--debug]
               <command> [<args>...]
@@ -103,7 +103,7 @@ Commands:
 
 You can elaborate help message for a particular command, specifying *--help* flag after command name, like:
 
-```
+```bash
 $ colony sb --help
     usage:
         colony (sb | sandbox) start <blueprint_name> [options]
@@ -142,7 +142,7 @@ If blueprint is valid you will get output with "Valid" message. If no, it will p
 
 **Example:**
 
-```
+```bash
 $colony blueprint validate Jenkins -b master
 
 
@@ -186,7 +186,7 @@ Result of a command is a Sandbox ID.
 
 **Example**:
 
-```
+```bash
 colony sb start MyBlueprint --inputs "CS_COLONY_TOKEN=ABCD, IAM_ROLE=s3access-profile, BUCKET_NAME=abc"
 
 ybufpamyok03c11

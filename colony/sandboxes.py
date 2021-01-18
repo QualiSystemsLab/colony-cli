@@ -3,9 +3,7 @@ from .blueprints import BlueprintsManager
 
 
 class Sandbox(Resource):
-    def __init__(
-        self, manager: ResourceManager, sandbox_id: str, name: str, blueprint_name: str
-    ):
+    def __init__(self, manager: ResourceManager, sandbox_id: str, name: str, blueprint_name: str):
         super(Sandbox, self).__init__(manager)
 
         self.sandbox_id = sandbox_id
@@ -15,13 +13,9 @@ class Sandbox(Resource):
     @classmethod
     def json_deserialize(cls, manager: ResourceManager, json_obj: dict):
         try:
-            sb = Sandbox(
-                manager, json_obj["id"], json_obj["name"], json_obj["blueprint_name"]
-            )
+            sb = Sandbox(manager, json_obj["id"], json_obj["name"], json_obj["blueprint_name"])
         except KeyError as e:
-            raise NotImplementedError(
-                f"unable to create object. Missing keys in Json. Details: {e}"
-            )
+            raise NotImplementedError(f"unable to create object. Missing keys in Json. Details: {e}")
 
         # TODO(ddovbii): set all needed attributes
         sb.errors = json_obj.get("errors", [])
@@ -58,9 +52,7 @@ class SandboxesManager(ResourceManager):
         try:
             bm.get(blueprint_name)
         except Exception as e:
-            raise NotImplementedError(
-                f"Unable to get blueprint with passed name {blueprint_name}. Details: {e}"
-            )
+            raise NotImplementedError(f"Unable to get blueprint with passed name {blueprint_name}. Details: {e}")
 
         iso_duration = f"PT{duration}M"
 
