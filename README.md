@@ -4,6 +4,7 @@
 ![CI](https://github.com/QualiSystemsLab/colony-cli/workflows/CI/badge.svg)
 [![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
 [![PyPI version](https://badge.fury.io/py/colony-cli.svg)](https://badge.fury.io/py/colony-cli)
+[![Maintainability](https://api.codeclimate.com/v1/badges/5a9f730163de9b6231e6/maintainability)](https://codeclimate.com/github/QualiSystemsLab/colony-cli/maintainability)
 
 
 ---
