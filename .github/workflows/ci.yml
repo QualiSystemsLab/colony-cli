@@ -27,7 +27,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-cov
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint Code Base
         uses: docker://github/super-linter:v3
@@ -60,7 +59,6 @@ jobs:
         pip install -r requirements.txt
     - name: Test with pytest
       run: |
-        pip install pytest pytest-cov coveralls
         python -m pytest --cov=./ --cov-report xml
     - name: Run coveralls
       env:
