@@ -11,27 +11,26 @@
 
 ![quali](quali.png)
 
-## Cloudshell Colony Cli
+## Cloudshell Colony CLI
 
-Colony Cli is a command line interface to Colony.
+Colony CLI is a command line interface tool for CloudShell Colony.
 
-The main functionality this tool currently provides is a validation of your colony blueprints. But there are many
-plans to turn it to the unified tool for accessing and managing all Colony's services.
+The main functionality this tool currently provides is validation of Colony blueprints and launching sandbox environments from main and development branches.
 
-## Why use Colony Cli
+## Why use Colony CLI
 
 When developing blueprints for Colony, it can be very helpful to immediately check your work for errors.
 
-Let's assume you are currently working in *development* branch, and you also have some main branch which is connected
-to Colony. You would like to be sure that your latest committed changes haven't broken anything before merge them to
+Let's assume you are currently working in *development* branch, and you also have a main branch which is connected
+to a Colony space. You would like to be sure that your latest committed changes haven't broken anything before merging them to
 the main branch.
 
-This is where this tool might be handy for you. Instead of reconnecting Colony to your development branch in UI you can
-use Colony Cli to validate your current blueprints state and even launch sandboxes from them.
+This is where this tool might be handy for you. Instead of reconnecting Colony to your development branch in UI or "merge and pray" you can
+use Colony CLI to validate your current blueprints state and even launch sandboxes from them.
 
 ## Installing
 
-You can install Colony Cli with [pip](https://pip.pypa.io/en/stable/):
+You can install Colony CLI with [pip](https://pip.pypa.io/en/stable/):
 
 `$ python -m pip install colony-cli`
 
@@ -41,8 +40,8 @@ Or if you want to install it for your user:
 
 ### Configuration
 
-First of all you need to generate access token in Colony UI in a Settings.
-Then, you need to configure Colony Cli with generated token and colony space you are going to access.
+First of all you need to generate an access token. In the Colony UI navigate to Settings (in your space) -> Integrations -> click “Connect” under any of the CI tools -> click “New Token” to get an API token.
+Then, you need to configure Colony CLI with the generated token and the colony space you are going to access.
 There are three ways how to do it:
 
 * Create a configuration file ~/.colony/config where you can have several profiles:
@@ -65,7 +64,7 @@ export COLONY_TOKEN = xxxzzzyyy
 export COLONY_SPACE = demo_space
 ```
 
-* Specify _--space_ and _--token_ options then running command:
+* Specify _--space_ and _--token_ options as part of the command:
 
 `$ colony --space=trial --token=xxxyyyzzz <command>`
 
@@ -73,7 +72,7 @@ export COLONY_SPACE = demo_space
 
 ## Basic Usage
 
-Colony Cli currently allows you to make two actions:
+Colony CLI currently allows you to make two actions:
 
 - validate blueprint (using `colony bp validate` command)
 - start sandbox (via `colony sb start`)
@@ -101,7 +100,7 @@ Commands:
     sb, sandbox         start sandbox
 ```
 
-You can elaborate help message for a particular command, specifying *--help* flag after command name, like:
+You can get additional help information for a particular command by specifying *--help* flag after command name, like:
 
 ```bash
 $ colony sb --help
@@ -121,12 +120,12 @@ $ colony sb --help
 
 ### Blueprint validation
 
-* If you are currently inside git-enabled folder containing your blueprint, commit and push your latest changes and run:
+* If you are currently inside a git-enabled folder containing your blueprint, commit and push your latest changes and run (Colony CLI will automatically detect the current working branch):
 
 `$ colony bp validate MyBlueprint`
 
-* If you want to check another blueprint from another branch you can specify --branch argument or even elaborate in a
-specific point of time by setting --commit:
+* If you want to a blueprint from another branch you can specify --branch argument or even check validation in a
+specific point in time by setting --commit:
 
 `$ colony bp validate MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
 
@@ -138,7 +137,7 @@ validate blueprint with name "MyBlueprint" from branch currently attached to you
 
 ---
 
-If blueprint is valid you will get output with "Valid" message. If no, it will print you a table with found errors
+If blueprint is valid you will get output with "Valid" message. If no, it will print you a table with found errors.
 
 **Example:**
 
@@ -153,34 +152,33 @@ Cloud account: AWS is not recognized as a valid cloud account in this space  Blu
 
 ### Launching sandbox
 
-* similar to the previous command you can omit *--branch/--commit* arguments if you are in a git-enabled folder of your
-blueprint repo:
+* Similar to the previous command you can omit *--branch/--commit* arguments if you are in a git-enabled folder of your blueprint repo:
 
 `colony sb start MyBlueprint`
 
-* this will run you a sandbox from specified blueprint
+* This will create a sandbox from the specified blueprint
 
-* if you want to start sandbox from specific state of blueprint, specify _--branch_ and _--commit_ arguments:
+* If you want to start a sandbox from a blueprint in a specific state, specify _--branch_ and _--commit_ arguments:
 
 `colony sb start MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
 
-* lets review another options you can set here:
-  * `-d, --duration <minutes>` - you can specify duration of sandbox reservation in minutes. Default is 120 minutes
-  * `-n, --name <sandbox_name>` - the name of sandbox you want to run. By default it will generate name using current timestamp
-  * `-i, --inputs <input_params>` - comma-separated list of input parameters for sandbox, like: _"param1=val1, param2=val2_
-  * `-a, --artifacts <artifacts>` - comma-separated list of sandbox artifacts, like: _app1=path1, app2=path2_
-
+* Additional optional options that you can provide here are:
+  * `-d, --duration <minutes>` - you can specify duration for the sandbox environment in minutes. Default is 120 minutes
+  * `-n, --name <sandbox_name>` - the name of sandbox you want to create. By default it will generate name using blueprint name + current timestamp
+  * `-i, --inputs <input_params>` - comma-separated list of input parameters for sandbox, like: _"param1=val1, param2=val2_"
+  * `-a, --artifacts <artifacts>` - comma-separated list of sandbox artifacts, like: "_app1=path1, app2=path2_"
+  
 ---
 **NOTE**
 
 1. If you are not it git-enabled folder of your blueprint repo and haven't set --branch/--commit arguments tool will
 start sandbox using blueprint with name "MyBlueprint" from branch currently attached to your Colony space.
 
-2. If you omit artifacts and inputs options, you are inside a git enabled folder and the local is in sync with remote
-then Colony Cli will try to get default values for artifacts and inputs from blueprint yaml.
+2. If you omit artifacts and inputs options, you are inside a git enabled folder and the local is in sync with remote,
+then Colony Cli will try to get default values for artifacts and inputs from the blueprint yaml.
 ---
 
-Result of a command is a Sandbox ID.
+Result of the command is a Sandbox ID.
 
 **Example**:
 
@@ -193,7 +191,10 @@ ybufpamyok03c11
 
 ## Troubleshooting and Help
 
+To troubleshoot what Colony CLI is doing you can add _--debug_ to get additional information.
+
 For questions, bug reports or feature requests, please refer to the [Issue Tracker]. Also, make sure you check out our [Issue Template](.github/issue_template.md).
+
 
 ## Contributing
 
@@ -201,7 +202,6 @@ For questions, bug reports or feature requests, please refer to the [Issue Track
 All your contributions are welcomed and encouraged. We've compiled detailed information about:
 
 * [Contributing](.github/contributing.md)
-* [Creating Pull Requests](.github/pull_request_template.md)
 
 
 ## License
