@@ -21,7 +21,7 @@ jobs:
         echo $tag
         if [ "$tag" == "$version" ]
         then
-          echo "Tag and version are equal
+          echo "Tag and version are equal"
         else
           echo "Error: Tag and version are not equal"
           exit 1
