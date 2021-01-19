@@ -114,6 +114,8 @@ class BlueprintsCommand(BaseCommand):
             else:
                 self.success("Valid")
                 # print("Valid!")
+        else:
+            raise DocoptExit()
 
 
 def parse_comma_separated_string(params_string: str = None) -> dict:
@@ -205,3 +207,5 @@ class SandboxesCommand(BaseCommand):
                 self.die()
 
             self.success(sandbox_id)
+        else:
+            raise DocoptExit()

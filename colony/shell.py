@@ -65,7 +65,7 @@ def main():
     # Take command
     command_name = args["<command>"]
     if command_name not in commands_table:
-        raise DocoptExit("Wrong command")
+        raise DocoptExit("Wrong command. See usage")
 
     # Take auth parameters
     conn = _get_connection_params(args)
