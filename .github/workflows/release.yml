@@ -14,11 +14,10 @@ jobs:
 
     - name: Validate tag version
       run: |
-        version=$(cat version.txt)  # get colony cli version
-        echo $version
-        echo $GITHUB_REF
-        $ref="${GITHUB_REF:1}"      # remove the the 'v' prefix from the tag that triggered this action
-        [ "$ref" != "$version" ] && echo "Tag and version are not equal" && exit 1
+        version=$(cat version.txt)        # get colony cli version
+        tag=${GITHUB_REF/refs\/tags\//}   # get tag name
+        tag="${tag:1}"      # remove the the 'v' prefix from the tag that triggered this action
+        [ "$tag" != "$version" ] && echo "Tag and version are not equal" && exit 1
 
     - name: Set up Python
       uses: actions/setup-python@v2
