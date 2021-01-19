@@ -202,7 +202,6 @@ For questions, bug reports or feature requests, please refer to the [Issue Track
 All your contributions are welcomed and encouraged. We've compiled detailed information about:
 
 * [Contributing](.github/contributing.md)
-* [Creating Pull Requests](.github/pull_request_template.md)
 
 
 ## License
