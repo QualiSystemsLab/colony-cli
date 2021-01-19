@@ -16,10 +16,16 @@ jobs:
       run: |
         version=$(cat version.txt)        # get colony cli version
         tag=${GITHUB_REF/refs\/tags\//}   # get tag name
-        tag="${tag:1}"      # remove the the 'v' prefix from the tag that triggered this action
+        tag="${tag:1}"                    # remove the 'v' prefix from the tag that triggered this action
         echo $version
         echo $tag
-        [ "$tag" != "$version" ] && echo "Tag and version are not equal" && exit 1
+        if [ "$tag" == "$version" ]
+        then
+          echo "Tag and version are equal
+        else
+          echo "Error: Tag and version are not equal"
+          exit 1
+        fi
 
     - name: Set up Python
       uses: actions/setup-python@v2
