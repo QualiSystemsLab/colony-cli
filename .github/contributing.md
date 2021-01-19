@@ -36,7 +36,11 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 - Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
 
 ## Use a Consistent Coding Style
-TBD
+
+* Follow [PEP8](http://www.python.org/dev/peps/pep-0008/).
+* Include your name with TODOs as in # TODO(yourname). This makes it easier to find out who the author of the comment was.
+* Use only UNIX style newlines (\n), not Windows style (\r\n)
+* Use [black](https://github.com/psf/black) to easily format your code
 
 ## License
 By contributing, you agree that your contributions will be licensed under its Apache-2.0 License.
