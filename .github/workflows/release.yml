@@ -1,0 +1,48 @@
+name: Publish to pypi
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Validate tag version
+      run: |
+        version=$(cat version.txt)  # get colony cli version
+        $ref="${GITHUB_REF:1}"      # remove the the 'v' prefix from the tag that triggered this action
+        [ "$ref" != "$version" ] && echo "Tag and version are not equal" && exit 1
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install setuptools wheel twine
+
+    - name: Build
+      run: |
+        python setup.py sdist bdist_wheel
+
+    - name: Create Release and upload Artifacts
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+#    - name: Publish to Pypi
+#      env:
+#        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#      run: |
+#        twine upload dist/*
