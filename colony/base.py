@@ -18,8 +18,14 @@ class ResourceManager(object):
 
         url = urljoin(self.endpoint, path)
 
-        result_json = self.client.request(url, "GET", headers)
-        return result_json
+        result = self.client.request(url, "GET", headers)
+        return result.json()
+
+    def _delete(self, path: str):
+        url = urljoin(self.endpoint, path)
+
+        result = self.client.request(url, "DELETE")
+        return result
 
     def _list(self, path: str, filter: dict = None):
         url = urljoin(self.endpoint, path)
@@ -28,9 +34,9 @@ class ResourceManager(object):
         if filter is not None:
             pass
 
-        result_json = self.client.request(url, "GET")
+        result = self.client.request(url, "GET")
 
-        return result_json
+        return result.json()
 
     def _post(self, path: str, params: dict = None, headers: dict = None):
         if headers is None:
@@ -40,8 +46,8 @@ class ResourceManager(object):
             params = {}
 
         url = urljoin(self.endpoint, path)
-        result_json = self.client.request(url, "POST", params, headers)
-        return result_json
+        result = self.client.request(url, "POST", params, headers)
+        return result.json()
 
 
 class Resource(object):

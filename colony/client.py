@@ -1,7 +1,7 @@
 import logging
 from urllib.parse import urljoin
 
-from requests import Session
+from requests import Session, Response
 
 from .exceptions import Unauthorized
 from .session import ColonySession
@@ -63,7 +63,7 @@ class ColonyClient(object):
 
         return resp.json().get("access_token", "")
 
-    def request(self, endpoint: str, method: str = "GET", params: dict = None, headers: dict = None,) -> dict:
+    def request(self, endpoint: str, method: str = "GET", params: dict = None, headers: dict = None,) -> Response:
         """Gets response as Json"""
         if method not in ("GET", "PUT", "POST", "DELETE"):
             raise ValueError("Method must be in [GET, POST, PUT, DELETE]")
@@ -86,4 +86,4 @@ class ColonyClient(object):
             message = ";".join([f"{err['name']}: {err['message']}" for err in response.json().get("errors", [])])
             raise Exception(message)
 
-        return response.json()
+        return response

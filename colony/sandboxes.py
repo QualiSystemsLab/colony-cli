@@ -73,3 +73,14 @@ class SandboxesManager(ResourceManager):
         result_json = self._post(url, params)
         sandbox_id = result_json["id"]
         return sandbox_id
+
+    def end(self, sandbox_id: str):
+        url = f"sandbox/{sandbox_id}"
+
+        try:
+            self.get(sandbox_id)
+
+        except Exception as e:
+            raise NotImplementedError(f"Unable to end sandbox with ID: {sandbox_id}. Details: {e}")
+
+        self._delete(url)

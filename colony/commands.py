@@ -27,11 +27,13 @@ class BaseCommand(object):
     def success(self, message: str = ""):
         if message:
             sys.stdout.write(message)
+            sys.stdout.write('\n')
         sys.exit()
 
     def die(self, message: str = ""):
         if message:
             sys.stderr.write(message)
+            sys.stdout.write('\n')
         sys.exit(1)
 
 
@@ -139,6 +141,7 @@ class SandboxesCommand(BaseCommand):
     """
     usage:
         colony (sb | sandbox) start <blueprint_name> [options]
+        colony (sb | sandbox) end <sandbox_id>
         colony (sb | sandbox) [--help]
 
     options:
@@ -152,6 +155,17 @@ class SandboxesCommand(BaseCommand):
     """
 
     def execute(self):
+        sm = SandboxesManager(self.client)
+        if self.args["end"]:
+            sandbox_id = self.args["<sandbox_id>"]
+            try:
+                sm.end(sandbox_id)
+            except Exception as e:
+                logger.exception(e, exc_info=False)
+                self.die()
+
+            self.success("End request has been sent")
+
         if self.args["start"]:
             bp_name = self.args["<blueprint_name>"]
 
@@ -200,7 +214,6 @@ class SandboxesCommand(BaseCommand):
             working_branch = branch or get_working_branch()
 
             try:
-                sm = SandboxesManager(self.client)
                 sandbox_id = sm.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
             except Exception as e:
                 logger.exception(e, exc_info=False)
