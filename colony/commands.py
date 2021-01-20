@@ -34,7 +34,7 @@ class BaseCommand(object):
     def die(self, message: str = ""):
         if message:
             sys.stderr.write(message)
-            sys.stdout.write('\n')
+            sys.stderr.write('\n')
         sys.exit(1)
 
     def message(self, message: str = ""):
@@ -89,6 +89,7 @@ class BlueprintsCommand(BaseCommand):
        -c --commit <commitId>   Specify commit ID. It's required to validate a blueprint from an historic commit.
                                 Must be used together with the branch option. If not specified then the latest commit
                                 will be used.
+
        -h --help                Show this message
     """
 
@@ -221,17 +222,29 @@ class SandboxesCommand(BaseCommand):
             name = self.args["--name"]
             timeout = self.args["--wait"]
 
-            try:
-                timeout = int(timeout)
-            except ValueError:
-                raise DocoptExit("Timeout must be a number")
+            if timeout is not None:
+                try:
+                    timeout = int(timeout)
+                except ValueError:
+                    raise DocoptExit("Timeout must be a number")
 
-            if timeout < 0:
-                raise DocoptExit("Timeout must be positive")
+                if timeout < 0:
+                    raise DocoptExit("Timeout must be positive")
 
             if name is None:
                 suffix = datetime.datetime.now().strftime("%b%d%Y-%H:%M:%S")
                 name = f"{bp_name}-{suffix}"
+
+            try:
+                duration = int(self.args["--duration"] or 120)
+                if duration <= 0:
+                    raise DocoptExit("Duration must be positive")
+
+            except ValueError:
+                raise DocoptExit("Duration must be a number")
+
+            if commit and branch is None:
+                raise DocoptExit("Since commit is specified, branch is required")
 
             inputs = parse_comma_separated_string(self.args["--inputs"])
             artifacts = parse_comma_separated_string(self.args["--artifacts"])
@@ -254,17 +267,6 @@ class SandboxesCommand(BaseCommand):
 
             except Exception as e:
                 logger.debug(f"Unable to recognize current directory as a blueprint repo. Details: {e}")
-
-            try:
-                duration = int(self.args["--duration"] or 120)
-                if duration <= 0:
-                    raise DocoptExit("Duration must be positive")
-
-            except ValueError:
-                raise DocoptExit("Duration must be a number")
-
-            if commit and branch is None:
-                raise DocoptExit("Since commit is specified, branch is required")
 
             working_branch = branch or get_working_branch()
 
