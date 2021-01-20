@@ -1,7 +1,6 @@
 from .base import Resource, ResourceManager
 from .blueprints import BlueprintsManager
 
-
 class Sandbox(Resource):
     def __init__(self, manager: ResourceManager, sandbox_id: str, name: str, blueprint_name: str):
         super(Sandbox, self).__init__(manager)
@@ -18,9 +17,12 @@ class Sandbox(Resource):
             raise NotImplementedError(f"unable to create object. Missing keys in Json. Details: {e}")
 
         # TODO(ddovbii): set all needed attributes
-        sb.errors = json_obj.get("errors", [])
-        sb.description = json_obj.get("description", "")
-        sb.status = json_obj.get("sandbox_status", "")
+        # sb.errors = json_obj.get("errors", [])
+        # sb.description = json_obj.get("description", "")
+        # sb.status = json_obj.get("sandbox_status", "")
+        # sb.launching_progress = json_obj.get("launching_progress", {})
+        sb.__dict__ = json_obj.copy()
+
         return sb
 
 

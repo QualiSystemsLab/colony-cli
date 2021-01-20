@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import sys
+import time
 
 import tabulate
 from docopt import DocoptExit, docopt
@@ -35,6 +36,10 @@ class BaseCommand(object):
             sys.stderr.write(message)
             sys.stdout.write('\n')
         sys.exit(1)
+
+    def message(self, message: str = ""):
+        sys.stdout.write(message)
+        sys.stdout.write('\n')
 
 
 def get_working_branch() -> str:
@@ -73,9 +78,9 @@ def get_working_branch() -> str:
 
 class BlueprintsCommand(BaseCommand):
     """
-        usage:
-            colony (bp | blueprint) validate <name> [options]
-            colony (bp | blueprint) [--help]
+    usage:
+        colony (bp | blueprint) validate <name> [options]
+        colony (bp | blueprint) [--help]
 
     options:
        -b --branch <branch>     Specify the name of remote git branch
@@ -146,13 +151,14 @@ class SandboxesCommand(BaseCommand):
         colony (sb | sandbox) [--help]
 
     options:
-       -h --help        Show this message
+       -h --help                        Show this message
        -d, --duration <minutes>
        -n, --name <sandbox_name>
        -i, --inputs <input_params>
        -a, --artifacts <artifacts>
        -b, --branch <branch>
        -c, --commit <commitId>
+       -w, --wait <timeout>
     """
 
     def execute(self):
@@ -164,9 +170,11 @@ class SandboxesCommand(BaseCommand):
                 sandbox = sm.get(sandbox_id)
             except Exception as e:
                 logger.exception(e, exc_info=False)
+                sandbox = None
                 self.die()
 
-            self.success(sandbox.status)
+            status = getattr(sandbox, "sandbox_status")
+            self.success(status)
 
         if self.args["end"]:
             sandbox_id = self.args["<sandbox_id>"]
@@ -184,6 +192,15 @@ class SandboxesCommand(BaseCommand):
             branch = self.args.get("--branch")
             commit = self.args.get("--commit")
             name = self.args["--name"]
+            timeout = self.args["--wait"]
+
+            try:
+                timeout = int(timeout)
+            except ValueError:
+                raise DocoptExit("Timeout must be a number")
+
+            if timeout < 0:
+                raise DocoptExit("Timeout must be positive")
 
             if name is None:
                 suffix = datetime.datetime.now().strftime("%b%d%Y-%H:%M:%S")
@@ -219,7 +236,6 @@ class SandboxesCommand(BaseCommand):
             except ValueError:
                 raise DocoptExit("Duration must be a number")
 
-            # TODO: it should be possible to handle it by docopt initially
             if commit and branch is None:
                 raise DocoptExit("Since commit is specified, branch is required")
 
@@ -227,10 +243,38 @@ class SandboxesCommand(BaseCommand):
 
             try:
                 sandbox_id = sm.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
+
             except Exception as e:
                 logger.exception(e, exc_info=False)
+                sandbox_id = None
                 self.die()
 
-            self.success(sandbox_id)
+            if timeout is None:
+                self.success(sandbox_id)
+
+            else:
+                start_time = datetime.datetime.now()
+
+                logger.debug(f"Waiting for sandbox {sandbox_id}...")
+                # Waiting loop
+                while (datetime.datetime.now() - start_time).seconds < timeout * 60:
+                    sandbox = sm.get(sandbox_id)
+                    status = getattr(sandbox, "sandbox_status")
+                    if status == "Active":
+                        self.success(sandbox_id)
+
+                    elif status == "Launching":
+                        progress = getattr(sandbox, "launching_progress")
+                        for check_points, properties in progress.items():
+                            logger.debug(f"{check_points}: {properties['status']}")
+                        time.sleep(30)
+
+                    else:
+                        self.die(f"Sandbox {sandbox_id} started with {status} state")
+
+                # timeout exceeded
+                logger.error(f"Sandbox {sandbox_id} is not active after {timeout} minutes")
+                self.die()
+
         else:
             raise DocoptExit()
