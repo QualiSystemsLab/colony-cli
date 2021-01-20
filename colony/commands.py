@@ -109,7 +109,11 @@ class BlueprintsCommand(BaseCommand):
             if commit and branch is None:
                 raise DocoptExit("Since commit is specified, branch is required")
 
-            working_branch = branch or get_working_branch()
+            if branch:
+                working_branch = branch
+            else:
+                working_branch = get_working_branch()
+                self.message(f"Automatically detected current working branch: {working_branch}")
 
             try:
                 bm = BlueprintsManager(self.client)
@@ -268,7 +272,11 @@ class SandboxesCommand(BaseCommand):
             except Exception as e:
                 logger.debug(f"Unable to recognize current directory as a blueprint repo. Details: {e}")
 
-            working_branch = branch or get_working_branch()
+            if branch:
+                working_branch = branch
+            else:
+                working_branch = get_working_branch()
+                self.message(f"Automatically detected current working branch: {working_branch}")
 
             try:
                 sandbox_id = sm.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
