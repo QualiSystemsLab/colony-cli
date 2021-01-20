@@ -193,7 +193,7 @@ ybufpamyok03c11
 
 To troubleshoot what Colony CLI is doing you can add _--debug_ to get additional information.
 
-For questions, bug reports or feature requests, please refer to the [Issue Tracker]. Also, make sure you check out our [Issue Template](.github/issue_template.md).
+For questions, bug reports or feature requests, please refer to the [Issue Tracker](https://github.com/QualiSystemsLab/colony-cli/issues).
 
 
 ## Contributing
