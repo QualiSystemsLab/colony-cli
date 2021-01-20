@@ -116,15 +116,20 @@ class BlueprintsCommand(BaseCommand):
 
             except Exception as e:
                 logger.exception(e, exc_info=False)
+                bp = None
                 self.die()
 
-            errors = bp.errors
+            errors = getattr(bp, "errors")
             if errors:
-                self.die(tabulate.tabulate(errors, headers="keys"))
+                # We don't need error code
+                err_table = [{"message": err["message"], "name": err["name"]} for err in errors]
+
+                logger.error("Validation failed")
+                self.die(tabulate.tabulate(err_table, headers="keys"))
 
             else:
                 self.success("Valid")
-                # print("Valid!")
+
         else:
             raise DocoptExit()
 

@@ -127,7 +127,7 @@ $ colony sb --help
 * If you want to a blueprint from another branch you can specify --branch argument or even check validation in a
 specific point in time by setting --commit:
 
-`$ colony bp validate MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
+    `$ colony bp validate MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
 
 ---
 **NOTE**
@@ -144,23 +144,24 @@ If blueprint is valid you will get output with "Valid" message. If no, it will p
 ```bash
 $colony blueprint validate Jenkins -b master
 
-
-message                                                                      name                             code
----------------------------------------------------------------------------  -------------------------------  -------------------------------
-Cloud account: AWS is not recognized as a valid cloud account in this space  Blueprint unknown cloud account  BLUEPRINT_UNKNOWN_CLOUD_ACCOUNT
+ERROR - colony.commands - Validation failed
+message                                                                      name
+---------------------------------------------------------------------------  -------------------------------
+Cloud account: AWS is not recognized as a valid cloud account in this space  Blueprint unknown cloud account
 ```
 
 ### Launching sandbox
 
-* Similar to the previous command you can omit *--branch/--commit* arguments if you are in a git-enabled folder of your blueprint repo:
+* Similar to the previous command you can omit *--branch/--commit* arguments if you are in a git-enabled folder of your
+  blueprint repo:
 
-`colony sb start MyBlueprint`
+    `$ colony sb start MyBlueprint`
 
 * This will create a sandbox from the specified blueprint
 
 * If you want to start a sandbox from a blueprint in a specific state, specify _--branch_ and _--commit_ arguments:
 
-`colony sb start MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
+    `$ colony sb start MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
 
 * Additional optional options that you can provide here are:
   * `-d, --duration <minutes>` - you can specify duration for the sandbox environment in minutes. Default is 120 minutes
