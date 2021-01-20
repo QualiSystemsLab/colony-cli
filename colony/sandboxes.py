@@ -20,6 +20,7 @@ class Sandbox(Resource):
         # TODO(ddovbii): set all needed attributes
         sb.errors = json_obj.get("errors", [])
         sb.description = json_obj.get("description", "")
+        sb.status = json_obj.get("sandbox_status", "")
         return sb
 
 

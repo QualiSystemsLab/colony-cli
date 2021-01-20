@@ -141,6 +141,7 @@ class SandboxesCommand(BaseCommand):
     """
     usage:
         colony (sb | sandbox) start <blueprint_name> [options]
+        colony (sb | sandbox) status <sandbox_id>
         colony (sb | sandbox) end <sandbox_id>
         colony (sb | sandbox) [--help]
 
@@ -156,6 +157,17 @@ class SandboxesCommand(BaseCommand):
 
     def execute(self):
         sm = SandboxesManager(self.client)
+
+        if self.args["status"]:
+            sandbox_id = self.args["<sandbox_id>"]
+            try:
+                sandbox = sm.get(sandbox_id)
+            except Exception as e:
+                logger.exception(e, exc_info=False)
+                self.die()
+
+            self.success(sandbox.status)
+
         if self.args["end"]:
             sandbox_id = self.args["<sandbox_id>"]
             try:
