@@ -55,13 +55,13 @@ class BlueprintRepo(Repo):
             res = {}
             for art in artifacts:
                 for name, path in art.items():
-                    res[name] = path
+                    if path:
+                        res[name] = path
             return res
 
     def get_blueprint_default_inputs(self, blueprint_name):
         yaml_obj = self.get_blueprint_yaml(blueprint_name)
         inputs = yaml_obj.get("inputs", None)
-
         if not inputs:
             return {}
         else:
@@ -69,7 +69,10 @@ class BlueprintRepo(Repo):
             for inp in inputs:
                 for input_name, specs in inp.items():
                     if specs:
-                        res[input_name] = specs.get("default_value", None)
+                        if not isinstance(specs, dict):
+                            res[input_name] = specs
+                        else:
+                            res[input_name] = specs.get("default_value", None)
             return res
 
     def get_blueprint_yaml(self, blueprint_name: str) -> dict:
