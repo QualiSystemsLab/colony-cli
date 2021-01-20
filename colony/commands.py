@@ -83,8 +83,12 @@ class BlueprintsCommand(BaseCommand):
         colony (bp | blueprint) [--help]
 
     options:
-       -b --branch <branch>     Specify the name of remote git branch
-       -c --commit <commitId>   Specify commit ID. It's required if
+       -b --branch <branch>     Specify the name of remote git branch. If not provided, we will try to automatically
+                                detect the current working branch if the command is used in a git enabled folder.
+
+       -c --commit <commitId>   Specify commit ID. It's required to validate a blueprint from an historic commit.
+                                Must be used together with the branch option. If not specified then the latest commit
+                                will be used.
        -h --help                Show this message
     """
 
@@ -152,13 +156,31 @@ class SandboxesCommand(BaseCommand):
 
     options:
        -h --help                        Show this message
-       -d, --duration <minutes>
-       -n, --name <sandbox_name>
-       -i, --inputs <input_params>
-       -a, --artifacts <artifacts>
-       -b, --branch <branch>
-       -c, --commit <commitId>
-       -w, --wait <timeout>
+       -d, --duration <minutes>         Sandbox will automatically deprovision at the end of the provided duration
+       -n, --name <sandbox_name>        Provide name of Sandbox. If not set, the name will be generated using timestamp
+
+       -i, --inputs <input_params>      Comma separated list of input parameters. Example: key1=value1, key2=value2.
+                                        By default Colony CLI will try to take default values for inputs from blueprint
+                                        definition yaml file (if you are inside a git-enabled folder of blueprint repo).
+                                        Use this option to override them.
+
+       -a, --artifacts <artifacts>      Comma separated list of artifacts with paths where artifacts are defined per
+                                        application. The artifact name is the name of the application.
+                                        Example: appName1=path1, appName2=path2.
+                                        By default Colony CLI will try to take artifacts from blueprint definition yaml
+                                        file (if you are inside a git-enabled folder of blueprint repo).
+                                        Use this option to override them.
+
+       -b, --branch <branch>            Specify the name of remote git branch. If not provided, we will try to
+                                        automatically detect the current working branch if the command is used in a
+                                        git enabled folder.
+
+       -c, --commit <commitId>          Specify commit ID. It's required to run sandbox from a blueprint from an
+                                        historic commit. Must be used together with the branch option.
+                                        If not specified then the latest commit will be used
+
+       -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
+                                        will not block terminal and just return the ID of started sandbox
     """
 
     def execute(self):
