@@ -1,7 +1,7 @@
 import logging
 from urllib.parse import urljoin
 
-from requests import Session, Response
+from requests import Response, Session
 
 from .exceptions import Unauthorized
 from .session import ColonySession

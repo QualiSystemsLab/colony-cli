@@ -1,6 +1,7 @@
 from .base import Resource, ResourceManager
 from .blueprints import BlueprintsManager
 
+
 class Sandbox(Resource):
     def __init__(self, manager: ResourceManager, sandbox_id: str, name: str, blueprint_name: str):
         super(Sandbox, self).__init__(manager)

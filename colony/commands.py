@@ -28,18 +28,18 @@ class BaseCommand(object):
     def success(self, message: str = ""):
         if message:
             sys.stdout.write(message)
-            sys.stdout.write('\n')
+            sys.stdout.write("\n")
         sys.exit()
 
     def die(self, message: str = ""):
         if message:
             sys.stderr.write(message)
-            sys.stderr.write('\n')
+            sys.stderr.write("\n")
         sys.exit(1)
 
     def message(self, message: str = ""):
         sys.stdout.write(message)
-        sys.stdout.write('\n')
+        sys.stdout.write("\n")
 
 
 def get_working_branch() -> str:
