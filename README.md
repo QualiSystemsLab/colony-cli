@@ -124,8 +124,8 @@ $ colony sb --help
 
 `$ colony bp validate MyBlueprint`
 
-* If you want to a blueprint from another branch you can specify --branch argument or even check validation in a
-specific point in time by setting --commit:
+* If you want to validate a blueprint from another branch you can specify _--branch_ argument or even check validation in a
+specific point in time by setting _--commit_:
 
     `$ colony bp validate MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
 
