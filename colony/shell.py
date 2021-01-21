@@ -16,8 +16,8 @@ Commands:
 """
 import logging
 import os
-import pkg_resources
 
+import pkg_resources
 from docopt import DocoptExit, docopt
 
 from colony import commands
