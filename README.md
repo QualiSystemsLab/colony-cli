@@ -122,7 +122,7 @@ $ colony sb --help
 
 * If you are currently inside a git-enabled folder containing your blueprint, commit and push your latest changes and run (Colony CLI will automatically detect the current working branch):
 
-`$ colony bp validate MyBlueprint`
+    `$ colony bp validate MyBlueprint`
 
 * If you want to validate a blueprint from another branch you can specify _--branch_ argument or even check validation in a
 specific point in time by setting _--commit_:
