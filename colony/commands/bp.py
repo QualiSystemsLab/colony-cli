@@ -26,6 +26,7 @@ class BlueprintsCommand(BaseCommand):
 
        -h --help                Show this message
     """
+
     RESOURCE_MANAGER = BlueprintsManager
 
     def get_actions_table(self) -> dict:

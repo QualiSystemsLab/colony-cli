@@ -1,6 +1,6 @@
 import sys
 
-from docopt import docopt, DocoptExit
+from docopt import DocoptExit, docopt
 
 from colony.base import ResourceManager
 from colony.client import ColonyClient
@@ -39,7 +39,7 @@ class BaseCommand(object):
         raise DocoptExit
 
     def get_actions_table(self) -> dict:
-        pass
+        return {}
 
     def success(self, message: str = ""):
         if message:

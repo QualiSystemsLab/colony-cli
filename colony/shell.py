@@ -20,7 +20,7 @@ import os
 import pkg_resources
 from docopt import DocoptExit, docopt
 
-from colony.commands import sb, bp
+from colony.commands import bp, sb
 
 from .config import ColonyConfigProvider, ColonyConnection
 from .exceptions import ConfigError

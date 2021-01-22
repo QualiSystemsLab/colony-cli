@@ -35,7 +35,13 @@ class BlueprintsManager(ResourceManager):
         result_json = self._list(path=url)
         return [self.resource_obj.json_deserialize(self, obj) for obj in result_json]
 
-    def validate(self, blueprint: str, env_type: str = "sandbox", branch: str = None, commit: str = None,) -> Blueprint:
+    def validate(
+        self,
+        blueprint: str,
+        env_type: str = "sandbox",
+        branch: str = None,
+        commit: str = None,
+    ) -> Blueprint:
         url = "validations/blueprints"
         params = {"blueprint_name": blueprint, "type": env_type}
 

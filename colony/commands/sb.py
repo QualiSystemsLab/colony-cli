@@ -48,14 +48,11 @@ class SandboxesCommand(BaseCommand):
        -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
                                         will not block terminal and just return the ID of started sandbox
     """
+
     RESOURCE_MANAGER = SandboxesManager
 
     def get_actions_table(self) -> dict:
-        return {
-            "status": self.do_status,
-            "start": self.do_start,
-            "end": self.do_end
-        }
+        return {"status": self.do_status, "start": self.do_start, "end": self.do_end}
 
     def do_status(self):
         sandbox_id = self.args["<sandbox_id>"]
