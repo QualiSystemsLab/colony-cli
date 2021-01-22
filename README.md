@@ -102,20 +102,40 @@ Commands:
 
 You can get additional help information for a particular command by specifying *--help* flag after command name, like:
 
-```bash
-$ colony sb --help
+```colony sb --help
     usage:
         colony (sb | sandbox) start <blueprint_name> [options]
+        colony (sb | sandbox) status <sandbox_id>
+        colony (sb | sandbox) end <sandbox_id>
         colony (sb | sandbox) [--help]
 
     options:
-       -h --help        Show this message
-       -d, --duration <minutes>
-       -n, --name <sandbox_name>
-       -i, --inputs <input_params>
-       -a, --artifacts <artifacts>
-       -b, --branch <branch>
-       -c, --commit <commitId>
+       -h --help                        Show this message
+       -d, --duration <minutes>         Sandbox will automatically deprovision at the end of the provided duration
+       -n, --name <sandbox_name>        Provide name of Sandbox. If not set, the name will be generated using timestamp
+
+       -i, --inputs <input_params>      Comma separated list of input parameters. Example: key1=value1, key2=value2.
+                                        By default Colony CLI will try to take default values for inputs from blueprint
+                                        definition yaml file (if you are inside a git-enabled folder of blueprint repo).
+                                        Use this option to override them.
+
+       -a, --artifacts <artifacts>      Comma separated list of artifacts with paths where artifacts are defined per
+                                        application. The artifact name is the name of the application.
+                                        Example: appName1=path1, appName2=path2.
+                                        By default Colony CLI will try to take artifacts from blueprint definition yaml
+                                        file (if you are inside a git-enabled folder of blueprint repo).
+                                        Use this option to override them.
+
+       -b, --branch <branch>            Specify the name of remote git branch. If not provided, we will try to
+                                        automatically detect the current working branch if the command is used in a
+                                        git enabled folder.
+
+       -c, --commit <commitId>          Specify commit ID. It's required to run sandbox from a blueprint from an
+                                        historic commit. Must be used together with the branch option.
+                                        If not specified then the latest commit will be used
+
+       -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
+                                        will not block terminal and just return the ID of started sandbox
 ```
 
 ### Blueprint validation
@@ -168,7 +188,7 @@ Cloud account: AWS is not recognized as a valid cloud account in this space  Blu
   * `-n, --name <sandbox_name>` - the name of sandbox you want to create. By default it will generate name using blueprint name + current timestamp
   * `-i, --inputs <input_params>` - comma-separated list of input parameters for sandbox, like: _"param1=val1, param2=val2_"
   * `-a, --artifacts <artifacts>` - comma-separated list of sandbox artifacts, like: "_app1=path1, app2=path2_"
-  
+  * `-w, --wait <timeout>` - <timeout> is a number of minutes. If set, you Colony CLI will wait for sandbox to become active and lock your terminal.
 ---
 **NOTE**
 
