@@ -1,0 +1,16 @@
+[default]
+token = zzvvccbb
+space = test
+
+[tester-1]
+token = ufmbhysv
+space = demo
+
+[tester-2]
+mytoken = abcd
+space = trial
+
+[tester-3]
+token = abcd
+space = trial
+pass = qwerty

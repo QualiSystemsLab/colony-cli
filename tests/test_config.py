@@ -1,0 +1,46 @@
+import os
+import unittest
+
+from colony.config import ColonyConfigProvider, ColonyConnection
+from colony.exceptions import ConfigError
+
+
+class TestConfigProvider(unittest.TestCase):
+    def setUp(self) -> None:
+        test_config_file = os.path.abspath(os.path.expanduser(os.path.expandvars("tests/fixtures/test_config")))
+        self.provider = ColonyConfigProvider(filename=test_config_file)
+
+    def test_correct_default_path(self):
+        self.assertEqual(self.provider.default_config_path, "~/.colony/config")
+
+    def test_filename_not_exist(self):
+        wrong_file_name = "fixtures/test_config_wrong"
+        with self.assertRaises(ConfigError):
+            _ = ColonyConfigProvider(filename=wrong_file_name)
+
+    def test_raise_on_wrong_profile(self):
+        wrong_profile = "fake_tester"
+        with self.assertRaises(ConfigError):
+            _ = self.provider.load_connection(wrong_profile)
+
+    def test_correct_default_load(self):
+        expected = ("test", "zzvvccbb")
+        result = self.provider.load_connection()
+        self.assertEqual(expected, (result.space, result.token))
+
+    def test_load_connection_return_type(self):
+        self.assertIsInstance(self.provider.load_connection(), ColonyConnection)
+
+    def test_wrong_settings(self):
+        wrong_profile = "tester-2"
+        with self.assertRaises(ConfigError):
+            _ = self.provider.load_connection(wrong_profile)
+
+    def test_wrong_number_of_settings(self):
+        wrong_profile = "tester-3"
+        with self.assertRaises(ConfigError):
+            _ = self.provider.load_connection(wrong_profile)
+
+
+if __name__ == '__main__':
+    unittest.main()

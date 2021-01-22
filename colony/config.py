@@ -36,12 +36,20 @@ class ColonyConfigProvider(object):
             except ParsingError as e:
                 raise colony.exceptions.ConfigError(f"Wrong format of config file. Details {e}")
 
-    def load_connection(self, profile_name: str = None):
+    def load_connection(self, profile_name: str = None) -> ColonyConnection:
         profile = profile_name or "default"
         config = self._parse_config()
 
         if profile not in config:
             raise colony.exceptions.ConfigError("Provided profile does not exist in config file")
+
+        if len(config[profile]) != 2:
+            raise colony.exceptions.ConfigError("Profile must contain exactly two settings: `token` and `space`")
+
+        if not all(k in config[profile] for k in ("token", "space")):
+            raise colony.exceptions.ConfigError(
+                "Wrong settings. Profile must contain exactly two settings: `token` " "and `space`"
+            )
 
         return ColonyConnection(**config[profile])
 
