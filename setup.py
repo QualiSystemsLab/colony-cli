@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 with open(os.path.join("version.txt")) as version_file:
     version_from_file = version_file.read().strip()
@@ -15,7 +15,7 @@ with open(os.path.join("README.md"), encoding="utf-8") as f:
 setup(
     name="colony-cli",
     version=version_from_file,
-    packages=["colony"],
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     url="https://www.quali.com/",
     license="Apache Software License",
     author="Quali",
