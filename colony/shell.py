@@ -20,9 +20,8 @@ import os
 import pkg_resources
 from docopt import DocoptExit, docopt
 
-from colony import commands
+from colony.commands import sb, bp
 
-from .client import ColonyClient
 from .config import ColonyConfigProvider, ColonyConnection
 from .exceptions import ConfigError
 
@@ -30,11 +29,19 @@ logger = logging.getLogger(__name__)
 
 
 commands_table = {
-    "bp": commands.BlueprintsCommand,
-    "blueprint": commands.BlueprintsCommand,
-    "sb": commands.SandboxesCommand,
-    "sandbox": commands.SandboxesCommand,
+    "bp": bp.BlueprintsCommand,
+    "blueprint": bp.BlueprintsCommand,
+    "sb": sb.SandboxesCommand,
+    "sandbox": sb.SandboxesCommand,
 }
+
+
+def _is_help_needed(args):
+    subcommand_args = args["<args>"]
+    if not subcommand_args:
+        return True
+
+    return "--help" in subcommand_args or "-h" in subcommand_args
 
 
 def _get_connection_params(args) -> ColonyConnection:
@@ -51,7 +58,7 @@ def _get_connection_params(args) -> ColonyConnection:
             colony_conn = ColonyConfigProvider(config_file).load_connection(profile)
             return colony_conn
         except ConfigError as e:
-            raise DocoptExit(f"Unable to read colony credentials {e}")
+            raise DocoptExit(f"Unable to read colony credentials. Details {e}")
 
     return ColonyConnection(token=token, space=space)
 
@@ -71,18 +78,15 @@ def main():
         raise DocoptExit("Wrong command. See usage")
 
     # Take auth parameters
-    conn = _get_connection_params(args)
+    if not _is_help_needed(args):
+        conn = _get_connection_params(args)
+    else:
+        conn = None
 
     argv = [args["<command>"]] + args["<args>"]
 
-    # Create client
-    try:
-        client = ColonyClient(space=conn.space, token=conn.token)
-    except Exception as e:
-        raise DocoptExit(f"Unable to create client. Check your token. Details {e}")
-
     command_class = commands_table[command_name]
-    command = command_class(client, argv)
+    command = command_class(argv, conn)
     command.execute()
 
 

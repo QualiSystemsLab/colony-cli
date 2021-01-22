@@ -7,6 +7,7 @@ from git import InvalidGitRepositoryError, Repo
 from colony.exceptions import BadBlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 
 class BlueprintRepo(Repo):
@@ -101,3 +102,54 @@ class BlueprintRepo(Repo):
 
     def _get_remote_branches_names(self):
         return [ref.remote_head for ref in self.remote().refs]
+
+
+def get_working_branch() -> str:
+    logger.debug("Branch hasn't been specified. " "Trying to identify branch from current working directory")
+    branch = None
+
+    try:
+        repo = BlueprintRepo(os.getcwd())
+        if repo.is_repo_detached():
+            raise BadBlueprintRepo("Repo's HEAD is in detached state")
+
+        branch = repo.active_branch.name
+        logger.debug(f"Current working branch is '{branch}'")
+
+        if repo.is_dirty():
+            logger.warning("You have uncommitted changes")
+
+        if not repo.current_branch_exists_on_remote():
+            raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
+
+        if not repo.is_current_branch_synced():
+            logger.warning("Your local branch is not synced with remote")
+
+    except BadBlueprintRepo as e:
+        logger.debug(f"Unable to recognize current directory as a proper colony blueprints git repo. " f"Details: {e}")
+    finally:
+        if not branch:
+            logger.warning(
+                "No branch has been specified and it couldn't be identified. "
+                "Blueprint branch attached to Colony will be used. "
+                "Use `--debug` flag to find details "
+            )
+
+    return branch
+
+
+def parse_comma_separated_string(params_string: str = None) -> dict:
+    res = {}
+
+    if not params_string:
+        return res
+
+    key_vals = params_string.split(",")
+
+    for item in key_vals:
+        parts = item.split("=")
+        key = parts[0].strip()
+        val = parts[1].strip()
+        res[key] = val
+
+    return res
