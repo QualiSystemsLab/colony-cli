@@ -1,0 +1,69 @@
+{
+   "blueprint_name":"Dev Environment",
+   "description":"A dev environment for both local and offshore teams",
+   "url":"https://api.github.com/repos/QualiSystemsLab/colony-demo-space/contents/blueprints/Dev Environment.yaml?ref=master",
+   "source":{
+      "branch":"master",
+      "commit":""
+   },
+   "inputs":[
+      {
+         "name":"DB_USER",
+         "default_value":"root",
+         "display_style":"normal",
+         "description":"None",
+         "optional":false
+      },
+      {
+         "name":"DB_PASS",
+         "default_value":"12345",
+         "display_style":"masked",
+         "description":"please set the root database password",
+         "optional":false
+      },
+      {
+         "name":"DB_NAME",
+         "default_value":"demo_db",
+         "display_style":"normal",
+         "description":"None",
+         "optional":false
+      }
+   ],
+   "applications":[
+      {
+         "name":"mysql",
+         "version":"",
+         "icon_url":"None"
+      },
+      {
+         "name":"java-spring-website",
+         "version":"",
+         "icon_url":"None"
+      }
+   ],
+   "services":[
+
+   ],
+   "clouds":[
+      {
+         "provider":"aws",
+         "cloud_account_name":"AWS",
+         "compute_service":{
+            "name":"aws/EC2",
+            "type":"EC2",
+            "created_date":"2020-03-11T20:48:52.575825",
+            "created_by":"Jason Smith",
+            "user_defined":false
+         },
+         "region":{
+            "id":"eu-west-1",
+            "name":"EU (Ireland)"
+         }
+      }
+   ],
+   "artifacts":{
+
+   },
+   "errors":[
+   ]
+}

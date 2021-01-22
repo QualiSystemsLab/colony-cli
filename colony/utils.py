@@ -135,12 +135,16 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
     if not params_string:
         return res
 
-    key_vals = params_string.split(",")
+    key_values = params_string.split(",")
 
-    for item in key_vals:
+    for item in key_values:
         parts = item.split("=")
+        if len(parts) != 2:
+            raise ValueError("Line must be comma-separated list of key=values: key1=val1, key2=val2...")
+
         key = parts[0].strip()
         val = parts[1].strip()
+
         res[key] = val
 
     return res
