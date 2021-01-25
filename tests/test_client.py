@@ -13,10 +13,10 @@ class TestClient(unittest.TestCase):
         self.assertEqual(client.base_url, expected)
 
     def test_request_wrong_method(self):
-        endpoint = 'blueprints/'
+        endpoint = "blueprints/"
         with self.assertRaises(ValueError):
             self.client.request(endpoint=endpoint, method="UPDATE")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

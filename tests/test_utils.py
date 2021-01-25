@@ -1,4 +1,5 @@
 import unittest
+
 from colony import utils
 
 
@@ -33,5 +34,5 @@ class TestParseParamString(unittest.TestCase):
             self.parse_fun(line)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
