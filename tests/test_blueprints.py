@@ -1,6 +1,7 @@
 import json
 import unittest
 from unittest import mock
+
 from colony.blueprints import Blueprint
 
 
@@ -26,5 +27,5 @@ class TestBlueprintJsonLoad(unittest.TestCase):
         self.assertFalse(self.blueprint.errors)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

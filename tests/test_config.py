@@ -42,5 +42,5 @@ class TestConfigProvider(unittest.TestCase):
             _ = self.provider.load_connection(wrong_profile)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
