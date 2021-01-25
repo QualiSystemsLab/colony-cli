@@ -12,7 +12,7 @@ Options:
 
 Commands:
     bp, blueprint       validate colony blueprints
-    sb, sandbox         start sandbox
+    sb, sandbox         start sandbox, end sandbox and get its status
 """
 import logging
 import os

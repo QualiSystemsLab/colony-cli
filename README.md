@@ -209,6 +209,16 @@ colony sb start MyBlueprint --inputs "CS_COLONY_TOKEN=ABCD, IAM_ROLE=s3access-pr
 ybufpamyok03c11
 ```
 
+### Other functionality
+
+You can also end colony sandbox knowing its Id with command:
+
+`$ colony sb end <sandbox> id`
+
+To get current sandbox status run:
+
+`$ colony sb status <sandbox> id`
+
 
 ## Troubleshooting and Help
 
