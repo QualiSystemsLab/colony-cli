@@ -1,6 +1,6 @@
 # Colony CLI
 
-[![Coverage Status](https://coveralls.io/repos/github/QualiSystemsLab/colony-cli/badge.svg?branch=dev)](https://coveralls.io/github/QualiSystemsLab/colony-cli?branch=dev)
+[![Coverage Status](https://coveralls.io/repos/github/QualiSystemsLab/colony-cli/badge.svg?branch=master)](https://coveralls.io/github/QualiSystemsLab/colony-cli?branch=master)
 [![CI](https://github.com/QualiSystemsLab/colony-cli/workflows/CI/badge.svg)](https://github.com/QualiSystemsLab/colony-cli/actions?query=workflow%3ACI)
 [![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
 [![PyPI version](https://badge.fury.io/py/colony-cli.svg)](https://badge.fury.io/py/colony-cli)
