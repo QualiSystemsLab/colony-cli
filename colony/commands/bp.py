@@ -1,11 +1,13 @@
 import logging
+import os
 
 import tabulate
 from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
-from colony.utils import get_working_branch
+from colony.exceptions import BadBlueprintRepo
+from colony.utils import get_blueprint_working_branch
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +46,16 @@ class BlueprintsCommand(BaseCommand):
             working_branch = branch
         else:
             # Try to detect branch from current git-enabled folder
-            working_branch = get_working_branch()
-            if working_branch:
+            logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
+            try:
+                working_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
+            except BadBlueprintRepo as e:
+                working_branch = None
+                logger.warning(
+                    f"No branch has been specified and it could not be identified from the working directory; "
+                    f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
+                )
 
         try:
             bp = self.manager.validate(blueprint=name, branch=working_branch, commit=commit)

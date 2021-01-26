@@ -6,8 +6,9 @@ import time
 from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
+from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo, get_working_branch, parse_comma_separated_string
+from colony.utils import BlueprintRepo, get_blueprint_working_branch, parse_comma_separated_string
 
 logger = logging.getLogger(__name__)
 
@@ -132,9 +133,15 @@ class SandboxesCommand(BaseCommand):
         if branch:
             working_branch = branch
         else:
-            working_branch = get_working_branch()
-            if working_branch:
+            try:
+                working_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
+            except BadBlueprintRepo as e:
+                working_branch = None
+                logger.warning(
+                    f"No branch has been specified and it could not be identified from the working directory; "
+                    f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
+                )
 
         try:
             sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)

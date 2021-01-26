@@ -20,7 +20,7 @@ class BlueprintRepo(Repo):
         except InvalidGitRepositoryError:
             raise BadBlueprintRepo("Not a git folder")
         if self.bare:
-            raise BadBlueprintRepo("Cannot get working directory. Repo is bare")
+            raise BadBlueprintRepo("Cannot get folder tree structure. Repo is bare")
 
         self.blueprints = self._fetch_blueprints_list()
 
@@ -104,36 +104,27 @@ class BlueprintRepo(Repo):
         return [ref.remote_head for ref in self.remote().refs]
 
 
-def get_working_branch() -> str:
-    logger.debug("Branch hasn't been specified. " "Trying to identify branch from current working directory")
-    branch = None
+def get_blueprint_working_branch(path: str, blueprint_name: str) -> str:
+    repo = BlueprintRepo(path)
 
-    try:
-        repo = BlueprintRepo(os.getcwd())
-        if repo.is_repo_detached():
-            raise BadBlueprintRepo("Repo's HEAD is in detached state")
+    if repo.is_repo_detached():
+        raise BadBlueprintRepo("Repo's HEAD is in detached state")
 
-        branch = repo.active_branch.name
-        logger.debug(f"Current working branch is '{branch}'")
+    branch = repo.active_branch.name
 
-        if repo.is_dirty():
-            logger.warning("You have uncommitted changes")
+    if not repo.repo_has_blueprint(blueprint_name):
+        logger.warning(f"Current repo does not contain a definition for the blueprint '{blueprint_name}'.")
 
-        if not repo.current_branch_exists_on_remote():
-            raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
+    logger.debug(f"Current working branch is '{branch}'")
 
-        if not repo.is_current_branch_synced():
-            logger.warning("Your local branch is not synced with remote")
+    if repo.is_dirty():
+        logger.warning("You have uncommitted changes")
 
-    except BadBlueprintRepo as e:
-        logger.debug(f"Unable to recognize current directory as a proper colony blueprints git repo. " f"Details: {e}")
-    finally:
-        if not branch:
-            logger.warning(
-                "No branch has been specified and it couldn't be identified. "
-                "Blueprint branch attached to Colony will be used. "
-                "Use `--debug` flag to find details "
-            )
+    if not repo.current_branch_exists_on_remote():
+        raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
+
+    if not repo.is_current_branch_synced():
+        logger.warning("Your local branch is not synced with remote")
 
     return branch
 
