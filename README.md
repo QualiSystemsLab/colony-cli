@@ -40,7 +40,7 @@ Or if you want to install it for your user:
 
 ### Configuration
 
-First of all you need to generate an access token. In the Colony UI navigate to Settings (in your space) -> Integrations -> click “Connect” under any of the CI tools -> click “New Token” to get an API token.
+First of all you need to generate an access token. In the Colony UI navigate to *Settings (in your space) -> Integrations -> click “Connect” under any of the CI tools -> click “New Token”* to get an API token.
 Then, you need to configure Colony CLI with the generated token and the colony space you are going to access.
 There are three ways how to do it:
 
