@@ -1,3 +1,6 @@
 docopt
 requests
 setuptools
+gitpython
+pyyaml
+tabulate
