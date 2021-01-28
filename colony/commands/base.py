@@ -8,7 +8,9 @@ from colony.config import ColonyConnection
 
 
 class BaseCommand(object):
-    """Base class for parsed docopt command"""
+    """
+    usage: colony
+    """
 
     RESOURCE_MANAGER = ResourceManager
 
@@ -19,6 +21,7 @@ class BaseCommand(object):
         else:
             self.client = None
             self.manager = None
+
         self.args = docopt(self.__doc__, argv=command_args)
 
     def execute(self):
