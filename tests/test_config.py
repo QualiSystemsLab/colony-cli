@@ -31,6 +31,11 @@ class TestConfigProvider(unittest.TestCase):
     def test_load_connection_return_type(self):
         self.assertIsInstance(self.provider.load_connection(), ColonyConnection)
 
+    def test_wrong_setting_file(self):
+        filename = "fixtures/wrong_config"
+        with self.assertRaises(ConfigError):
+            _ = ColonyConfigProvider(filename=filename)
+
     def test_wrong_settings(self):
         wrong_profile = "tester-2"
         with self.assertRaises(ConfigError):
