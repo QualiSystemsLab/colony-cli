@@ -45,6 +45,7 @@ class BlueprintRepo(Repo):
                 return local_branch.commit.__eq__(remote.commit)
         return False
 
+    # (TODO:ddovbii): must be moved to separated class (BlueprintYamlHandler or smth)
     def get_blueprint_artifacts(self, blueprint_name: str) -> dict:
         yaml_obj = self.get_blueprint_yaml(blueprint_name)
         artifacts = yaml_obj.get("artifacts", None)
@@ -60,6 +61,7 @@ class BlueprintRepo(Repo):
                         res[name] = path
             return res
 
+    # (TODO:ddovbii): must be moved to separated class (BlueprintYamlHandler or smth)
     def get_blueprint_default_inputs(self, blueprint_name):
         yaml_obj = self.get_blueprint_yaml(blueprint_name)
         inputs = yaml_obj.get("inputs", None)
