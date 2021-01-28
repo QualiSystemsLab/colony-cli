@@ -1,5 +1,5 @@
 """
-Usage: colony ( [(--space=<space> --token=<token>)] | [--profile=<profile>] ) [--help] [--debug]
+Usage: colony [--space=<space>] [--token=<token>] [--profile=<profile>] [--help] [--debug]
               <command> [<args>...]
 
 Options:
@@ -44,6 +44,12 @@ def _is_help_needed(args):
     return "--help" in subcommand_args or "-h" in subcommand_args
 
 
+# NOTE: added to simplify command syntax
+def _validate_connection_params(args):
+    if args["--profile"] and any([args.get("--token", None), args.get("--space", None)]):
+        raise DocoptExit("If --profile is set, neither --space or --token must be provided!")
+
+
 def _get_connection_params(args) -> ColonyConnection:
     # first try to get them as options or from env variable
     token = args.pop("--token", None) or os.environ.get("COLONY_TOKEN", None)
@@ -66,7 +72,7 @@ def _get_connection_params(args) -> ColonyConnection:
 def main():
     version = pkg_resources.get_distribution("colony-cli").version
     args = docopt(__doc__, options_first=True, version=version)
-
+    _validate_connection_params(args)
     debug = args.pop("--debug", None)
 
     level = logging.DEBUG if debug else logging.WARNING
