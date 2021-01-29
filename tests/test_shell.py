@@ -1,6 +1,6 @@
 import unittest
 
-from docopt import docopt, DocoptExit
+from docopt import DocoptExit, docopt
 
 from colony import shell
 
@@ -32,5 +32,5 @@ class MainShellTest(unittest.TestCase):
         self.assertEqual(expected, str(ctx.exception))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import unittest
 
-from git import Repo, Actor
+from git import Actor, Repo
 
 from colony import utils
 from colony.exceptions import BadBlueprintRepo
@@ -87,13 +87,15 @@ class TestBlueprintRepo(unittest.TestCase):
 
     def test_repo_not_synced(self):
         index = self.bp_repo.index
-        new_file_path = os.path.join(self.test_dir, 'new-file-name')
-        open(new_file_path, 'w').close()
+
+        new_file_path = os.path.join(self.test_dir, "new-file-name")
+        open(new_file_path, "w").close()
         index.add([new_file_path])
+
         author = Actor("An author", "author@example.com")
         committer = Actor("A committer", "committer@example.com")
+
         index.commit("my commit message", author=author, committer=committer)
-        # self.bp_repo.git.execute(["git", "commit", "--amend", "-m", "test"])
         self.assertFalse(self.bp_repo.is_current_branch_synced())
 
     def tearDown(self):
