@@ -90,7 +90,7 @@ It will give you detailed output with usage:
 
 ```bash
 $ colony --help
-Usage: colony ( [(--space=<space> --token=<token>)] | [--profile=<profile>] ) [--help] [--debug]
+Usage: colony  [--space=<space>] [--token=<token>]  [--profile=<profile>] [--help] [--debug]
               <command> [<args>...]
 
 Options:
