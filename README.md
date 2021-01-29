@@ -44,7 +44,7 @@ First of all you need to generate an access token. In the Colony UI navigate to 
 Then, you need to configure Colony CLI with the generated token and the colony space you are going to access.
 There are three ways how to do it:
 
-* Create a configuration file ~/.colony/config where you can have several profiles:
+* Use credentials file, with profiles. Create an INI formatted file like this:
 
 ```bash
 [default]
@@ -56,6 +56,11 @@ token = aaabbbccc
 space = TestSpace
 ```
 
+And place it in your home user directory (~/.colony/config on Mac and Linux or in %UserProfile%\.colony/config on Windows).
+If you wish to place credentials file in a different location, you need to tell Colony CLI where to find it.
+Do this by setting the appropriate environment variable:
+
+`$ export COLONY_CONFIG_PATH=/path/to/file`
 
 * Set environment variables:
 
