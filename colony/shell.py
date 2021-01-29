@@ -36,7 +36,7 @@ commands_table = {
 }
 
 
-def _is_help_needed(args):
+def is_help_needed(args):
     subcommand_args = args["<args>"]
     if not subcommand_args:
         return True
@@ -45,12 +45,12 @@ def _is_help_needed(args):
 
 
 # NOTE: added to simplify command syntax
-def _validate_connection_params(args):
+def validate_connection_params(args):
     if args["--profile"] and any([args.get("--token", None), args.get("--space", None)]):
         raise DocoptExit("If --profile is set, neither --space or --token must be provided!")
 
 
-def _get_connection_params(args) -> ColonyConnection:
+def get_connection_params(args) -> ColonyConnection:
     # first try to get them as options or from env variable
     token = args.pop("--token", None) or os.environ.get("COLONY_TOKEN", None)
     space = args.pop("--space", None) or os.environ.get("COLONY_SPACE", None)
@@ -72,7 +72,7 @@ def _get_connection_params(args) -> ColonyConnection:
 def main():
     version = pkg_resources.get_distribution("colony-cli").version
     args = docopt(__doc__, options_first=True, version=version)
-    _validate_connection_params(args)
+    validate_connection_params(args)
     debug = args.pop("--debug", None)
 
     level = logging.DEBUG if debug else logging.WARNING
@@ -84,8 +84,8 @@ def main():
         raise DocoptExit("Wrong command. See usage")
 
     # Take auth parameters
-    if not _is_help_needed(args):
-        conn = _get_connection_params(args)
+    if not is_help_needed(args):
+        conn = get_connection_params(args)
     else:
         conn = None
 
