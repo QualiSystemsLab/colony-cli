@@ -134,7 +134,7 @@ class SandboxesCommand(BaseCommand):
             working_branch = branch
         else:
             try:
-                working_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=name)
+                working_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=bp_name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
             except BadBlueprintRepo as e:
                 working_branch = None

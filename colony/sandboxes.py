@@ -1,5 +1,4 @@
 from .base import Resource, ResourceManager
-from .blueprints import BlueprintsManager
 
 
 class Sandbox(Resource):
@@ -50,13 +49,6 @@ class SandboxesManager(ResourceManager):
 
         if commit and not branch:
             raise ValueError("Commit is passed without branch")
-
-        bm = BlueprintsManager(self.client)
-
-        try:
-            bm.get(blueprint_name)
-        except Exception as e:
-            raise NotImplementedError(f"Unable to get blueprint with passed name {blueprint_name}. Details: {e}")
 
         iso_duration = f"PT{duration}M"
 
