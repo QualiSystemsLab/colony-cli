@@ -56,7 +56,7 @@ token = aaabbbccc
 space = TestSpace
 ```
 
-And place it in your home user directory (~/.colony/config on Mac and Linux or in %UserProfile%\.colony/config on Windows).
+And place it in your home user directory ('~/.colony/config' on Mac and Linux or in '%UserProfile%\\.colony\\config' on Windows).
 If you wish to place credentials file in a different location, you need to tell Colony CLI where to find it.
 Do this by setting the appropriate environment variable:
 
