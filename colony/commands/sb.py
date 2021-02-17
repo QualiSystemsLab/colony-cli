@@ -111,6 +111,20 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
+        if branch:
+            working_branch = branch
+        else:
+            try:
+                working_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=bp_name)
+                self.message(f"Automatically detected current working branch: {working_branch}")
+            except BadBlueprintRepo as e:
+                working_branch = None
+                logger.warning(
+                    f"No branch has been specified and it could not be identified from the working directory; "
+                    f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
+                )
+
+        # TODO(ddovbii): This obtaining default values magic mast be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
         try:
             repo = BlueprintRepo(os.getcwd())
@@ -128,20 +142,7 @@ class SandboxesCommand(BaseCommand):
                         inputs[input_name] = input_value
 
         except Exception as e:
-            logger.debug(f"Unable to recognize current directory as a blueprint repo. Details: {e}")
-
-        if branch:
-            working_branch = branch
-        else:
-            try:
-                working_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=bp_name)
-                self.message(f"Automatically detected current working branch: {working_branch}")
-            except BadBlueprintRepo as e:
-                working_branch = None
-                logger.warning(
-                    f"No branch has been specified and it could not be identified from the working directory; "
-                    f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
-                )
+            logger.debug(f"Unable to obtain default values. Details: {e}")
 
         try:
             sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
