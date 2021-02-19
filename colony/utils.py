@@ -127,7 +127,7 @@ class BlueprintRepo(Repo):
         self._temp_branch = branch_name
         return
 
-def get_blueprint_working_branch(path: str, blueprint_name: str) -> tuple[Union[str, Any], Union[str, Any]]:
+def get_blueprint_working_branch(path: str, blueprint_name: str) -> tuple[str,str]:
     repo = BlueprintRepo(path)
 
     if repo.is_repo_detached():
