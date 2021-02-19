@@ -1,5 +1,10 @@
 import logging
 import os
+import subprocess
+import random
+import string
+
+from typing import Union, Any
 
 import yaml
 from git import InvalidGitRepositoryError, Repo
@@ -9,10 +14,13 @@ from colony.exceptions import BadBlueprintRepo
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
+UNCOMMITTED_BRANCH_NAME = "temp_uncommitted"
 
 class BlueprintRepo(Repo):
     bp_file_extensions = [".yaml", ".yml"]
     bp_dir = "blueprints"
+    _active_branch = ""
+    _temp_branch = ""
 
     def __init__(self, path: str):
         try:
@@ -105,8 +113,21 @@ class BlueprintRepo(Repo):
     def _get_remote_branches_names(self):
         return [ref.remote_head for ref in self.remote().refs]
 
+    def get_active_branch(self) -> str:
+        return self._active_branch
 
-def get_blueprint_working_branch(path: str, blueprint_name: str) -> str:
+    def set_active_branch(self,branch_name: str) -> None:
+        self._active_branch = branch_name
+        return
+
+    def get_temp_branch(self) -> str:
+        return self._temp_branch
+
+    def set_temp_branch(self,branch_name: str) -> None:
+        self._temp_branch = branch_name
+        return
+
+def get_blueprint_working_branch(path: str, blueprint_name: str) -> tuple[Union[str, Any], Union[str, Any]]:
     repo = BlueprintRepo(path)
 
     if repo.is_repo_detached():
@@ -119,8 +140,14 @@ def get_blueprint_working_branch(path: str, blueprint_name: str) -> str:
 
     logger.debug(f"Current working branch is '{branch}'")
 
+    defined_branch_in_file = branch
     if repo.is_dirty():
         logger.warning("You have uncommitted changes")
+        defined_branch_in_file = branch
+        try:
+            branch = switch_to_temp_branch(repo)
+        except Exception as e:
+            logger.error(f"Was not able to create temp branch for validation - {str(e)}")
 
     if not repo.current_branch_exists_on_remote():
         raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
@@ -128,8 +155,7 @@ def get_blueprint_working_branch(path: str, blueprint_name: str) -> str:
     if not repo.is_current_branch_synced():
         logger.warning("Your local branch is not synced with remote")
 
-    return branch
-
+    return branch, defined_branch_in_file
 
 def parse_comma_separated_string(params_string: str = None) -> dict:
     res = {}
@@ -150,3 +176,41 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
         res[key] = val
 
     return res
+
+def switch_to_temp_branch(repo:BlueprintRepo) -> str:
+    uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + "_" + ''.join(
+        random.choice(string.ascii_lowercase) for i in range(10))
+    try:
+        repo.git.stash(path=None)
+        repo.git.stash('apply')
+        repo.git.checkout("-b",uncommitted_branch_name)
+        repo.git.add('--all')
+        repo.git.commit("-m","Uncommitted temp branch - temp commit for validation")
+        repo.git.push("origin" ,uncommitted_branch_name)
+    except Exception as e:
+        raise e
+
+    return uncommitted_branch_name
+
+def revert_from_temp_branch(repo:BlueprintRepo,temp_branch, active_branch) -> None:
+    try:
+        repo.git.checkout(active_branch)
+        repo.git.push("origin","--delete",temp_branch)
+        repo.delete_head("-D",temp_branch)
+        repo.git.stash('pop')
+    except Exception as e:
+        raise e
+
+'''
+def run_popen_command(command: [str])->None:
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    command_string = " ".join(cmdlet for cmdlet in command)
+    if out.decode('utf-8'):
+        logger.info(command_string + " -> Output(out) = "+out.decode('utf-8'))
+    if err.decode('utf-8'):
+        logger.info(command_string + " -> Output(err) = "+err.decode('utf-8'))
+        if ("Invalid" or "Fatal" or "failed") in err.decode('utf-8'):
+            logger.error(command_string + " -> Output(err) = " + err.decode('utf-8'))
+            raise BadBlueprintRepo
+'''
