@@ -27,14 +27,14 @@ class ResourceManager(object):
         result = self.client.request(url, "DELETE")
         return result
 
-    def _list(self, path: str, filter: dict = None):
+    def _list(self, path: str, filter_params: dict = None):
         url = urljoin(self.endpoint, path)
 
         # TODO(ddovbii): add filter handling
-        if filter is not None:
-            pass
+        # if filter is not None:
+        params = filter_params.copy() if filter_params else None
 
-        result = self.client.request(url, "GET")
+        result = self.client.request(url, "GET", params=params)
 
         return result.json()
 

@@ -16,12 +16,14 @@ class Sandbox(Resource):
         except KeyError as e:
             raise NotImplementedError(f"unable to create object. Missing keys in Json. Details: {e}")
 
+        for attr in ["description", "errors", "sandbox_status", "launching_progress"]:
+            sb.__dict__[attr] = json_obj.get(attr, "")
         # TODO(ddovbii): set all needed attributes
         # sb.errors = json_obj.get("errors", [])
         # sb.description = json_obj.get("description", "")
         # sb.status = json_obj.get("sandbox_status", "")
         # sb.launching_progress = json_obj.get("launching_progress", {})
-        sb.__dict__ = json_obj.copy()
+        # sb.__dict__ = json_obj.copy()
 
         return sb
 
@@ -34,6 +36,14 @@ class SandboxesManager(ResourceManager):
         sb_json = self._get(url)
 
         return self.resource_obj.json_deserialize(self, sb_json)
+
+    def list(self, count: int = 25, filter_opt: str = "my"):
+        url = "sandbox"
+
+        filter_params = {"count": count, "filter": filter_opt}
+        list_json = self._list(path=url, filter_params=filter_params)
+
+        return [self.resource_obj.json_deserialize(self, obj) for obj in list_json]
 
     def start(
         self,
