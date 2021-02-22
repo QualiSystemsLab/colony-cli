@@ -3,6 +3,7 @@ import logging
 import os
 import time
 
+import tabulate
 from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
@@ -19,6 +20,7 @@ class SandboxesCommand(BaseCommand):
         colony (sb | sandbox) start <blueprint_name> [options]
         colony (sb | sandbox) status <sandbox_id>
         colony (sb | sandbox) end <sandbox_id>
+        colony (sb | sandbox) list [--filter={all|my|auto}] [--show-ended] [--count=<N>]
         colony (sb | sandbox) [--help]
 
     options:
@@ -53,7 +55,37 @@ class SandboxesCommand(BaseCommand):
     RESOURCE_MANAGER = SandboxesManager
 
     def get_actions_table(self) -> dict:
-        return {"status": self.do_status, "start": self.do_start, "end": self.do_end}
+        return {"status": self.do_status, "start": self.do_start, "end": self.do_end, "list": self.do_list}
+
+    def do_list(self):
+        list_filter = self.args["--filter"] or "my"
+        if list_filter not in ["my", "all", "auto"]:
+            raise DocoptExit("--filter value must be in [my, all, auto]")
+
+        show_ended = self.args["--show-ended"]
+        count = self.args.get("--count", 25)
+
+        try:
+            sandbox_list = self.manager.list(filter_opt=list_filter, count=count)
+        except Exception as e:
+            logger.exception(e, exc_info=False)
+            sandbox_list = None
+            self.die()
+
+        result_table = []
+        for sb in sandbox_list:
+
+            if sb.sandbox_status == "Ended" and not show_ended:
+                continue
+
+            result_table.append({
+                "Sandbox ID": sb.sandbox_id,
+                "Sandbox Name": sb.name,
+                "Blueprint Name": sb.blueprint_name,
+                "Status": sb.sandbox_status
+            })
+
+        self.success(tabulate.tabulate(result_table, headers="keys"))
 
     def do_status(self):
         sandbox_id = self.args["<sandbox_id>"]

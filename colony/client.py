@@ -65,6 +65,8 @@ class ColonyClient(object):
 
     def request(self, endpoint: str, method: str = "GET", params: dict = None, headers: dict = None) -> Response:
         """Gets response as Json"""
+        method = method.upper()
+
         if method not in ("GET", "PUT", "POST", "DELETE"):
             raise ValueError("Method must be in [GET, POST, PUT, DELETE]")
 
@@ -79,7 +81,16 @@ class ColonyClient(object):
 
         url = urljoin(self.base_url, endpoint)
 
-        response = self.session.request(method=method, url=url, json=params)
+        request_args = {
+            "method": method,
+            "url": url,
+        }
+        if method == "GET":
+            request_args["params"] = params
+        else:
+            request_args["json"] = params
+
+        response = self.session.request(**request_args)
 
         if response.status_code >= 400:
             # TODO(ddovbii): implement exceptions and error handler
