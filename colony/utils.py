@@ -14,7 +14,7 @@ from colony.exceptions import BadBlueprintRepo
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
-UNCOMMITTED_BRANCH_NAME = "temp_uncommitted"
+UNCOMMITTED_BRANCH_NAME = "tmp-colony-"
 
 class BlueprintRepo(Repo):
     bp_file_extensions = [".yaml", ".yml"]
@@ -127,8 +127,7 @@ class BlueprintRepo(Repo):
         self._temp_branch = branch_name
         return
 
-def get_blueprint_working_branch(path: str, blueprint_name: str) -> tuple:
-    repo = BlueprintRepo(path)
+def get_blueprint_working_branch(repo:BlueprintRepo, blueprint_name: str) -> str:
 
     if repo.is_repo_detached():
         raise BadBlueprintRepo("Repo's HEAD is in detached state")
@@ -140,14 +139,8 @@ def get_blueprint_working_branch(path: str, blueprint_name: str) -> tuple:
 
     logger.debug(f"Current working branch is '{branch}'")
 
-    defined_branch_in_file = branch
     if repo.is_dirty():
         logger.warning("You have uncommitted changes")
-        defined_branch_in_file = branch
-        try:
-            branch = switch_to_temp_branch(repo)
-        except Exception as e:
-            logger.error(f"Was not able to create temp branch for validation - {str(e)}")
 
     if not repo.current_branch_exists_on_remote():
         raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
@@ -155,7 +148,18 @@ def get_blueprint_working_branch(path: str, blueprint_name: str) -> tuple:
     if not repo.is_current_branch_synced():
         logger.warning("Your local branch is not synced with remote")
 
-    return branch, defined_branch_in_file
+    return branch
+
+def set_blueprint_working_temp_branch(repo:BlueprintRepo,defined_branch_in_file: str) -> str:
+
+    temp_branch = defined_branch_in_file
+
+    try:
+        temp_branch = switch_to_temp_branch(repo,defined_branch_in_file)
+    except Exception as e:
+        logger.error(f"Was not able to create temp branch for validation - {str(e)}")
+
+    return temp_branch
 
 def parse_comma_separated_string(params_string: str = None) -> dict:
     res = {}
@@ -177,40 +181,27 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
 
     return res
 
-def switch_to_temp_branch(repo:BlueprintRepo) -> str:
-    uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + "_" + ''.join(
-        random.choice(string.ascii_lowercase) for i in range(10))
+def switch_to_temp_branch(repo:BlueprintRepo,defined_branch_in_file:str) -> str:
+    random_suffix = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+    uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
     try:
-        repo.git.stash(path=None)
+        #todo return id and use it for revert_from_temp_branch
+        id_unparsed = repo.git.stash('save')
+        #id = id_unparsed.split(": ")[1].split(" U")[0]
         repo.git.stash('apply')
-        repo.git.checkout("-b",uncommitted_branch_name)
+        repo.git.checkout("-b", uncommitted_branch_name)
         repo.git.add('--all')
-        repo.git.commit("-m","Uncommitted temp branch - temp commit for validation")
-        repo.git.push("origin" ,uncommitted_branch_name)
+        repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
+        repo.git.push("origin", uncommitted_branch_name)
     except Exception as e:
         raise e
-
     return uncommitted_branch_name
 
 def revert_from_temp_branch(repo:BlueprintRepo,temp_branch, active_branch) -> None:
     try:
         repo.git.checkout(active_branch)
-        repo.git.push("origin","--delete",temp_branch)
-        repo.delete_head("-D",temp_branch)
+        repo.git.push("origin","--delete", temp_branch)
+        repo.delete_head("-D", temp_branch)
         repo.git.stash('pop')
     except Exception as e:
         raise e
-
-'''
-def run_popen_command(command: [str])->None:
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = process.communicate()
-    command_string = " ".join(cmdlet for cmdlet in command)
-    if out.decode('utf-8'):
-        logger.info(command_string + " -> Output(out) = "+out.decode('utf-8'))
-    if err.decode('utf-8'):
-        logger.info(command_string + " -> Output(err) = "+err.decode('utf-8'))
-        if ("Invalid" or "Fatal" or "failed") in err.decode('utf-8'):
-            logger.error(command_string + " -> Output(err) = " + err.decode('utf-8'))
-            raise BadBlueprintRepo
-'''

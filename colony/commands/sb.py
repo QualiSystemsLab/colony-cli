@@ -8,7 +8,8 @@ from docopt import DocoptExit
 from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo, get_blueprint_working_branch, parse_comma_separated_string
+from colony.utils import BlueprintRepo, get_blueprint_working_branch, parse_comma_separated_string, \
+    set_blueprint_working_temp_branch
 from colony.utils import UNCOMMITTED_BRANCH_NAME,revert_from_temp_branch
 
 logger = logging.getLogger(__name__)
@@ -131,15 +132,17 @@ class SandboxesCommand(BaseCommand):
         except Exception as e:
             logger.debug(f"Unable to recognize current directory as a blueprint repo. Details: {e}")
 
-        previous_branch = ""
+        temp_working_branch = ""
+        repo = BlueprintRepo(os.getcwd())
         if branch:
             working_branch = branch
         else:
             try:
-                working_branch ,previous_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=bp_name)
+                working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
-                if working_branch!=previous_branch:
-                    self.message(f"Testing the uncommitted changes via a temp branch: {previous_branch}")
+                if repo.is_dirty():
+                    temp_working_branch = set_blueprint_working_temp_branch(repo,working_branch)
+                    self.message(f"Testing the uncommitted changes via a temp branch: {temp_working_branch}")
             except BadBlueprintRepo as e:
                 working_branch = None
                 logger.warning(
@@ -148,15 +151,18 @@ class SandboxesCommand(BaseCommand):
                 )
 
         try:
-            sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
+            if temp_working_branch:
+                sandbox_id = self.manager.start(name, bp_name, duration, temp_working_branch, commit, artifacts, inputs)
+            else:
+                sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
 
         except Exception as e:
             logger.exception(e, exc_info=False)
             sandbox_id = None
             self.die()
 
-        if working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-            revert_from_temp_branch(BlueprintRepo(os.getcwd()), working_branch, previous_branch)
+        if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+            revert_from_temp_branch(repo,temp_working_branch, working_branch)
 
         if timeout is None:
             self.success(sandbox_id)

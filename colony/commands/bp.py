@@ -7,7 +7,7 @@ from docopt import DocoptExit
 from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
-from colony.utils import get_blueprint_working_branch, BlueprintRepo
+from colony.utils import get_blueprint_working_branch, BlueprintRepo, set_blueprint_working_temp_branch
 from colony.utils import UNCOMMITTED_BRANCH_NAME,revert_from_temp_branch
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,8 @@ class BlueprintsCommand(BaseCommand):
         if commit and branch is None:
             raise DocoptExit("Since commit is specified, branch is required")
 
-        previous_branch = ""
+        temp_working_branch = ""
+        repo = BlueprintRepo(os.getcwd())
         if branch:
             working_branch = branch
         else:
@@ -51,10 +52,11 @@ class BlueprintsCommand(BaseCommand):
             logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
             try:
                 #todo get flag for stash mode
-                working_branch ,previous_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=name)
-                self.message(f"Automatically detected current working branch: {previous_branch}")
-                if working_branch!=previous_branch:
-                    self.message(f"Testing the uncommitted changes via a temp branch: {working_branch}")
+                working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
+                self.message(f"Automatically detected current working branch: {working_branch}")
+                if repo.is_dirty():
+                    temp_working_branch = set_blueprint_working_temp_branch(repo,working_branch)
+                    self.message(f"Testing the uncommitted changes via a temp branch: {temp_working_branch}")
 
             except BadBlueprintRepo as e:
                 working_branch = None
@@ -64,7 +66,10 @@ class BlueprintsCommand(BaseCommand):
                 )
 
         try:
-            bp = self.manager.validate(blueprint=name, branch=working_branch, commit=commit)
+            if temp_working_branch:
+                bp = self.manager.validate(blueprint=name, branch=temp_working_branch, commit=commit)
+            else:
+                bp = self.manager.validate(blueprint=name, branch=working_branch, commit=commit)
 
         except Exception as e:
             logger.exception(e, exc_info=False)
@@ -73,8 +78,8 @@ class BlueprintsCommand(BaseCommand):
 
         errors = getattr(bp, "errors")
 
-        if working_branch and working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-            revert_from_temp_branch(BlueprintRepo(os.getcwd()),working_branch, previous_branch)
+        if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+            revert_from_temp_branch(repo,temp_working_branch, working_branch)
 
         if errors:
             # We don't need error code

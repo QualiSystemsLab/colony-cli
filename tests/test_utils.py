@@ -2,12 +2,13 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest.mock import MagicMock, call
 
 from git import Actor, Repo
 
 from colony import utils
 from colony.exceptions import BadBlueprintRepo
-from colony.utils import BlueprintRepo
+from colony.utils import BlueprintRepo, UNCOMMITTED_BRANCH_NAME
 
 
 class TestParseParamString(unittest.TestCase):
@@ -102,6 +103,37 @@ class TestBlueprintRepo(unittest.TestCase):
         # Close the file, the directory will be removed after the test
         shutil.rmtree(self.test_dir)
 
+class TestStashLogicFunctions(unittest.TestCase):
+    def setUp(self):
+        self.switch = utils.switch_to_temp_branch
+        self.revert = utils.revert_from_temp_branch
+
+    def test_switch_to_temp_branch(self):
+        # Arrange:
+        mock_repo = MagicMock()
+        defined_branch_in_file = "abc"
+        # Act:
+        uncommitted_branch_name = self.switch(mock_repo,defined_branch_in_file)
+        # Assert:
+        mock_repo.git.stash.assert_has_calls([call('save'),call('apply')])
+        mock_repo.git.checkout.assert_called_once()
+        mock_repo.git.add.assert_called_once()
+        mock_repo.git.commit.assert_called_once()
+        mock_repo.git.push.assert_called_once_with("origin",uncommitted_branch_name)
+        self.assertTrue(uncommitted_branch_name.startswith(UNCOMMITTED_BRANCH_NAME))
+
+    def test_revert_from_temp_branch(self):
+        # Arrange:
+        mock_repo = MagicMock()
+        temp_branch = "temp_branch"
+        active_branch = "active_branch"
+        # Act:
+        self.revert(mock_repo,temp_branch,active_branch)
+        # Assert:
+        mock_repo.git.checkout.assert_called_once_with(active_branch)
+        mock_repo.git.push.assert_called_once_with("origin", "--delete", temp_branch)
+        mock_repo.delete_head.assert_called_once_with("-D", temp_branch)
+        mock_repo.git.stash.assert_called_once_with('pop')
 
 if __name__ == "__main__":
     unittest.main()
