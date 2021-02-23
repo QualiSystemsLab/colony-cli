@@ -9,7 +9,7 @@ from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo, get_blueprint_working_branch, parse_comma_separated_string, \
-    set_blueprint_working_temp_branch
+    set_blueprint_working_temp_branch, switch_to_temp_branch
 from colony.utils import UNCOMMITTED_BRANCH_NAME,revert_from_temp_branch
 
 logger = logging.getLogger(__name__)
@@ -87,6 +87,7 @@ class SandboxesCommand(BaseCommand):
         commit = self.args.get("--commit")
         name = self.args["--name"]
         timeout = self.args["--wait"]
+        remote = self.args.get("--remote")
 
         if timeout is not None:
             try:
@@ -142,9 +143,12 @@ class SandboxesCommand(BaseCommand):
             try:
                 working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
-                if repo.is_dirty():
-                    temp_working_branch = set_blueprint_working_temp_branch(repo,working_branch)
-                    self.message(f"Testing the uncommitted changes via a temp branch: {temp_working_branch}")
+                if not remote:
+                    temp_working_branch = working_branch
+                    try:
+                        temp_working_branch = switch_to_temp_branch(repo, working_branch)
+                    except Exception as e:
+                        logger.error(f"Was not able to create temp branch for validation - {str(e)}")
             except BadBlueprintRepo as e:
                 working_branch = None
                 logger.warning(
@@ -154,8 +158,10 @@ class SandboxesCommand(BaseCommand):
 
         try:
             if temp_working_branch:
+                self.message(f"Using temp branch: {temp_working_branch}")
                 sandbox_id = self.manager.start(name, bp_name, duration, temp_working_branch, commit, artifacts, inputs)
             else:
+                self.message(f"Using remote branch: {working_branch}")
                 sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
 
         except Exception as e:
