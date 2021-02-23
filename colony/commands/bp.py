@@ -8,7 +8,7 @@ from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
 from colony.utils import get_blueprint_working_branch, BlueprintRepo, set_blueprint_working_temp_branch
-from colony.utils import UNCOMMITTED_BRANCH_NAME,revert_from_temp_branch
+from colony.utils import UNCOMMITTED_BRANCH_NAME,revert_from_temp_branch,switch_to_temp_branch
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,8 @@ class BlueprintsCommand(BaseCommand):
                                 Must be used together with the branch option. If not specified then the latest commit
                                 will be used.
 
+       -r, --remote             Work with remote branch (default is local branch)
+
        -h --help                Show this message
     """
 
@@ -39,6 +41,7 @@ class BlueprintsCommand(BaseCommand):
         name = self.args.get("<name>")
         branch = self.args.get("--branch")
         commit = self.args.get("--commit")
+        remote = self.args.get("--remote")
 
         if commit and branch is None:
             raise DocoptExit("Since commit is specified, branch is required")
@@ -54,9 +57,12 @@ class BlueprintsCommand(BaseCommand):
                 #todo get flag for stash mode
                 working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
-                if repo.is_dirty():
-                    temp_working_branch = set_blueprint_working_temp_branch(repo,working_branch)
-                    self.message(f"Testing the uncommitted changes via a temp branch: {temp_working_branch}")
+                if not remote:
+                    temp_working_branch = working_branch
+                    try:
+                        temp_working_branch = switch_to_temp_branch(repo, working_branch)
+                    except Exception as e:
+                        logger.error(f"Was not able to create temp branch for validation - {str(e)}")
 
             except BadBlueprintRepo as e:
                 working_branch = None
@@ -67,8 +73,10 @@ class BlueprintsCommand(BaseCommand):
 
         try:
             if temp_working_branch:
+                self.message(f"Validating using temp branch: {temp_working_branch}")
                 bp = self.manager.validate(blueprint=name, branch=temp_working_branch, commit=commit)
             else:
+                self.message(f"Validating using remote branch: {working_branch}")
                 bp = self.manager.validate(blueprint=name, branch=working_branch, commit=commit)
 
         except Exception as e:

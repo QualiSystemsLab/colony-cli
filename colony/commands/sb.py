@@ -50,6 +50,8 @@ class SandboxesCommand(BaseCommand):
 
        -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
                                         will not block terminal and just return the ID of started sandbox
+
+       -r, --remote                     Work with remote branch (default is local branch)
     """
 
     RESOURCE_MANAGER = SandboxesManager

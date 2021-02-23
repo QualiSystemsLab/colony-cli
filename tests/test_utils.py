@@ -2,9 +2,10 @@ import os
 import shutil
 import tempfile
 import unittest
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock, call ,patch
 
 from git import Actor, Repo
+
 
 from colony import utils
 from colony.exceptions import BadBlueprintRepo
@@ -108,21 +109,25 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.switch = utils.switch_to_temp_branch
         self.revert = utils.revert_from_temp_branch
 
-    def test_switch_to_temp_branch(self):
+    @patch.object(utils, "stash_local_changes_and_preserve_uncommitted_code")
+    @patch.object(utils, "create_local_branch")
+    @patch.object(utils, "create_remote_branch")
+    def test_switch_to_temp_branch(self,mock3,mock2,mock1):
         # Arrange:
         mock_repo = MagicMock()
-        defined_branch_in_file = "abc"
+        defined_branch_in_file = MagicMock()
         # Act:
         uncommitted_branch_name = self.switch(mock_repo,defined_branch_in_file)
         # Assert:
-        mock_repo.git.stash.assert_has_calls([call('save'),call('apply')])
-        mock_repo.git.checkout.assert_called_once()
-        mock_repo.git.add.assert_called_once()
-        mock_repo.git.commit.assert_called_once()
-        mock_repo.git.push.assert_called_once_with("origin",uncommitted_branch_name)
+        mock1.assert_called_once_with(mock_repo)
+        mock2.assert_called_once_with(mock_repo, uncommitted_branch_name)
+        mock3.assert_called_once_with(mock_repo, uncommitted_branch_name)
         self.assertTrue(uncommitted_branch_name.startswith(UNCOMMITTED_BRANCH_NAME))
 
-    def test_revert_from_temp_branch(self):
+    @patch.object(utils, "checkout_remote_branch")
+    @patch.object(utils, "delete_temp_branch")
+    @patch.object(utils, "revert_from_uncommitted_code")
+    def test_revert_from_temp_branch(self,mock3,mock2,mock1):
         # Arrange:
         mock_repo = MagicMock()
         temp_branch = "temp_branch"
@@ -130,10 +135,10 @@ class TestStashLogicFunctions(unittest.TestCase):
         # Act:
         self.revert(mock_repo,temp_branch,active_branch)
         # Assert:
-        mock_repo.git.checkout.assert_called_once_with(active_branch)
-        mock_repo.git.push.assert_called_once_with("origin", "--delete", temp_branch)
-        mock_repo.delete_head.assert_called_once_with("-D", temp_branch)
-        mock_repo.git.stash.assert_called_once_with('pop')
+        mock1.assert_called_once_with(mock_repo,active_branch,)
+        mock2.assert_called_once_with(mock_repo,temp_branch)
+        mock3.assert_called_once_with(mock_repo)
+
 
 if __name__ == "__main__":
     unittest.main()

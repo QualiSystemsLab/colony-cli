@@ -186,22 +186,43 @@ def switch_to_temp_branch(repo:BlueprintRepo,defined_branch_in_file:str) -> str:
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
     try:
         #todo return id and use it for revert_from_temp_branch
-        id_unparsed = repo.git.stash('save')
-        #id = id_unparsed.split(": ")[1].split(" U")[0]
-        repo.git.stash('apply')
-        repo.git.checkout("-b", uncommitted_branch_name)
-        repo.git.add('--all')
-        repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
-        repo.git.push("origin", uncommitted_branch_name)
+        stash_local_changes_and_preserve_uncommitted_code(repo)
+        create_local_branch(repo, uncommitted_branch_name)
+        create_remote_branch(repo, uncommitted_branch_name)
     except Exception as e:
         raise e
     return uncommitted_branch_name
 
+def create_remote_branch(repo, uncommitted_branch_name):
+    repo.git.push("origin", uncommitted_branch_name)
+
+def create_local_branch(repo, uncommitted_branch_name):
+    repo.git.checkout("-b", uncommitted_branch_name)
+    repo.git.add('--all')
+    repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
+
+def stash_local_changes_and_preserve_uncommitted_code(repo):
+    id_unparsed = repo.git.stash('save')
+    # id = id_unparsed.split(": ")[1].split(" U")[0]
+    repo.git.stash('apply')
+
 def revert_from_temp_branch(repo:BlueprintRepo,temp_branch, active_branch) -> None:
     try:
-        repo.git.checkout(active_branch)
-        repo.git.push("origin","--delete", temp_branch)
-        repo.delete_head("-D", temp_branch)
-        repo.git.stash('pop')
+        checkout_remote_branch(repo,active_branch)
+        delete_temp_branch(repo,temp_branch,)
+        revert_from_uncommitted_code(repo)
     except Exception as e:
         raise e
+
+
+def revert_from_uncommitted_code(repo):
+    repo.git.stash('pop')
+
+
+def delete_temp_branch(repo,temp_branch,):
+    repo.git.push("origin", "--delete", temp_branch)
+    repo.delete_head("-D", temp_branch)
+
+
+def checkout_remote_branch(active_branch, repo):
+    repo.git.checkout(active_branch)
