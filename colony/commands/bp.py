@@ -7,8 +7,13 @@ from docopt import DocoptExit
 from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
-from colony.utils import get_blueprint_working_branch, BlueprintRepo, set_blueprint_working_temp_branch
-from colony.utils import UNCOMMITTED_BRANCH_NAME, revert_from_temp_branch, switch_to_temp_branch
+from colony.utils import (
+    UNCOMMITTED_BRANCH_NAME,
+    BlueprintRepo,
+    get_blueprint_working_branch,
+    revert_from_temp_branch,
+    switch_to_temp_branch,
+)
 
 logger = logging.getLogger(__name__)
 

@@ -9,13 +9,13 @@ from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
 from colony.utils import (
+    UNCOMMITTED_BRANCH_NAME,
     BlueprintRepo,
     get_blueprint_working_branch,
     parse_comma_separated_string,
-    switch_to_temp_branch,
-    UNCOMMITTED_BRANCH_NAME,
     revert_from_temp_branch,
-)
+    switch_to_temp_branch,
+ )
 
 logger = logging.getLogger(__name__)
 

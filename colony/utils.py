@@ -2,8 +2,8 @@ import logging
 import os
 import random
 import string
-import yaml
 
+import yaml
 from git import InvalidGitRepositoryError, Repo
 
 from colony.exceptions import BadBlueprintRepo
@@ -12,6 +12,7 @@ logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 UNCOMMITTED_BRANCH_NAME = "tmp-colony-"
+
 
 class BlueprintRepo(Repo):
     bp_file_extensions = [".yaml", ".yml"]
@@ -206,7 +207,7 @@ def create_local_branch(repo, uncommitted_branch_name):
 
 
 def stash_local_changes_and_preserve_uncommitted_code(repo):
-    id_unparsed = repo.git.stash("save")
+    repo.git.stash("save")
     # id = id_unparsed.split(": ")[1].split(" U")[0]
     repo.git.stash("apply")
 

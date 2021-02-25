@@ -2,14 +2,13 @@ import os
 import shutil
 import tempfile
 import unittest
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock , patch
 
 from git import Actor, Repo
 
-
 from colony import utils
 from colony.exceptions import BadBlueprintRepo
-from colony.utils import BlueprintRepo, UNCOMMITTED_BRANCH_NAME
+from colony.utils import UNCOMMITTED_BRANCH_NAME, BlueprintRepo
 
 
 class TestParseParamString(unittest.TestCase):
