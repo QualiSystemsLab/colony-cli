@@ -76,8 +76,10 @@ class BlueprintsCommand(BaseCommand):
                     temp_working_branch = switch_to_temp_branch(repo, working_branch)
                     self.message(f"Validating using temp branch: {temp_working_branch}")
                 except Exception as e:
-                    logger.warning(f"Was not able push your latest changes to temp branch for validation. "
-                                   f"Branch {working_branch} will be used. Reason: {str(e)}")
+                    logger.warning(
+                            f"Was not able push your latest changes to temp branch for validation. "
+                            f"Branch {working_branch} will be used. Reason: {str(e)}"
+                        )
                     temp_working_branch = ""
 
         validation_branch = temp_working_branch or working_branch
