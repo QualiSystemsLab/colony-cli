@@ -129,12 +129,6 @@ class SandboxesCommand(BaseCommand):
             try:
                 working_branch = get_blueprint_working_branch(repo, blueprint_name=bp_name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
-                if not remote:
-                    temp_working_branch = working_branch
-                    try:
-                        temp_working_branch = switch_to_temp_branch(repo, working_branch)
-                    except Exception as e:
-                        logger.error(f"Was not able to create temp branch for validation - {str(e)}")
 
             except BadBlueprintRepo as e:
                 working_branch = None
@@ -142,6 +136,17 @@ class SandboxesCommand(BaseCommand):
                     f"No branch has been specified and it could not be identified from the working directory; "
                     f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
                 )
+
+            if not remote and not repo.is_current_branch_synced():
+                temp_working_branch = working_branch
+                try:
+                    temp_working_branch = switch_to_temp_branch(repo, working_branch)
+                except Exception as e:
+                    logger.error(f"Was not able to create temp branch - {str(e)}")
+                    if working_branch:
+                        logger.warning(f"Branch {working_branch} will be used. Reason: {str(e)}")
+                    else:
+                        logger.warning(f"Remote branch will be used. Reason: {str(e)}")
 
         # TODO(ddovbii): This obtaining default values magic mast be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
@@ -163,8 +168,10 @@ class SandboxesCommand(BaseCommand):
         except Exception as e:
             logger.debug(f"Unable to obtain default values. Details: {e}")
 
+        branch_to_be_used = temp_working_branch or working_branch
+
         try:
-            sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
+            sandbox_id = self.manager.start(name, bp_name, duration, branch_to_be_used, commit, artifacts, inputs)
 
         except Exception as e:
             logger.exception(e, exc_info=False)
