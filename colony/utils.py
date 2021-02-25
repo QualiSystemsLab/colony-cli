@@ -24,7 +24,7 @@ class BlueprintRepo(Repo):
 
     def __init__(self, path: str):
         try:
-            super().__init__(path)
+            super().__init__(path, search_parent_directories=True)
         except InvalidGitRepositoryError:
             raise BadBlueprintRepo("Not a git folder")
         if self.bare:

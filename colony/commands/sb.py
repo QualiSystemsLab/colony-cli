@@ -114,8 +114,10 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
+
         temp_working_branch = ""
         repo = BlueprintRepo(os.getcwd())
+
         if branch:
             working_branch = branch
         else:
@@ -128,6 +130,8 @@ class SandboxesCommand(BaseCommand):
                         temp_working_branch = switch_to_temp_branch(repo, working_branch)
                     except Exception as e:
                         logger.error(f"Was not able to create temp branch for validation - {str(e)}")
+
+
             except BadBlueprintRepo as e:
                 working_branch = None
                 logger.warning(
