@@ -2,7 +2,7 @@ import os
 import shutil
 import tempfile
 import unittest
-from unittest.mock import MagicMock , patch
+from unittest.mock import MagicMock, patch
 
 from git import Actor, Repo
 

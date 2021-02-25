@@ -15,7 +15,7 @@ from colony.utils import (
     parse_comma_separated_string,
     revert_from_temp_branch,
     switch_to_temp_branch,
- )
+)
 
 logger = logging.getLogger(__name__)
 
