@@ -52,22 +52,25 @@ class BlueprintsCommand(BaseCommand):
             raise DocoptExit("Since commit is specified, branch is required")
 
         temp_working_branch = ""
-        repo = BlueprintRepo(os.getcwd())
+        repo = None
         if branch:
             working_branch = branch
         else:
             # Try to detect branch from current git-enabled folder
             logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
             try:
+                repo = BlueprintRepo(os.getcwd())
                 # todo get flag for stash mode
                 working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
-                if not remote:
-                    temp_working_branch = working_branch
+                if not remote and not repo.is_current_branch_synced():
                     try:
                         temp_working_branch = switch_to_temp_branch(repo, working_branch)
+                        self.message(f"Validating using temp branch: {temp_working_branch}")
                     except Exception as e:
-                        logger.error(f"Was not able to create temp branch for validation - {str(e)}")
+                        logger.warning(f"Was not able push your latest changes to temp branch for validation. "
+                                       f"Branch {working_branch} will be used. Reason: {str(e)}")
+                        temp_working_branch = ""
 
             except BadBlueprintRepo as e:
                 working_branch = None
@@ -76,13 +79,10 @@ class BlueprintsCommand(BaseCommand):
                     f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
                 )
 
+        validation_branch = temp_working_branch or working_branch
+
         try:
-            if temp_working_branch:
-                self.message(f"Validating using temp branch: {temp_working_branch}")
-                bp = self.manager.validate(blueprint=name, branch=temp_working_branch, commit=commit)
-            else:
-                self.message(f"Validating using remote branch: {working_branch}")
-                bp = self.manager.validate(blueprint=name, branch=working_branch, commit=commit)
+            bp = self.manager.validate(blueprint=name, branch=validation_branch, commit=commit)
 
         except Exception as e:
             logger.exception(e, exc_info=False)
