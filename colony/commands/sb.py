@@ -9,8 +9,7 @@ from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo, get_blueprint_working_branch, parse_comma_separated_string, \
-    set_blueprint_working_temp_branch, switch_to_temp_branch
-from colony.utils import UNCOMMITTED_BRANCH_NAME,revert_from_temp_branch
+    switch_to_temp_branch, UNCOMMITTED_BRANCH_NAME, revert_from_temp_branch
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +49,6 @@ class SandboxesCommand(BaseCommand):
 
        -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
                                         will not block terminal and just return the ID of started sandbox
-
        -r, --remote                     Work with remote branch (default is local branch)
     """
 
@@ -116,25 +114,6 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-        logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
-        try:
-            repo = BlueprintRepo(os.getcwd())
-            if not repo.is_current_branch_synced():
-                logger.debug("Skipping obtaining values since local branch is not synced with remote")
-            else:
-                for art_name, art_path in repo.get_blueprint_artifacts(bp_name).items():
-                    if art_name not in artifacts and art_path is not None:
-                        logger.debug(f"Artifact `{art_name}` has been set with default path `{art_path}`")
-                        artifacts[art_name] = art_path
-
-                for input_name, input_value in repo.get_blueprint_default_inputs(bp_name).items():
-                    if input_name not in inputs and input_value is not None:
-                        logger.debug(f"Parameter `{input_name}` has been set with default value `{input_value}`")
-                        inputs[input_name] = input_value
-
-        except Exception as e:
-            logger.debug(f"Unable to recognize current directory as a blueprint repo. Details: {e}")
-
         temp_working_branch = ""
         repo = BlueprintRepo(os.getcwd())
         if branch:
@@ -156,24 +135,39 @@ class SandboxesCommand(BaseCommand):
                     f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
                 )
 
+        # TODO(ddovbii): This obtaining default values magic mast be refactored
+        logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
         try:
-            if temp_working_branch:
-                self.message(f"Using temp branch: {temp_working_branch}")
-                sandbox_id = self.manager.start(name, bp_name, duration, temp_working_branch, commit, artifacts, inputs)
+            repo = BlueprintRepo(os.getcwd())
+            if not repo.is_current_branch_synced():
+                logger.debug("Skipping obtaining values since local branch is not synced with remote")
             else:
-                self.message(f"Using remote branch: {working_branch}")
-                sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
+                for art_name, art_path in repo.get_blueprint_artifacts(bp_name).items():
+                    if art_name not in artifacts and art_path is not None:
+                        logger.debug(f"Artifact `{art_name}` has been set with default path `{art_path}`")
+                        artifacts[art_name] = art_path
+
+                for input_name, input_value in repo.get_blueprint_default_inputs(bp_name).items():
+                    if input_name not in inputs and input_value is not None:
+                        logger.debug(f"Parameter `{input_name}` has been set with default value `{input_value}`")
+                        inputs[input_name] = input_value
+
+        except Exception as e:
+            logger.debug(f"Unable to obtain default values. Details: {e}")
+
+        try:
+            sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
 
         except Exception as e:
             logger.exception(e, exc_info=False)
             sandbox_id = None
             self.die()
 
-        if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-            revert_from_temp_branch(repo,temp_working_branch, working_branch)
-
         if timeout is None:
             self.success(sandbox_id)
+
+        if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+            revert_from_temp_branch(repo,temp_working_branch, working_branch)
 
         else:
             start_time = datetime.datetime.now()
