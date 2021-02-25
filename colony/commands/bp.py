@@ -63,14 +63,6 @@ class BlueprintsCommand(BaseCommand):
                 # todo get flag for stash mode
                 working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
-                if not remote and not repo.is_current_branch_synced():
-                    try:
-                        temp_working_branch = switch_to_temp_branch(repo, working_branch)
-                        self.message(f"Validating using temp branch: {temp_working_branch}")
-                    except Exception as e:
-                        logger.warning(f"Was not able push your latest changes to temp branch for validation. "
-                                       f"Branch {working_branch} will be used. Reason: {str(e)}")
-                        temp_working_branch = ""
 
             except BadBlueprintRepo as e:
                 working_branch = None
@@ -78,6 +70,15 @@ class BlueprintsCommand(BaseCommand):
                     f"No branch has been specified and it could not be identified from the working directory; "
                     f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
                 )
+
+            if not remote and not repo.is_current_branch_synced():
+                try:
+                    temp_working_branch = switch_to_temp_branch(repo, working_branch)
+                    self.message(f"Validating using temp branch: {temp_working_branch}")
+                except Exception as e:
+                    logger.warning(f"Was not able push your latest changes to temp branch for validation. "
+                                   f"Branch {working_branch} will be used. Reason: {str(e)}")
+                    temp_working_branch = ""
 
         validation_branch = temp_working_branch or working_branch
 
