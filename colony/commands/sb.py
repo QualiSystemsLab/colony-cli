@@ -142,7 +142,7 @@ class SandboxesCommand(BaseCommand):
                 try:
                     temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 except Exception as e:
-                    logger.error(f"Was not able to create temp branch - {str(e)}")
+                    logger.error("Was not able to create temp branch.")
                     if working_branch:
                         logger.warning(f"Branch {working_branch} will be used. Reason: {str(e)}")
                     else:
