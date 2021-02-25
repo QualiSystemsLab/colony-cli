@@ -8,7 +8,7 @@ from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
 from colony.utils import get_blueprint_working_branch, BlueprintRepo, set_blueprint_working_temp_branch
-from colony.utils import UNCOMMITTED_BRANCH_NAME,revert_from_temp_branch,switch_to_temp_branch
+from colony.utils import UNCOMMITTED_BRANCH_NAME, revert_from_temp_branch, switch_to_temp_branch
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class BlueprintsCommand(BaseCommand):
             # Try to detect branch from current git-enabled folder
             logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
             try:
-                #todo get flag for stash mode
+                # todo get flag for stash mode
                 working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
                 if not remote:
@@ -87,7 +87,7 @@ class BlueprintsCommand(BaseCommand):
         errors = getattr(bp, "errors")
 
         if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-            revert_from_temp_branch(repo,temp_working_branch, working_branch)
+            revert_from_temp_branch(repo, temp_working_branch, working_branch)
 
         if errors:
             # We don't need error code
@@ -98,4 +98,3 @@ class BlueprintsCommand(BaseCommand):
 
         else:
             self.success("Valid")
-

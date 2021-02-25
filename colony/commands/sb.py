@@ -8,8 +8,14 @@ from docopt import DocoptExit
 from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo, get_blueprint_working_branch, parse_comma_separated_string, \
-    switch_to_temp_branch, UNCOMMITTED_BRANCH_NAME, revert_from_temp_branch
+from colony.utils import (
+    BlueprintRepo,
+    get_blueprint_working_branch,
+    parse_comma_separated_string,
+    switch_to_temp_branch,
+    UNCOMMITTED_BRANCH_NAME,
+    revert_from_temp_branch,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +120,6 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-
         temp_working_branch = ""
         repo = BlueprintRepo(os.getcwd())
 
@@ -122,7 +127,7 @@ class SandboxesCommand(BaseCommand):
             working_branch = branch
         else:
             try:
-                working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
+                working_branch = get_blueprint_working_branch(repo, blueprint_name=bp_name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
                 if not remote:
                     temp_working_branch = working_branch
@@ -130,7 +135,6 @@ class SandboxesCommand(BaseCommand):
                         temp_working_branch = switch_to_temp_branch(repo, working_branch)
                     except Exception as e:
                         logger.error(f"Was not able to create temp branch for validation - {str(e)}")
-
 
             except BadBlueprintRepo as e:
                 working_branch = None
@@ -171,7 +175,7 @@ class SandboxesCommand(BaseCommand):
             self.success(sandbox_id)
 
         if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-            revert_from_temp_branch(repo,temp_working_branch, working_branch)
+            revert_from_temp_branch(repo, temp_working_branch, working_branch)
 
         else:
             start_time = datetime.datetime.now()

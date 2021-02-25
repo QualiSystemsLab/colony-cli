@@ -1,12 +1,9 @@
 import logging
 import os
-import subprocess
 import random
 import string
-
-from typing import Union, Any
-
 import yaml
+
 from git import InvalidGitRepositoryError, Repo
 
 from colony.exceptions import BadBlueprintRepo
@@ -116,18 +113,19 @@ class BlueprintRepo(Repo):
     def get_active_branch(self) -> str:
         return self._active_branch
 
-    def set_active_branch(self,branch_name: str) -> None:
+    def set_active_branch(self, branch_name: str) -> None:
         self._active_branch = branch_name
         return
 
     def get_temp_branch(self) -> str:
         return self._temp_branch
 
-    def set_temp_branch(self,branch_name: str) -> None:
+    def set_temp_branch(self, branch_name: str) -> None:
         self._temp_branch = branch_name
         return
 
-def get_blueprint_working_branch(repo:BlueprintRepo, blueprint_name: str) -> str:
+
+def get_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> str:
 
     if repo.is_repo_detached():
         raise BadBlueprintRepo("Repo's HEAD is in detached state")
@@ -150,16 +148,18 @@ def get_blueprint_working_branch(repo:BlueprintRepo, blueprint_name: str) -> str
 
     return branch
 
-def set_blueprint_working_temp_branch(repo:BlueprintRepo,defined_branch_in_file: str) -> str:
+
+def set_blueprint_working_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> str:
 
     temp_branch = defined_branch_in_file
 
     try:
-        temp_branch = switch_to_temp_branch(repo,defined_branch_in_file)
+        temp_branch = switch_to_temp_branch(repo, defined_branch_in_file)
     except Exception as e:
         logger.error(f"Was not able to create temp branch for validation - {str(e)}")
 
     return temp_branch
+
 
 def parse_comma_separated_string(params_string: str = None) -> dict:
     res = {}
@@ -181,11 +181,12 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
 
     return res
 
-def switch_to_temp_branch(repo:BlueprintRepo,defined_branch_in_file:str) -> str:
-    random_suffix = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+
+def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> str:
+    random_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(10))
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
     try:
-        #todo return id and use it for revert_from_temp_branch
+        # todo return id and use it for revert_from_temp_branch
         stash_local_changes_and_preserve_uncommitted_code(repo)
         create_local_branch(repo, uncommitted_branch_name)
         create_remote_branch(repo, uncommitted_branch_name)
@@ -193,33 +194,43 @@ def switch_to_temp_branch(repo:BlueprintRepo,defined_branch_in_file:str) -> str:
         raise e
     return uncommitted_branch_name
 
+
 def create_remote_branch(repo, uncommitted_branch_name):
     repo.git.push("origin", uncommitted_branch_name)
 
+
 def create_local_branch(repo, uncommitted_branch_name):
     repo.git.checkout("-b", uncommitted_branch_name)
-    repo.git.add('--all')
+    repo.git.add("--all")
     repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
 
-def stash_local_changes_and_preserve_uncommitted_code(repo):
-    id_unparsed = repo.git.stash('save')
-    # id = id_unparsed.split(": ")[1].split(" U")[0]
-    repo.git.stash('apply')
 
-def revert_from_temp_branch(repo:BlueprintRepo,temp_branch, active_branch) -> None:
+def stash_local_changes_and_preserve_uncommitted_code(repo):
+    id_unparsed = repo.git.stash("save")
+    # id = id_unparsed.split(": ")[1].split(" U")[0]
+    repo.git.stash("apply")
+
+
+def revert_from_temp_branch(repo: BlueprintRepo, temp_branch, active_branch) -> None:
     try:
-        checkout_remote_branch(repo,active_branch)
-        delete_temp_branch(repo,temp_branch,)
+        checkout_remote_branch(repo, active_branch)
+        delete_temp_branch(
+            repo,
+            temp_branch,
+        )
         revert_from_uncommitted_code(repo)
     except Exception as e:
         raise e
 
 
 def revert_from_uncommitted_code(repo):
-    repo.git.stash('pop')
+    repo.git.stash("pop")
 
 
-def delete_temp_branch(repo,temp_branch,):
+def delete_temp_branch(
+    repo,
+    temp_branch,
+):
     repo.git.push("origin", "--delete", temp_branch)
     repo.delete_head("-D", temp_branch)
 
