@@ -137,7 +137,11 @@ class SandboxesCommand(BaseCommand):
                     f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
                 )
 
-            if not remote and not repo.is_current_branch_synced():
+            # Checking if:
+            # 1) User has specified not use local (not remote)
+            # 2) User is in ana actual git dir (working_branch)
+            # 3) There is even a need to create a temp branch for out-of-sync reasons (repo.is_current_branch_synced())
+            if not remote and working_branch and not repo.is_current_branch_synced():
                 temp_working_branch = working_branch
                 try:
                     temp_working_branch = switch_to_temp_branch(repo, working_branch)
@@ -148,7 +152,7 @@ class SandboxesCommand(BaseCommand):
                     else:
                         logger.warning(f"Remote branch will be used. Reason: {str(e)}")
 
-        # TODO(ddovbii): This obtaining default values magic mast be refactored
+        # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
         try:
             repo = BlueprintRepo(os.getcwd())
