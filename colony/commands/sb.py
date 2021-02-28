@@ -121,12 +121,13 @@ class SandboxesCommand(BaseCommand):
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
         temp_working_branch = ""
-        repo = BlueprintRepo(os.getcwd())
+        repo = None
 
         if branch:
             working_branch = branch
         else:
             try:
+                repo = BlueprintRepo(os.getcwd())
                 working_branch = get_blueprint_working_branch(repo, blueprint_name=bp_name)
                 self.message(f"Automatically detected current working branch: {working_branch}")
 
@@ -138,8 +139,8 @@ class SandboxesCommand(BaseCommand):
                 )
 
             # Checking if:
-            # 1) User has specified not use local (not remote)
-            # 2) User is in ana actual git dir (working_branch)
+            # 1) User has specified not to use local (not remote)
+            # 2) User is in an actual git dir (working_branch)
             # 3) There is even a need to create a temp branch for out-of-sync reasons (repo.is_current_branch_synced())
             if not remote and working_branch and not repo.is_current_branch_synced():
                 temp_working_branch = working_branch
