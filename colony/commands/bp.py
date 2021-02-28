@@ -1,18 +1,14 @@
 import logging
-import os
 
 import tabulate
 from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
-from colony.exceptions import BadBlueprintRepo
 from colony.utils import (
     UNCOMMITTED_BRANCH_NAME,
-    BlueprintRepo,
-    get_blueprint_working_branch,
     revert_from_temp_branch,
-    switch_to_temp_branch,
+    figure_out_branch
 )
 
 logger = logging.getLogger(__name__)
@@ -51,40 +47,7 @@ class BlueprintsCommand(BaseCommand):
         if commit and branch is None:
             raise DocoptExit("Since commit is specified, branch is required")
 
-        temp_working_branch = ""
-        repo = None
-        if branch:
-            working_branch = branch
-        else:
-            # Try to detect branch from current git-enabled folder
-            logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
-            try:
-                repo = BlueprintRepo(os.getcwd())
-                # todo get flag for stash mode
-                working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
-                self.message(f"Automatically detected current working branch: {working_branch}")
-
-            except BadBlueprintRepo as e:
-                working_branch = None
-                logger.warning(
-                    f"No branch has been specified and it could not be identified from the working directory; "
-                    f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
-                )
-
-            # Checking if:
-            # 1) User has specified not use local (not remote)
-            # 2) User is in ana actual git dir (working_branch)
-            # 3) There is even a need to create a temp branch for out-of-sync reasons (repo.is_current_branch_synced())
-            if not remote and working_branch and not repo.is_current_branch_synced():
-                try:
-                    temp_working_branch = switch_to_temp_branch(repo, working_branch)
-                    self.message(f"Validating using temp branch: {temp_working_branch}")
-                except Exception as e:
-                    logger.warning("Was not able push your latest changes to temp branch for validation.")
-                    if working_branch:
-                        logger.warning(f"Branch {working_branch} will be used. Reason: {str(e)}")
-                    else:
-                        logger.warning(f"Remote branch will be used. Reason: {str(e)}")
+        repo, working_branch, temp_working_branch = figure_out_branch(branch, name, remote)
 
         validation_branch = temp_working_branch or working_branch
 

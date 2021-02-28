@@ -6,15 +6,13 @@ import time
 from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
-from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
 from colony.utils import (
     UNCOMMITTED_BRANCH_NAME,
     BlueprintRepo,
-    get_blueprint_working_branch,
     parse_comma_separated_string,
     revert_from_temp_branch,
-    switch_to_temp_branch,
+    figure_out_branch
 )
 
 logger = logging.getLogger(__name__)
@@ -120,38 +118,7 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-        temp_working_branch = ""
-        repo = None
-
-        if branch:
-            working_branch = branch
-        else:
-            try:
-                repo = BlueprintRepo(os.getcwd())
-                working_branch = get_blueprint_working_branch(repo, blueprint_name=bp_name)
-                self.message(f"Automatically detected current working branch: {working_branch}")
-
-            except BadBlueprintRepo as e:
-                working_branch = None
-                logger.warning(
-                    f"No branch has been specified and it could not be identified from the working directory; "
-                    f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
-                )
-
-            # Checking if:
-            # 1) User has specified not to use local (not remote)
-            # 2) User is in an actual git dir (working_branch)
-            # 3) There is even a need to create a temp branch for out-of-sync reasons (repo.is_current_branch_synced())
-            if not remote and working_branch and not repo.is_current_branch_synced():
-                temp_working_branch = working_branch
-                try:
-                    temp_working_branch = switch_to_temp_branch(repo, working_branch)
-                except Exception as e:
-                    logger.error("Was not able to create temp branch.")
-                    if working_branch:
-                        logger.warning(f"Branch {working_branch} will be used. Reason: {str(e)}")
-                    else:
-                        logger.warning(f"Remote branch will be used. Reason: {str(e)}")
+        repo, working_branch, temp_working_branch = figure_out_branch(branch, name, remote)
 
         # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")

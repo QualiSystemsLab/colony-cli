@@ -7,6 +7,7 @@ import yaml
 from git import InvalidGitRepositoryError, Repo
 
 from colony.exceptions import BadBlueprintRepo
+from colony.commands.base import BaseCommand
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -181,6 +182,44 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
         res[key] = val
 
     return res
+
+
+def figure_out_branch(branch, name, remote):
+    temp_working_branch = ""
+    repo = None
+    if branch:
+        working_branch = branch
+    else:
+        # Try to detect branch from current git-enabled folder
+        logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
+        try:
+            repo = BlueprintRepo(os.getcwd())
+            # todo get flag for stash mode
+            working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
+            BaseCommand.message(f"Automatically detected current working branch: {working_branch}")
+
+        except BadBlueprintRepo as e:
+            working_branch = None
+            logger.warning(
+                f"No branch has been specified and it could not be identified from the working directory; "
+                f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
+            )
+
+        # Checking if:
+        # 1) User has specified not use local (not remote)
+        # 2) User is in ana actual git dir (working_branch)
+        # 3) There is even a need to create a temp branch for out-of-sync reasons (repo.is_current_branch_synced())
+        if not remote and working_branch and not repo.is_current_branch_synced():
+            try:
+                temp_working_branch = switch_to_temp_branch(repo, working_branch)
+                BaseCommand.message(f"Validating using temp branch: {temp_working_branch}")
+            except Exception as e:
+                logger.warning("Was not able push your latest changes to temp branch for validation.")
+                if working_branch:
+                    logger.warning(f"Branch {working_branch} will be used. Reason: {str(e)}")
+                else:
+                    logger.warning(f"Remote branch will be used. Reason: {str(e)}")
+    return repo, working_branch, temp_working_branch
 
 
 def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> str:
