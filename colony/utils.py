@@ -208,8 +208,10 @@ def figure_out_branch(branch, name, remote):
         # Checking if:
         # 1) User has specified not use local (not remote)
         # 2) User is in ana actual git dir (working_branch)
-        # 3) There is even a need to create a temp branch for out-of-sync reasons (repo.is_current_branch_synced())
-        if not remote and working_branch and not repo.is_current_branch_synced():
+        # 3) There is even a need to create a temp branch for out-of-sync reasons:
+        #   either repo.is_dirty() (changes have not been committed locally)
+        #   or repo.is_current_branch_synced() (changes committed locally but not pushed to remote)
+        if not remote and working_branch and (repo.is_dirty() or repo.is_current_branch_synced()):
             try:
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(f"Validating using temp branch: {temp_working_branch}")
