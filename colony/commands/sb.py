@@ -53,7 +53,10 @@ class SandboxesCommand(BaseCommand):
 
        -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
                                         will not block terminal and just return the ID of started sandbox
-       -r, --remote                     Work with remote branch (default is local branch)
+       -r, --remote                     The Blueprint used for the Sandbox will extracted out of the remote Git Repo
+                                        either configured referenced in current working directory or on colony space
+                                        * default mode - Check if local code state equals remote branch -> use remote
+                                        - If not create temp repo branch of current code state and use that repo
     """
 
     RESOURCE_MANAGER = SandboxesManager

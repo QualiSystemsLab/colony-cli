@@ -28,7 +28,10 @@ class BlueprintsCommand(BaseCommand):
                                 Must be used together with the branch option. If not specified then the latest commit
                                 will be used.
 
-       -r, --remote             Work with remote branch (default is local branch)
+       -r, --remote              The Blueprint used for the Validation will extracted out of the remote Git Repo
+                                 either configured referenced in current working directory or on colony space
+                                 * default mode - Check if local code state equals remote branch -> use remote
+                                                - If not create temp repo branch of current code state and use that repo
 
        -h --help                Show this message
     """
