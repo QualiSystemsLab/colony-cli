@@ -275,5 +275,5 @@ def delete_temp_branch(
     repo.delete_head("-D", temp_branch)
 
 
-def checkout_remote_branch(active_branch, repo):
+def checkout_remote_branch(repo, active_branch):
     repo.git.checkout(active_branch)
