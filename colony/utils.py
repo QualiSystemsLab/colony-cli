@@ -6,8 +6,8 @@ import string
 import yaml
 from git import InvalidGitRepositoryError, Repo
 
-from colony.exceptions import BadBlueprintRepo
 from colony.commands.base import BaseCommand
+from colony.exceptions import BadBlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -216,8 +216,7 @@ def figure_out_branch(branch, name):
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(f"Validating using temp branch: {temp_working_branch}")
             except Exception as e:
-                logger.warning("Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
-                
+                logger.warning(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
     return repo, working_branch, temp_working_branch
 
 

@@ -12,7 +12,7 @@ from colony.utils import (
     BlueprintRepo,
     parse_comma_separated_string,
     revert_from_temp_branch,
-    figure_out_branch
+    figure_out_branch,
 )
 
 logger = logging.getLogger(__name__)
