@@ -28,11 +28,6 @@ class BlueprintsCommand(BaseCommand):
                                 Must be used together with the branch option. If not specified then the latest commit
                                 will be used.
 
-       -r, --remote              The Blueprint used for the Validation will extracted out of the remote Git Repo
-                                 either configured referenced in current working directory or on colony space
-                                 * default mode - Check if local code state equals remote branch -> use remote
-                                                - If not create temp repo branch of current code state and use that repo
-
        -h --help                Show this message
     """
 
@@ -45,12 +40,11 @@ class BlueprintsCommand(BaseCommand):
         name = self.args.get("<name>")
         branch = self.args.get("--branch")
         commit = self.args.get("--commit")
-        remote = self.args.get("--remote")
 
         if commit and branch is None:
             raise DocoptExit("Since commit is specified, branch is required")
 
-        repo, working_branch, temp_working_branch = figure_out_branch(branch, name, remote)
+        repo, working_branch, temp_working_branch = figure_out_branch(branch, name)
 
         validation_branch = temp_working_branch or working_branch
 

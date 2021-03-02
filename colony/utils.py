@@ -184,7 +184,7 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
     return res
 
 
-def figure_out_branch(branch, name, remote):
+def figure_out_branch(branch, name):
     temp_working_branch = ""
     repo = None
     if branch:
@@ -206,12 +206,12 @@ def figure_out_branch(branch, name, remote):
             )
 
         # Checking if:
-        # 1) User has specified not use local (not remote)
+        # 1) User has specified not use local (specified a branch)
         # 2) User is in an actual git dir (working_branch)
         # 3) There is even a need to create a temp branch for out-of-sync reasons:
         #   either repo.is_dirty() (changes have not been committed locally)
         #   or repo.is_current_branch_synced() (changes committed locally but not pushed to remote)
-        if not remote and working_branch and (repo.is_dirty() or repo.is_current_branch_synced()):
+        if not branch and working_branch and (repo.is_dirty() or repo.is_current_branch_synced()):
             try:
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(f"Validating using temp branch: {temp_working_branch}")

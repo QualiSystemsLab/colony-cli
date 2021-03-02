@@ -53,10 +53,7 @@ class SandboxesCommand(BaseCommand):
 
        -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
                                         will not block terminal and just return the ID of started sandbox
-       -r, --remote                     The Blueprint used for the Sandbox will extracted out of the remote Git Repo
-                                        either configured referenced in current working directory or on colony space
-                                        * default mode - Check if local code state equals remote branch -> use remote
-                                        - If not create temp repo branch of current code state and use that repo
+
     """
 
     RESOURCE_MANAGER = SandboxesManager
@@ -92,7 +89,6 @@ class SandboxesCommand(BaseCommand):
         commit = self.args.get("--commit")
         name = self.args["--name"]
         timeout = self.args["--wait"]
-        remote = self.args.get("--remote")
 
         if timeout is not None:
             try:
@@ -121,7 +117,7 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-        repo, working_branch, temp_working_branch = figure_out_branch(branch, name, remote)
+        repo, working_branch, temp_working_branch = figure_out_branch(branch, name)
 
         # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
