@@ -61,9 +61,6 @@ jobs:
       run: |
         python -m pytest --cov=./colony --cov-report xml
     - name: Run coveralls
-      env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALL_TOKEN }}
-          GITHUB_TOKEN : ${{ secrets.COVERALL_TOKEN }}
-
-      run: |
-        coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
