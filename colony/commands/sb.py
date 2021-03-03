@@ -8,11 +8,11 @@ from docopt import DocoptExit
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
 from colony.utils import (
-    UNCOMMITTED_BRANCH_NAME,
-    BlueprintRepo,
-    parse_comma_separated_string,
-    revert_from_temp_branch,
+     UNCOMMITTED_BRANCH_NAME,
+     BlueprintRepo,
     figure_out_branch,
+     parse_comma_separated_string,
+     revert_from_temp_branch,
 )
 
 logger = logging.getLogger(__name__)
