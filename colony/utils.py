@@ -134,7 +134,6 @@ class BlueprintRepo(Repo):
 
 
 def get_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> str:
-
     if repo.is_repo_detached():
         raise BadBlueprintRepo("Repo's HEAD is in detached state")
 
@@ -150,7 +149,7 @@ def get_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> st
 
     if not repo.current_branch_exists_on_remote():
         logger.warning("Your current local branch doesn't exist on remote")
-        #raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
+        # raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
 
     if not repo.is_current_branch_synced():
         logger.warning("Your local branch is not synced with remote")
@@ -159,7 +158,6 @@ def get_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> st
 
 
 def set_blueprint_working_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> str:
-
     temp_branch = defined_branch_in_file
 
     try:
@@ -273,8 +271,8 @@ def revert_from_uncommitted_code(repo):
 
 
 def delete_temp_branch(
-    repo,
-    temp_branch,
+        repo,
+        temp_branch,
 ):
     repo.git.push("origin", "--delete", temp_branch)
     repo.delete_head("-D", temp_branch)
