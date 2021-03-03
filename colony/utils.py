@@ -126,6 +126,12 @@ class BlueprintRepo(Repo):
         self._temp_branch = branch_name
         return
 
+    def is_current_state_synced_with_remote(self) -> bool:
+        # is_dirty() -> means there is *uncommitted* delta for tracked files between local and remote
+        # untracked_files -> means there is a delta which are the untracked files (uncommitted)
+        # is_current_branch_synced() -> means thoug current state *committed* there is a delta between local and remote
+        return not (self.is_dirty() or self.untracked_files or not self.is_current_branch_synced())
+
 
 def get_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> str:
 
@@ -143,7 +149,8 @@ def get_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> st
         logger.warning("You have uncommitted changes")
 
     if not repo.current_branch_exists_on_remote():
-        raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
+        logger.warning("Your current local branch doesn't exist on remote")
+        #raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
 
     if not repo.is_current_branch_synced():
         logger.warning("Your local branch is not synced with remote")
@@ -211,7 +218,7 @@ def figure_out_branch(branch, name):
         # 3) There is even a need to create a temp branch for out-of-sync reasons:
         #   either repo.is_dirty() (changes have not been committed locally)
         #   or not repo.is_current_branch_synced() (changes committed locally but not pushed to remote)
-        if not branch and working_branch and (repo.is_dirty() or not repo.is_current_branch_synced()):
+        if not branch and working_branch and not repo.is_current_state_synced_with_remote:
             try:
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(f"Validating using temp branch: {temp_working_branch}")
