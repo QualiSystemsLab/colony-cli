@@ -270,7 +270,7 @@ def revert_from_uncommitted_code(repo):
     repo.git.stash("pop")
 
 
-def delete_temp_branch(repo, temp_branch,):
+def delete_temp_branch(repo, temp_branch):
     repo.git.push("origin", "--delete", temp_branch)
     repo.delete_head("-D", temp_branch)
 
