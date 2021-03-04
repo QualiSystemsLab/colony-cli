@@ -215,7 +215,7 @@ def figure_out_branches(user_defined_branch, blueprint_name):
         # 3) There is even a need to create a temp branch for out-of-sync reasons:
         #   either repo.is_dirty() (changes have not been committed locally)
         #   or not repo.is_current_branch_synced() (changes committed locally but not pushed to remote)
-        if not user_defined_branch and working_branch and not repo.is_current_state_synced_with_remote:
+        if not user_defined_branch and working_branch and not repo.is_current_state_synced_with_remote():
             try:
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(f"Validating using temp branch: {temp_working_branch}")

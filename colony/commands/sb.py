@@ -143,7 +143,7 @@ class SandboxesCommand(BaseCommand):
 
         try:
             sandbox_id = self.manager.start(
-                                name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
+                name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
             )
 
         except Exception as e:
