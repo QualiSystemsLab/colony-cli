@@ -142,7 +142,8 @@ class SandboxesCommand(BaseCommand):
         branch_to_be_used = temp_working_branch or working_branch
 
         try:
-            sandbox_id = self.manager.start(name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs)
+            sandbox_id = self.manager.start(
+                                name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs)
 
         except Exception as e:
             logger.exception(e, exc_info=False)
