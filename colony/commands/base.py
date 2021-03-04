@@ -44,18 +44,21 @@ class BaseCommand(object):
     def get_actions_table(self) -> dict:
         return {}
 
-    def success(self, message: str = ""):
+    @staticmethod
+    def success(message: str = ""):
         if message:
             sys.stdout.write(message)
             sys.stdout.write("\n")
         sys.exit()
 
-    def die(self, message: str = ""):
+    @staticmethod
+    def die(message: str = ""):
         if message:
             sys.stderr.write(message)
             sys.stderr.write("\n")
         sys.exit(1)
 
-    def message(self, message: str = ""):
+    @staticmethod
+    def message(message: str = ""):
         sys.stdout.write(message)
         sys.stdout.write("\n")

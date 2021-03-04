@@ -6,9 +6,14 @@ import time
 from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
-from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo, get_blueprint_working_branch, parse_comma_separated_string
+from colony.utils import (
+    UNCOMMITTED_BRANCH_NAME,
+    BlueprintRepo,
+    figure_out_branches,
+    parse_comma_separated_string,
+    revert_from_temp_branch,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +53,7 @@ class SandboxesCommand(BaseCommand):
 
        -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
                                         will not block terminal and just return the ID of started sandbox
+
     """
 
     RESOURCE_MANAGER = SandboxesManager
@@ -78,7 +84,7 @@ class SandboxesCommand(BaseCommand):
         self.success("End request has been sent")
 
     def do_start(self):
-        bp_name = self.args["<blueprint_name>"]
+        blueprint_name = self.args["<blueprint_name>"]
         branch = self.args.get("--branch")
         commit = self.args.get("--commit")
         name = self.args["--name"]
@@ -95,7 +101,7 @@ class SandboxesCommand(BaseCommand):
 
         if name is None:
             suffix = datetime.datetime.now().strftime("%b%d%Y-%H:%M:%S")
-            name = f"{bp_name}-{suffix}"
+            name = f"{blueprint_name}-{suffix}"
 
         try:
             duration = int(self.args["--duration"] or 120)
@@ -111,32 +117,21 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-        if branch:
-            working_branch = branch
-        else:
-            try:
-                working_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=bp_name)
-                self.message(f"Automatically detected current working branch: {working_branch}")
-            except BadBlueprintRepo as e:
-                working_branch = None
-                logger.warning(
-                    f"No branch has been specified and it could not be identified from the working directory; "
-                    f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
-                )
+        repo, working_branch, temp_working_branch = figure_out_branches(branch, blueprint_name)
 
-        # TODO(ddovbii): This obtaining default values magic mast be refactored
+        # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
         try:
             repo = BlueprintRepo(os.getcwd())
             if not repo.is_current_branch_synced():
                 logger.debug("Skipping obtaining values since local branch is not synced with remote")
             else:
-                for art_name, art_path in repo.get_blueprint_artifacts(bp_name).items():
+                for art_name, art_path in repo.get_blueprint_artifacts(blueprint_name).items():
                     if art_name not in artifacts and art_path is not None:
                         logger.debug(f"Artifact `{art_name}` has been set with default path `{art_path}`")
                         artifacts[art_name] = art_path
 
-                for input_name, input_value in repo.get_blueprint_default_inputs(bp_name).items():
+                for input_name, input_value in repo.get_blueprint_default_inputs(blueprint_name).items():
                     if input_name not in inputs and input_value is not None:
                         logger.debug(f"Parameter `{input_name}` has been set with default value `{input_value}`")
                         inputs[input_name] = input_value
@@ -144,8 +139,12 @@ class SandboxesCommand(BaseCommand):
         except Exception as e:
             logger.debug(f"Unable to obtain default values. Details: {e}")
 
+        branch_to_be_used = temp_working_branch or working_branch
+
         try:
-            sandbox_id = self.manager.start(name, bp_name, duration, working_branch, commit, artifacts, inputs)
+            sandbox_id = self.manager.start(
+                name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
+            )
 
         except Exception as e:
             logger.exception(e, exc_info=False)
@@ -154,6 +153,9 @@ class SandboxesCommand(BaseCommand):
 
         if timeout is None:
             self.success(sandbox_id)
+
+        if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+            revert_from_temp_branch(repo, temp_working_branch, working_branch)
 
         else:
             start_time = datetime.datetime.now()

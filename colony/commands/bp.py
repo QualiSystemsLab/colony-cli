@@ -1,13 +1,11 @@
 import logging
-import os
 
 import tabulate
 from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
-from colony.exceptions import BadBlueprintRepo
-from colony.utils import get_blueprint_working_branch
+from colony.utils import UNCOMMITTED_BRANCH_NAME, figure_out_branches, revert_from_temp_branch
 
 logger = logging.getLogger(__name__)
 
@@ -35,30 +33,19 @@ class BlueprintsCommand(BaseCommand):
         return {"validate": self.do_validate}
 
     def do_validate(self):
-        name = self.args.get("<name>")
+        blueprint_name = self.args.get("<name>")
         branch = self.args.get("--branch")
         commit = self.args.get("--commit")
 
         if commit and branch is None:
             raise DocoptExit("Since commit is specified, branch is required")
 
-        if branch:
-            working_branch = branch
-        else:
-            # Try to detect branch from current git-enabled folder
-            logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
-            try:
-                working_branch = get_blueprint_working_branch(os.getcwd(), blueprint_name=name)
-                self.message(f"Automatically detected current working branch: {working_branch}")
-            except BadBlueprintRepo as e:
-                working_branch = None
-                logger.warning(
-                    f"No branch has been specified and it could not be identified from the working directory; "
-                    f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
-                )
+        repo, working_branch, temp_working_branch = figure_out_branches(branch, blueprint_name)
+
+        validation_branch = temp_working_branch or working_branch
 
         try:
-            bp = self.manager.validate(blueprint=name, branch=working_branch, commit=commit)
+            bp = self.manager.validate(blueprint=blueprint_name, branch=validation_branch, commit=commit)
 
         except Exception as e:
             logger.exception(e, exc_info=False)
@@ -66,6 +53,10 @@ class BlueprintsCommand(BaseCommand):
             self.die()
 
         errors = getattr(bp, "errors")
+
+        if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+            revert_from_temp_branch(repo, temp_working_branch, working_branch)
+
         if errors:
             # We don't need error code
             err_table = [{"message": err["message"], "name": err["name"]} for err in errors]
