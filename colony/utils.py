@@ -189,24 +189,23 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
     return res
 
 
-def figure_out_branch(branch, name):
+def figure_out_branches(user_defined_branch, blueprint_name):
     temp_working_branch = ""
     repo = None
-    if branch:
-        working_branch = branch
+    if user_defined_branch:
+        working_branch = user_defined_branch
     else:
         # Try to detect branch from current git-enabled folder
         logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
         try:
             repo = BlueprintRepo(os.getcwd())
-            # todo get flag for stash mode
-            working_branch = get_blueprint_working_branch(repo, blueprint_name=name)
+            working_branch = get_blueprint_working_branch(repo, blueprint_name=blueprint_name)
             BaseCommand.message(f"Automatically detected current working branch: {working_branch}")
 
         except BadBlueprintRepo as e:
             working_branch = None
             logger.warning(
-                f"No branch has been specified and it could not be identified from the working directory; "
+                f"Branch could not be identified/used from the working directory; "
                 f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
             )
 
@@ -216,7 +215,7 @@ def figure_out_branch(branch, name):
         # 3) There is even a need to create a temp branch for out-of-sync reasons:
         #   either repo.is_dirty() (changes have not been committed locally)
         #   or not repo.is_current_branch_synced() (changes committed locally but not pushed to remote)
-        if not branch and working_branch and not repo.is_current_state_synced_with_remote:
+        if not user_defined_branch and working_branch and not repo.is_current_state_synced_with_remote:
             try:
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(f"Validating using temp branch: {temp_working_branch}")

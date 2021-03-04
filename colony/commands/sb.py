@@ -10,7 +10,7 @@ from colony.sandboxes import SandboxesManager
 from colony.utils import (
     UNCOMMITTED_BRANCH_NAME,
     BlueprintRepo,
-    figure_out_branch,
+    figure_out_branches,
     parse_comma_separated_string,
     revert_from_temp_branch,
 )
@@ -84,7 +84,7 @@ class SandboxesCommand(BaseCommand):
         self.success("End request has been sent")
 
     def do_start(self):
-        bp_name = self.args["<blueprint_name>"]
+        blueprint_name = self.args["<blueprint_name>"]
         branch = self.args.get("--branch")
         commit = self.args.get("--commit")
         name = self.args["--name"]
@@ -101,7 +101,7 @@ class SandboxesCommand(BaseCommand):
 
         if name is None:
             suffix = datetime.datetime.now().strftime("%b%d%Y-%H:%M:%S")
-            name = f"{bp_name}-{suffix}"
+            name = f"{blueprint_name}-{suffix}"
 
         try:
             duration = int(self.args["--duration"] or 120)
@@ -117,7 +117,7 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-        repo, working_branch, temp_working_branch = figure_out_branch(branch, bp_name)
+        repo, working_branch, temp_working_branch = figure_out_branches(branch, blueprint_name)
 
         # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
@@ -126,12 +126,12 @@ class SandboxesCommand(BaseCommand):
             if not repo.is_current_branch_synced():
                 logger.debug("Skipping obtaining values since local branch is not synced with remote")
             else:
-                for art_name, art_path in repo.get_blueprint_artifacts(bp_name).items():
+                for art_name, art_path in repo.get_blueprint_artifacts(blueprint_name).items():
                     if art_name not in artifacts and art_path is not None:
                         logger.debug(f"Artifact `{art_name}` has been set with default path `{art_path}`")
                         artifacts[art_name] = art_path
 
-                for input_name, input_value in repo.get_blueprint_default_inputs(bp_name).items():
+                for input_name, input_value in repo.get_blueprint_default_inputs(blueprint_name).items():
                     if input_name not in inputs and input_value is not None:
                         logger.debug(f"Parameter `{input_name}` has been set with default value `{input_value}`")
                         inputs[input_name] = input_value
@@ -142,7 +142,7 @@ class SandboxesCommand(BaseCommand):
         branch_to_be_used = temp_working_branch or working_branch
 
         try:
-            sandbox_id = self.manager.start(name, bp_name, duration, branch_to_be_used, commit, artifacts, inputs)
+            sandbox_id = self.manager.start(name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs)
 
         except Exception as e:
             logger.exception(e, exc_info=False)

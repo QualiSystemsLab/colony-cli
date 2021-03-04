@@ -5,7 +5,7 @@ from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
-from colony.utils import UNCOMMITTED_BRANCH_NAME, figure_out_branch, revert_from_temp_branch
+from colony.utils import UNCOMMITTED_BRANCH_NAME, figure_out_branches, revert_from_temp_branch
 
 logger = logging.getLogger(__name__)
 
@@ -33,19 +33,19 @@ class BlueprintsCommand(BaseCommand):
         return {"validate": self.do_validate}
 
     def do_validate(self):
-        name = self.args.get("<name>")
+        blueprint_name = self.args.get("<name>")
         branch = self.args.get("--branch")
         commit = self.args.get("--commit")
 
         if commit and branch is None:
             raise DocoptExit("Since commit is specified, branch is required")
 
-        repo, working_branch, temp_working_branch = figure_out_branch(branch, name)
+        repo, working_branch, temp_working_branch = figure_out_branches(branch, blueprint_name)
 
         validation_branch = temp_working_branch or working_branch
 
         try:
-            bp = self.manager.validate(blueprint=name, branch=validation_branch, commit=commit)
+            bp = self.manager.validate(blueprint=blueprint_name, branch=validation_branch, commit=commit)
 
         except Exception as e:
             logger.exception(e, exc_info=False)
