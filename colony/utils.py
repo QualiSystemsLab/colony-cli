@@ -218,7 +218,8 @@ def figure_out_branches(user_defined_branch, blueprint_name):
         if not user_defined_branch and working_branch and not repo.is_current_state_synced_with_remote():
             try:
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
-                BaseCommand.message(f"Validating using temp branch: {temp_working_branch}")
+                BaseCommand.message(f"Validating using temp branch: {temp_working_branch} "
+                                    f"(This shall include any uncommitted changes and untracked files)")
             except Exception as e:
                 logger.warning(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
     return repo, working_branch, temp_working_branch
@@ -243,12 +244,12 @@ def create_remote_branch(repo, uncommitted_branch_name):
 
 def create_local_branch(repo, uncommitted_branch_name):
     repo.git.checkout("-b", uncommitted_branch_name)
-    repo.git.add("--all")
+    repo.git.add(".")
     repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
 
 
 def stash_local_changes_and_preserve_uncommitted_code(repo):
-    repo.git.stash("save")
+    repo.git.stash("save", "--include-untracked")
     # id = id_unparsed.split(": ")[1].split(" U")[0]
     repo.git.stash("apply")
 
