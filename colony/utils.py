@@ -78,7 +78,7 @@ class BlueprintRepo(Repo):
             res = {}
             for inp in inputs:
                 for input_name, specs in inp.items():
-                    if specs:
+                    if specs is not None:
                         if not isinstance(specs, dict):
                             res[input_name] = specs
                         else:
