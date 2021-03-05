@@ -21,9 +21,8 @@ import pkg_resources
 from docopt import DocoptExit, docopt
 
 from colony.commands import bp, sb
-
-from .config import ColonyConfigProvider, ColonyConnection
-from .exceptions import ConfigError
+from colony.config import ColonyConfigProvider, ColonyConnection
+from colony.exceptions import ConfigError
 
 logger = logging.getLogger(__name__)
 
