@@ -5,7 +5,7 @@ from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.commands.base import BaseCommand
-from colony.utils import UNCOMMITTED_BRANCH_NAME, figure_out_branches, revert_from_temp_branch
+from colony.branch_utils import UNCOMMITTED_BRANCH_NAME, figure_out_branches, revert_from_temp_branch
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,8 @@ class BlueprintsCommand(BaseCommand):
     options:
        -b --branch <branch>     Specify the name of remote git branch. If not provided, we will try to automatically
                                 detect the current working branch if the command is used in a git enabled folder.
+                                In cases branch is not specified AND local state has uncommitted changes or
+                                untracked files a temporary branch will be created and used.
 
        -c --commit <commitId>   Specify commit ID. It's required to validate a blueprint from an historic commit.
                                 Must be used together with the branch option. If not specified then the latest commit

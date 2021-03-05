@@ -8,7 +8,7 @@ from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
-from colony.utils import (
+from colony.branch_utils import (
     UNCOMMITTED_BRANCH_NAME,
     BlueprintRepo,
     figure_out_branches,
@@ -48,6 +48,8 @@ class SandboxesCommand(BaseCommand):
        -b, --branch <branch>            Specify the name of remote git branch. If not provided, we will try to
                                         automatically detect the current working branch if the command is used in a
                                         git enabled folder.
+                                        In cases branch is not specified AND local state has uncommitted changes or
+                                        untracked files a temporary branch will be created and used.
 
        -c, --commit <commitId>          Specify commit ID. It's required to run sandbox from a blueprint from an
                                         historic commit. Must be used together with the branch option.
