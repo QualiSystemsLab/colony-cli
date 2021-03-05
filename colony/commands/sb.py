@@ -11,7 +11,6 @@ from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
 from colony.utils import parse_comma_separated_string
 
-
 logger = logging.getLogger(__name__)
 
 
