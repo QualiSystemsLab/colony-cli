@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 import unittest
 from colony import branch_utils
-from colony.utils import UNCOMMITTED_BRANCH_NAME
+from colony.branch_utils import UNCOMMITTED_BRANCH_NAME
 
 class TestStashLogicFunctions(unittest.TestCase):
     def setUp(self):
