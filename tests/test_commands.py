@@ -64,6 +64,7 @@ class TestSandboxCommand(unittest.TestCase):
         colony (sb | sandbox) start <blueprint_name> [options]
         colony (sb | sandbox) status <sandbox_id>
         colony (sb | sandbox) end <sandbox_id>
+        colony (sb | sandbox) list [--filter={all|my|auto}] [--show-ended] [--count=<N>]
         colony (sb | sandbox) [--help]"""
 
         with self.assertRaises(DocoptExit) as ctx:
@@ -74,9 +75,9 @@ class TestSandboxCommand(unittest.TestCase):
     def test_actions_table(self):
         args = "sb start test".split()
         command = SandboxesCommand(command_args=args)
-
-        for action in ["start", "end", "status"]:
-            self.assertIn(action, command.get_actions_table())
+        expected_actions = ["start", "end", "status", "list"]
+        for action in command.get_actions_table():
+            self.assertIn(action, expected_actions)
 
     def validate_command_input(self, input_line: str, func: str) -> None:
         args = input_line.split()

@@ -84,12 +84,14 @@ class SandboxesCommand(BaseCommand):
             if sb.sandbox_status == "Ended" and not show_ended:
                 continue
 
-            result_table.append({
-                "Sandbox ID": sb.sandbox_id,
-                "Sandbox Name": sb.name,
-                "Blueprint Name": sb.blueprint_name,
-                "Status": sb.sandbox_status
-            })
+            result_table.append(
+                {
+                    "Sandbox ID": sb.sandbox_id,
+                    "Sandbox Name": sb.name,
+                    "Blueprint Name": sb.blueprint_name,
+                    "Status": sb.sandbox_status,
+                }
+            )
 
         self.success(tabulate.tabulate(result_table, headers="keys"))
 
