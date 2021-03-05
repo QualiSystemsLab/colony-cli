@@ -4,8 +4,8 @@ import tabulate
 from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
-from colony.commands.base import BaseCommand
 from colony.branch_utils import UNCOMMITTED_BRANCH_NAME, figure_out_branches, revert_from_temp_branch
+from colony.commands.base import BaseCommand
 
 logger = logging.getLogger(__name__)
 

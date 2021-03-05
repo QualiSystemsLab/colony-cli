@@ -62,7 +62,7 @@ def figure_out_branches(user_defined_branch, blueprint_name):
         try:
             repo = BlueprintRepo(os.getcwd())
             examine_blueprint_working_branch(repo, blueprint_name=blueprint_name)
-            working_branch = get_blueprint_working_branch(repo, blueprint_name=blueprint_name)
+            working_branch = get_blueprint_working_branch(repo)
             BaseCommand.message(f"Automatically detected current working branch: {working_branch}")
 
         except BadBlueprintRepo as e:

@@ -1,5 +1,6 @@
-from unittest.mock import MagicMock, patch
 import unittest
+from unittest.mock import MagicMock, patch
+
 from colony import branch_utils
 from colony.branch_utils import UNCOMMITTED_BRANCH_NAME
 
