@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 UNCOMMITTED_BRANCH_NAME = "tmp-colony-"
 
+
 def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str):
     if repo.is_repo_detached():
         raise BadBlueprintRepo("Repo's HEAD is in detached state")
@@ -30,7 +31,8 @@ def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str):
         logger.warning("Your local branch is not synced with remote")
     return
 
-def get_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> str:
+
+def get_blueprint_working_branch(repo: BlueprintRepo) -> str:
 
     branch = repo.active_branch.name
     logger.debug(f"Current working branch is '{branch}'")
@@ -47,9 +49,6 @@ def set_blueprint_working_temp_branch(repo: BlueprintRepo, defined_branch_in_fil
         logger.error(f"Was not able to create temp branch for validation - {str(e)}")
 
     return temp_branch
-
-
-
 
 
 def figure_out_branches(user_defined_branch, blueprint_name):

@@ -3,6 +3,7 @@ import unittest
 from colony import branch_utils
 from colony.branch_utils import UNCOMMITTED_BRANCH_NAME
 
+
 class TestStashLogicFunctions(unittest.TestCase):
     def setUp(self):
         self.switch = branch_utils.switch_to_temp_branch
