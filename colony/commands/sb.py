@@ -6,7 +6,7 @@ import time
 import tabulate
 from docopt import DocoptExit
 
-from colony.branch_utils import UNCOMMITTED_BRANCH_NAME,BlueprintRepo,figure_out_branches,revert_from_temp_branch
+from colony.branch_utils import UNCOMMITTED_BRANCH_NAME, BlueprintRepo, figure_out_branches, revert_from_temp_branch
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
 from colony.utils import parse_comma_separated_string
