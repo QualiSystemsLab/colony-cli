@@ -150,12 +150,12 @@ class SandboxesCommand(BaseCommand):
             logger.exception(e, exc_info=False)
             sandbox_id = None
             self.die()
+        finally:
+            if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+                revert_from_temp_branch(repo, temp_working_branch, working_branch)
 
         if timeout is None:
             self.success(sandbox_id)
-
-        if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-            revert_from_temp_branch(repo, temp_working_branch, working_branch)
 
         else:
             start_time = datetime.datetime.now()

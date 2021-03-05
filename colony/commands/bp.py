@@ -51,11 +51,11 @@ class BlueprintsCommand(BaseCommand):
             logger.exception(e, exc_info=False)
             bp = None
             self.die()
+        finally:
+            if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+                revert_from_temp_branch(repo, temp_working_branch, working_branch)
 
         errors = getattr(bp, "errors")
-
-        if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-            revert_from_temp_branch(repo, temp_working_branch, working_branch)
 
         if errors:
             # We don't need error code
