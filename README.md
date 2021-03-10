@@ -217,22 +217,23 @@ ybufpamyok03c11
 
 ### Other functionality
 
-#### You can also end colony sandbox knowing its Id with command:
+You can also end colony sandbox knowing its Id with command:
 
 `$ colony sb end <sandbox> id`
 
-#### To get current sandbox status run:
+To get current sandbox status run:
 
 `$ colony sb status <sandbox> id`
 
-#### In order to list sandboxes in your space use the following command:
+In order to list sandboxes in your space use the following command:
 
 `$ colony sb list`
 
 - By default it will show only yours sandbox which are not in an ended status.
 - You can include ended sandboxes by setting `--show-ended` flag
 - Default output length is 25. You can override with option `--count=N` where N < 1000
-- You can also list sanboxes created by other users or filter only automation sanboxes by setting option `--filter={all|my|auto}`. Default is `my` 
+- You can also list sandboxes created by other users or filter only automation sandboxes by setting option
+`--filter={all|my|auto}`. Default is `my`.
 
 ## Troubleshooting and Help
 
