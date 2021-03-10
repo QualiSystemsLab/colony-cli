@@ -30,10 +30,9 @@ class TestStashLogicFunctions(unittest.TestCase):
     def test_revert_from_temp_branch(self, mock2, mock1):
         # Arrange:
         mock_repo = MagicMock()
-        temp_branch = "temp_branch"
         active_branch = "active_branch"
         # Act:
-        self.revert(mock_repo, temp_branch, active_branch)
+        self.revert(mock_repo, active_branch)
         # Assert:
         mock1.assert_called_once_with(
             mock_repo,

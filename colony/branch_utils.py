@@ -6,9 +6,10 @@ import string
 import time
 
 from halo import Halo
+
 from colony.commands.base import BaseCommand
-from colony.sandboxes import SandboxesManager
 from colony.exceptions import BadBlueprintRepo
+from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
@@ -150,8 +151,9 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
     prep_art_status = progress.get("preparing_artifacts").get("status")
     spinner = Halo(
         text="Waiting for sandbox to prepare artifacts (before deleting temp branch)...",
-        pinner="dots",
-        placement="right")
+        spinner="dots",
+        placement="right",
+    )
     spinner.start()
 
     while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:

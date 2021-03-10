@@ -6,8 +6,12 @@ import time
 import tabulate
 from docopt import DocoptExit
 
-from colony.branch_utils import UNCOMMITTED_BRANCH_NAME, BlueprintRepo, figure_out_branches, revert_from_temp_branch, \
-    wait_and_then_delete_branch
+from colony.branch_utils import (
+    UNCOMMITTED_BRANCH_NAME,
+    figure_out_branches,
+    revert_from_temp_branch,
+    wait_and_then_delete_branch,
+)
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
 from colony.utils import (
@@ -212,10 +216,10 @@ class SandboxesCommand(BaseCommand):
                     time.sleep(30)
 
                 else:
-                    wait_and_then_delete_branch(self, sandbox_id, repo, temp_working_branch)
+                    wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
                     self.die(f"Sandbox {sandbox_id} started with {status} state")
 
             # timeout exceeded
             logger.error(f"Sandbox {sandbox_id} is not active after {timeout} minutes")
-            wait_and_then_delete_branch(self, sandbox_id, repo, temp_working_branch)
+            wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
             self.die()
