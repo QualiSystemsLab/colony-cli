@@ -7,8 +7,10 @@ from unittest.mock import MagicMock, patch
 from git import Actor, Repo
 
 from colony import utils
+from colony import branch_utils
 from colony.exceptions import BadBlueprintRepo
-from colony.utils import UNCOMMITTED_BRANCH_NAME, BlueprintRepo
+from colony.branch_utils import UNCOMMITTED_BRANCH_NAME
+from colony.utils import BlueprintRepo
 
 
 class TestParseParamString(unittest.TestCase):
@@ -106,8 +108,8 @@ class TestBlueprintRepo(unittest.TestCase):
 
 class TestStashLogicFunctions(unittest.TestCase):
     def setUp(self):
-        self.switch = utils.switch_to_temp_branch
-        self.revert = utils.revert_from_temp_branch
+        self.switch = branch_utils.switch_to_temp_branch
+        self.revert = branch_utils.revert_from_temp_branch
 
     @patch.object(utils, "stash_local_changes_and_preserve_uncommitted_code")
     @patch.object(utils, "create_local_branch")
