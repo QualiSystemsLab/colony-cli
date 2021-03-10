@@ -2,12 +2,10 @@ import os
 import shutil
 import tempfile
 import unittest
-from unittest.mock import MagicMock, patch
 
 from git import Actor, Repo
 
-from colony import branch_utils, utils
-from colony.branch_utils import UNCOMMITTED_BRANCH_NAME
+from colony import utils
 from colony.exceptions import BadBlueprintRepo
 from colony.utils import BlueprintRepo
 
