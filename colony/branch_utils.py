@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 UNCOMMITTED_BRANCH_NAME = "tmp-colony-"
 TIMEOUT = 30
-FINAL_SB_STATUSES = ['Active', 'ActiveWithError', 'Ended', 'EndedWithError', 'Ending']
+FINAL_SB_STATUSES = ["Active", "ActiveWithError", "Ended", "EndedWithError", "Ending"]
 
 
 def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str):
@@ -147,10 +147,11 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
     sandbox = sb_manager.get(sandbox_id)
     status = getattr(sandbox, "sandbox_status")
     progress = getattr(sandbox, "launching_progress")
-    prep_art_status = progress.get('preparing_artifacts').get('status')
-    spinner = Halo(text='Waiting for sandbox to prepare artifacts (before deleting temp branch)...',
-                   spinner='dots',
-                   placement='right')
+    prep_art_status = progress.get("preparing_artifacts").get("status")
+    spinner = Halo(
+        text="Waiting for sandbox to prepare artifacts (before deleting temp branch)...",
+        pinner="dots",
+        placement="right")
     spinner.start()
 
     while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
@@ -164,7 +165,7 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
             sandbox = sb_manager.get(sandbox_id)
             status = getattr(sandbox, "sandbox_status")
             progress = getattr(sandbox, "launching_progress")
-            prep_art_status = progress.get('preparing_artifacts').get('status')
+            prep_art_status = progress.get("preparing_artifacts").get("status")
 
 
 def checkout_remote_branch(repo, active_branch):

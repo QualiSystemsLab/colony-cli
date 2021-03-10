@@ -6,11 +6,8 @@ import time
 import tabulate
 from docopt import DocoptExit
 
-<<<<<<< Updated upstream
-=======
 from colony.branch_utils import UNCOMMITTED_BRANCH_NAME, BlueprintRepo, figure_out_branches, revert_from_temp_branch, \
     wait_and_then_delete_branch
->>>>>>> Stashed changes
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
 from colony.utils import (
