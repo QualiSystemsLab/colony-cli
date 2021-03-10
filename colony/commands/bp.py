@@ -4,6 +4,11 @@ import tabulate
 from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
+<<<<<<< Updated upstream
+=======
+from colony.branch_utils import UNCOMMITTED_BRANCH_NAME, figure_out_branches, revert_from_temp_branch, \
+    delete_temp_branch
+>>>>>>> Stashed changes
 from colony.commands.base import BaseCommand
 from colony.utils import UNCOMMITTED_BRANCH_NAME, figure_out_branches, revert_from_temp_branch
 
@@ -53,7 +58,9 @@ class BlueprintsCommand(BaseCommand):
             self.die()
         finally:
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                revert_from_temp_branch(repo, temp_working_branch, working_branch)
+                revert_from_temp_branch(repo, working_branch)
+                delete_temp_branch(repo,temp_working_branch)
+
 
         errors = getattr(bp, "errors")
 
