@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from colony.config import ColonyConfigProvider, ColonyConnection
+from colony.config import ColonyConfigProvider
 from colony.exceptions import ConfigError
 
 
