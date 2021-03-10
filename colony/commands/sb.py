@@ -14,10 +14,7 @@ from colony.branch_utils import (
 )
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
-from colony.utils import (
-    BlueprintRepo,
-    parse_comma_separated_string,
-)
+from colony.utils import BlueprintRepo, parse_comma_separated_string
 
 logger = logging.getLogger(__name__)
 

@@ -6,10 +6,9 @@ from unittest.mock import MagicMock, patch
 
 from git import Actor, Repo
 
-from colony import utils
-from colony import branch_utils
-from colony.exceptions import BadBlueprintRepo
+from colony import branch_utils, utils
 from colony.branch_utils import UNCOMMITTED_BRANCH_NAME
+from colony.exceptions import BadBlueprintRepo
 from colony.utils import BlueprintRepo
 
 
@@ -135,7 +134,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         temp_branch = "temp_branch"
         active_branch = "active_branch"
         # Act:
-        self.revert(mock_repo, temp_branch, active_branch)
+        self.revert(mock_repo, active_branch)
         # Assert:
         mock1.assert_called_once_with(
             mock_repo,

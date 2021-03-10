@@ -6,8 +6,8 @@ import string
 import yaml
 from git import InvalidGitRepositoryError, Repo
 
-from colony.exceptions import BadBlueprintRepo
 from colony.branch_utils import UNCOMMITTED_BRANCH_NAME
+from colony.exceptions import BadBlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
