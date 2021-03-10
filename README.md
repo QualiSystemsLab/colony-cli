@@ -149,6 +149,12 @@ You can get additional help information for a particular command by specifying *
 
     `$ colony bp validate MyBlueprint`
 
+
+* If code is not committed or out-of-sync:
+1) A temp branch shall be created and code (including untracked files) will be committed and push to that branch
+2) The temp branch will be used for the validation
+3) Once validation has finished the repo will revert to current branch and remote and local temp-branch will be deleted
+
 * If you want to validate a blueprint from another branch you can specify _--branch_ argument or even check validation in a
 specific point in time by setting _--commit_:
 
@@ -199,6 +205,11 @@ Cloud account: AWS is not recognized as a valid cloud account in this space  Blu
 
 1. If you are not it git-enabled folder of your blueprint repo and haven't set --branch/--commit arguments tool will
 start sandbox using blueprint with name "MyBlueprint" from branch currently attached to your Colony space.
+
+* If code is not committed or out-of-sync:
+1) A temp branch shall be created and code (including untracked files) will be committed and push to that branch
+2) The temp branch will be used for the validation
+3) Once validation has finished the repo will revert to current branch and remote and local temp-branch will be deleted
 
 2. If you omit artifacts and inputs options, you are inside a git enabled folder and the local is in sync with remote,
 then Colony Cli will try to get default values for artifacts and inputs from the blueprint yaml.

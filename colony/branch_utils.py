@@ -150,7 +150,7 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
     progress = getattr(sandbox, "launching_progress")
     prep_art_status = progress.get("preparing_artifacts").get("status")
     spinner = Halo(
-        text="Waiting for sandbox to prepare artifacts (before deleting temp branch)...",
+        text="Waiting for sandbox (id={}) to prepare artifacts (before deleting temp branch)...".format(sandbox_id),
         spinner="dots",
         placement="right",
     )
