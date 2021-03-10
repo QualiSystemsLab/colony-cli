@@ -15,11 +15,8 @@ from colony.branch_utils import (
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
 from colony.utils import (
-    UNCOMMITTED_BRANCH_NAME,
     BlueprintRepo,
-    figure_out_branches,
     parse_comma_separated_string,
-    revert_from_temp_branch,
 )
 
 logger = logging.getLogger(__name__)

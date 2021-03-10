@@ -6,13 +6,11 @@ import string
 import yaml
 from git import InvalidGitRepositoryError, Repo
 
-from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
+from colony.branch_utils import UNCOMMITTED_BRANCH_NAME
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
-
-UNCOMMITTED_BRANCH_NAME = "tmp-colony-"
 
 
 class BlueprintRepo(Repo):
@@ -189,44 +187,6 @@ def parse_comma_separated_string(params_string: str = None) -> dict:
     return res
 
 
-def figure_out_branches(user_defined_branch, blueprint_name):
-    temp_working_branch = ""
-    repo = None
-    if user_defined_branch:
-        working_branch = user_defined_branch
-    else:
-        # Try to detect branch from current git-enabled folder
-        logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
-        try:
-            repo = BlueprintRepo(os.getcwd())
-            working_branch = get_blueprint_working_branch(repo, blueprint_name=blueprint_name)
-            BaseCommand.message(f"Automatically detected current working branch: {working_branch}")
-
-        except BadBlueprintRepo as e:
-            working_branch = None
-            logger.warning(
-                f"Branch could not be identified/used from the working directory; "
-                f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
-            )
-
-        # Checking if:
-        # 1) User has specified not use local (specified a branch)
-        # 2) User is in an actual git dir (working_branch)
-        # 3) There is even a need to create a temp branch for out-of-sync reasons:
-        #   either repo.is_dirty() (changes have not been committed locally)
-        #   or not repo.is_current_branch_synced() (changes committed locally but not pushed to remote)
-        if not user_defined_branch and working_branch and not repo.is_current_state_synced_with_remote():
-            try:
-                temp_working_branch = switch_to_temp_branch(repo, working_branch)
-                BaseCommand.message(
-                    f"Validating using temp branch: {temp_working_branch} "
-                    f"(This shall include any uncommitted changes and untracked files)"
-                )
-            except Exception as e:
-                logger.warning(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
-    return repo, working_branch, temp_working_branch
-
-
 def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> str:
     random_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(10))
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
@@ -254,18 +214,6 @@ def stash_local_changes_and_preserve_uncommitted_code(repo):
     repo.git.stash("save", "--include-untracked")
     # id = id_unparsed.split(": ")[1].split(" U")[0]
     repo.git.stash("apply")
-
-
-def revert_from_temp_branch(repo: BlueprintRepo, temp_branch, active_branch) -> None:
-    try:
-        checkout_remote_branch(repo, active_branch)
-        delete_temp_branch(
-            repo,
-            temp_branch,
-        )
-        revert_from_uncommitted_code(repo)
-    except Exception as e:
-        raise e
 
 
 def revert_from_uncommitted_code(repo):

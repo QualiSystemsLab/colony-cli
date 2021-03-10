@@ -6,12 +6,11 @@ from docopt import DocoptExit
 from colony.blueprints import BlueprintsManager
 from colony.branch_utils import (
     UNCOMMITTED_BRANCH_NAME,
+    delete_temp_branch,
     figure_out_branches,
     revert_from_temp_branch,
-    delete_temp_branch,
 )
 from colony.commands.base import BaseCommand
-from colony.utils import UNCOMMITTED_BRANCH_NAME, figure_out_branches, revert_from_temp_branch
 
 logger = logging.getLogger(__name__)
 
