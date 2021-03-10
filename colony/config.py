@@ -36,7 +36,7 @@ class ColonyConfigProvider(object):
             except ParsingError as e:
                 raise colony.exceptions.ConfigError(f"Wrong format of config file. Details {e}")
 
-    def load_connection(self, profile_name: str = None) -> ColonyConnection:
+    def load_connection(self, profile_name: str = None) -> dict:
         profile = profile_name or "default"
         config = self._parse_config()
 
@@ -51,7 +51,7 @@ class ColonyConfigProvider(object):
                 "Wrong settings. Profile must contain exactly two settings: `token` " "and `space`"
             )
 
-        return ColonyConnection(**config[profile])
+        return config[profile]
 
     def _parse_config(self) -> dict:
         config = {}

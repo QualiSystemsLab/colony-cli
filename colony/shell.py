@@ -61,9 +61,10 @@ def get_connection_params(args) -> ColonyConnection:
         config_file = os.environ.get("COLONY_CONFIG_PATH", None)
         try:
             colony_conn = ColonyConfigProvider(config_file).load_connection(profile)
-            return colony_conn
+            token = token or colony_conn["token"]
+            space = space or colony_conn["space"]
         except ConfigError as e:
-            raise DocoptExit(f"Unable to read colony credentials. Details {e}")
+            raise DocoptExit(f"Unable to read colony credentials. Reason: {e}")
 
     return ColonyConnection(token=token, space=space)
 

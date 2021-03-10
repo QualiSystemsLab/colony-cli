@@ -26,10 +26,10 @@ class TestConfigProvider(unittest.TestCase):
     def test_correct_default_load(self):
         expected = ("test", "zzvvccbb")
         result = self.provider.load_connection()
-        self.assertEqual(expected, (result.space, result.token))
+        self.assertEqual(expected, (result["space"], result["token"]))
 
     def test_load_connection_return_type(self):
-        self.assertIsInstance(self.provider.load_connection(), ColonyConnection)
+        self.assertIsInstance(self.provider.load_connection(), dict)
 
     def test_wrong_setting_file(self):
         filename = "fixtures/wrong_config"
