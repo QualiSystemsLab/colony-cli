@@ -6,15 +6,11 @@ import time
 import tabulate
 from docopt import DocoptExit
 
+from colony.branch_utils import figure_out_branches, revert_from_temp_branch, wait_and_then_delete_branch
 from colony.commands.base import BaseCommand
+from colony.constants import UNCOMMITTED_BRANCH_NAME
 from colony.sandboxes import SandboxesManager
-from colony.utils import (
-    UNCOMMITTED_BRANCH_NAME,
-    BlueprintRepo,
-    figure_out_branches,
-    parse_comma_separated_string,
-    revert_from_temp_branch,
-)
+from colony.utils import BlueprintRepo, parse_comma_separated_string
 
 logger = logging.getLogger(__name__)
 
@@ -186,10 +182,11 @@ class SandboxesCommand(BaseCommand):
             self.die()
         finally:
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                revert_from_temp_branch(repo, temp_working_branch, working_branch)
+                revert_from_temp_branch(repo, working_branch)
 
         if timeout is None:
-            self.success(sandbox_id)
+            wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
+            self.success(f"Sandbox {sandbox_id} was created")
 
         else:
             start_time = datetime.datetime.now()
@@ -209,8 +206,10 @@ class SandboxesCommand(BaseCommand):
                     time.sleep(30)
 
                 else:
+                    wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
                     self.die(f"Sandbox {sandbox_id} started with {status} state")
 
             # timeout exceeded
             logger.error(f"Sandbox {sandbox_id} is not active after {timeout} minutes")
+            wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
             self.die()

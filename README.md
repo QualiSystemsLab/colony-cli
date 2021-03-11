@@ -144,11 +144,17 @@ You can get additional help information for a particular command by specifying *
                                         will not block terminal and just return the ID of started sandbox
 ```
 
+* If code is not committed or out-of-sync:
+1) A temp branch shall be created and code (including untracked files) will be committed and push to that branch
+2) The temp branch will be used for the validation
+3) Once validation has finished the repo will revert to current branch and remote and local temp-branch will be deleted
+
 ### Blueprint validation
 
 * If you are currently inside a git-enabled folder containing your blueprint, commit and push your latest changes and run (Colony CLI will automatically detect the current working branch):
 
     `$ colony bp validate MyBlueprint`
+
 
 * If you want to validate a blueprint from another branch you can specify _--branch_ argument or even check validation in a
 specific point in time by setting _--commit_:
