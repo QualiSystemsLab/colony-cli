@@ -5,13 +5,11 @@ import random
 import string
 import time
 
-from halo import Halo
-
 from colony.commands.base import BaseCommand
+from colony.constants import UNCOMMITTED_BRANCH_NAME, TIMEOUT, FINAL_SB_STATUSES
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo
-from colony.constants import UNCOMMITTED_BRANCH_NAME, TIMEOUT, FINAL_SB_STATUSES
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -169,8 +167,10 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
             break
         else:
             time.sleep(3)
-            logger.debug(f"Still waiting for sandbox (id={sandbox_id}) to prepare artifacts..."
-                         f"[{datetime.datetime.now() - start_time} sec]")
+            logger.debug(
+                f"Still waiting for sandbox (id={sandbox_id}) to prepare artifacts..."
+                f"[{datetime.datetime.now() - start_time} sec]"
+                )
             sandbox = sb_manager.get(sandbox_id)
             status = getattr(sandbox, "sandbox_status")
             progress = getattr(sandbox, "launching_progress")
