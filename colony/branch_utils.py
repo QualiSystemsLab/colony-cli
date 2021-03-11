@@ -6,7 +6,7 @@ import string
 import time
 
 from colony.commands.base import BaseCommand
-from colony.constants import UNCOMMITTED_BRANCH_NAME, TIMEOUT, FINAL_SB_STATUSES
+from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo
@@ -113,7 +113,7 @@ def create_remote_branch(repo, uncommitted_branch_name):
 def create_local_branch(repo, uncommitted_branch_name):
     logger.debug("[GIT] Checkout (-b) {uncommitted_branch_name}")
     repo.git.checkout("-b", uncommitted_branch_name)
-    logger.debug(f"[GIT] Add (.)")
+    logger.debug("[GIT] Add (.)")
     repo.git.add(".")
     logger.debug("[GIT] Commit")
     repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
@@ -170,7 +170,7 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
             logger.debug(
                 f"Still waiting for sandbox (id={sandbox_id}) to prepare artifacts..."
                 f"[{datetime.datetime.now() - start_time} sec]"
-                )
+            )
             sandbox = sb_manager.get(sandbox_id)
             status = getattr(sandbox, "sandbox_status")
             progress = getattr(sandbox, "launching_progress")
