@@ -112,6 +112,7 @@ You can get additional help information for a particular command by specifying *
         colony (sb | sandbox) start <blueprint_name> [options]
         colony (sb | sandbox) status <sandbox_id>
         colony (sb | sandbox) end <sandbox_id>
+        colony (sb | sandbox) list [--filter={all|my|auto}] [--show-ended] [--count=<N>]
         colony (sb | sandbox) [--help]
 
     options:
@@ -230,6 +231,15 @@ To get current sandbox status run:
 
 `$ colony sb status <sandbox> id`
 
+In order to list sandboxes in your space use the following command:
+
+`$ colony sb list`
+
+- By default it will show only yours sandbox which are not in an ended status.
+- You can include ended sandboxes by setting `--show-ended` flag
+- Default output length is 25. You can override with option `--count=N` where N < 1000
+- You can also list sandboxes created by other users or filter only automation sandboxes by setting option
+`--filter={all|my|auto}`. Default is `my`.
 
 ## Troubleshooting and Help
 
