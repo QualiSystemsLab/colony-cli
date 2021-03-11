@@ -11,13 +11,10 @@ from colony.commands.base import BaseCommand
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo
+from colony.constants import UNCOMMITTED_BRANCH_NAME, TIMEOUT, FINAL_SB_STATUSES
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
-
-UNCOMMITTED_BRANCH_NAME = "tmp-colony-"
-TIMEOUT = 30
-FINAL_SB_STATUSES = ["Active", "ActiveWithError", "Ended", "EndedWithError", "Ending"]
 
 
 def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str):
@@ -89,7 +86,7 @@ def figure_out_branches(user_defined_branch, blueprint_name):
             try:
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(
-                    f"Testing using temp branch: {temp_working_branch} "
+                    f"Using temp branch: {temp_working_branch} "
                     f"(This shall include any uncommitted changes and untracked files)"
                 )
             except Exception as e:
@@ -111,18 +108,24 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> s
 
 
 def create_remote_branch(repo, uncommitted_branch_name):
+    logger.debug(f"[GIT] Push (origin) {uncommitted_branch_name}")
     repo.git.push("origin", uncommitted_branch_name)
 
 
 def create_local_branch(repo, uncommitted_branch_name):
+    logger.debug("[GIT] Checkout (-b) {uncommitted_branch_name}")
     repo.git.checkout("-b", uncommitted_branch_name)
+    logger.debug(f"[GIT] Add (.)")
     repo.git.add(".")
+    logger.debug("[GIT] Commit")
     repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
 
 
 def stash_local_changes_and_preserve_uncommitted_code(repo):
+    logger.debug("[GIT] Stash(SAVE --include-untracked)")
     repo.git.stash("save", "--include-untracked")
     # id = id_unparsed.split(": ")[1].split(" U")[0]
+    logger.debug("[GIT] Stash(APPLY)")
     repo.git.stash("apply")
 
 
@@ -135,35 +138,39 @@ def revert_from_temp_branch(repo: BlueprintRepo, active_branch) -> None:
 
 
 def revert_from_uncommitted_code(repo):
+    logger.debug("[GIT] Stash(POP)")
     repo.git.stash("pop")
 
 
 def delete_temp_branch(repo, temp_branch):
-    repo.git.push("origin", "--delete", temp_branch)
-    repo.delete_head("-D", temp_branch)
+    try:
+        logger.debug(f"[GIT] Deleting remote branch {temp_branch}")
+        repo.git.push("origin", "--delete", temp_branch)
+        logger.debug(f"[GIT] Deleting local branch {temp_branch}")
+        repo.delete_head("-D", temp_branch)
+    except Exception as e:
+        raise e
 
 
 def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, temp_branch):
+    if not temp_branch:
+        return
     start_time = datetime.datetime.now()
     sandbox = sb_manager.get(sandbox_id)
     status = getattr(sandbox, "sandbox_status")
     progress = getattr(sandbox, "launching_progress")
     prep_art_status = progress.get("preparing_artifacts").get("status")
-    spinner = Halo(
-        text="Waiting for sandbox (id={}) to prepare artifacts (before deleting temp branch)...".format(sandbox_id),
-        spinner="dots",
-        placement="right",
-    )
-    spinner.start()
+    logger.debug("Waiting for sandbox (id={}) to prepare artifacts (before deleting temp branch)...".format(sandbox_id))
 
     while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
 
         if status in FINAL_SB_STATUSES or (status == "Launching" and prep_art_status != "Pending"):
-            spinner.stop()
             delete_temp_branch(repo, temp_branch)
             break
         else:
             time.sleep(3)
+            logger.debug(f"Still waiting for sandbox (id={sandbox_id}) to prepare artifacts..."
+                         f"[{datetime.datetime.now() - start_time} sec]")
             sandbox = sb_manager.get(sandbox_id)
             status = getattr(sandbox, "sandbox_status")
             progress = getattr(sandbox, "launching_progress")
@@ -171,4 +178,5 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
 
 
 def checkout_remote_branch(repo, active_branch):
+    logger.debug(f"[GIT] Checking out {active_branch}")
     repo.git.checkout(active_branch)

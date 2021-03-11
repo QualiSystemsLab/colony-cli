@@ -2,10 +2,10 @@ import logging
 
 import tabulate
 from docopt import DocoptExit
+from colony.constants import UNCOMMITTED_BRANCH_NAME
 
 from colony.blueprints import BlueprintsManager
 from colony.branch_utils import (
-    UNCOMMITTED_BRANCH_NAME,
     delete_temp_branch,
     figure_out_branches,
     revert_from_temp_branch,
