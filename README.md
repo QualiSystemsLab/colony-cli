@@ -142,6 +142,7 @@ You can get additional help information for a particular command by specifying *
        -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
                                         will not block terminal and just return the ID of started sandbox
 ```
+
 * If code is not committed or out-of-sync:
 1) A temp branch shall be created and code (including untracked files) will be committed and push to that branch
 2) The temp branch will be used for the validation
