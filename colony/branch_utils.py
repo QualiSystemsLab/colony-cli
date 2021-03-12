@@ -115,7 +115,7 @@ def create_remote_branch(repo, uncommitted_branch_name):
 
 
 def create_local_branch(repo, uncommitted_branch_name):
-    logger.debug("[GIT] Checkout (-b) {uncommitted_branch_name}")
+    logger.debug(f"[GIT] Checkout (-b) {uncommitted_branch_name}")
     repo.git.checkout("-b", uncommitted_branch_name)
     logger.debug("[GIT] Add (.)")
     repo.git.add(".")
