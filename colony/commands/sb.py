@@ -174,7 +174,7 @@ class SandboxesCommand(BaseCommand):
                 branch_name_or_type = working_branch + "-"
             if temp_working_branch:
                 branch_name_or_type = "localchanges-"
-            name = f"{blueprint_name}-{suffix}"
+            name = f"{blueprint_name}-{branch_name_or_type}{suffix}"
 
         try:
             sandbox_id = self.manager.start(
