@@ -168,7 +168,7 @@ class SandboxesCommand(BaseCommand):
         branch_to_be_used = temp_working_branch or working_branch
 
         if name is None:
-            suffix = datetime.datetime.now().strftime("%b%d%Y-%H:%M:%S")
+            suffix = datetime.datetime.now().strftime("%b%d-%H:%M:%S")
             branch_name_or_type = "colony-defined-branch"
             if working_branch:
                 branch_name_or_type = working_branch

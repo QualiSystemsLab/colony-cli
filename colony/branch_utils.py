@@ -26,7 +26,7 @@ def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str):
         logger.warning("You have uncommitted changes")
 
     if repo.untracked_files:
-        logger.warning("You have untracked files")
+        logger.warning("Untracked files detected - only staged or committed files will be used when testing local changes")
 
     if not repo.current_branch_exists_on_remote():
         logger.warning("Your current local branch doesn't exist on remote")
