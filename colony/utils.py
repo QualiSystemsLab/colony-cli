@@ -34,10 +34,14 @@ class BlueprintRepo(Repo):
         return self.head.is_detached
 
     def current_branch_exists_on_remote(self) -> bool:
-        local_branch_name = self.active_branch.name
-        remote_branches = self._get_remote_branches_names()
+        try:
+            local_branch_name = self.active_branch.name
+            remote_branches = self._get_remote_branches_names()
+            return local_branch_name in remote_branches
+        except Exception as e:
+            logger.error(f"Failed to get remote branches names: {str(e)}")
+            return False
 
-        return local_branch_name in remote_branches
 
     def is_current_branch_synced(self) -> bool:
         """Check if last commit in local and remote branch is the same"""

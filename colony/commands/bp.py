@@ -61,7 +61,7 @@ class BlueprintsCommand(BaseCommand):
 
         if errors:
             # We don't need error code
-            err_table = [{"message": err["message"], "name": err["name"]} for err in errors]
+            err_table = [{"Name": err["name"], "Message": err["message"]} for err in errors]
 
             logger.error("Validation failed")
             self.die(tabulate.tabulate(err_table, headers="keys"))
