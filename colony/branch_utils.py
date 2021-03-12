@@ -25,6 +25,9 @@ def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str):
     if repo.is_dirty():
         logger.warning("You have uncommitted changes")
 
+    if repo.untracked_files:
+        logger.warning("You have untracked files")
+
     if not repo.current_branch_exists_on_remote():
         logger.warning("Your current local branch doesn't exist on remote")
         # raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
@@ -97,7 +100,8 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> s
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
     try:
         # todo return id and use it for revert_from_temp_branch
-        stash_local_changes_and_preserve_uncommitted_code(repo)
+        if repo.is_dirty() or repo.untracked_files:
+            stash_local_changes_and_preserve_uncommitted_code(repo)
         create_local_branch(repo, uncommitted_branch_name)
         create_remote_branch(repo, uncommitted_branch_name)
     except Exception as e:
@@ -166,10 +170,10 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
             delete_temp_branch(repo, temp_branch)
             break
         else:
-            time.sleep(3)
+            time.sleep(10)
             logger.debug(
                 f"Still waiting for sandbox (id={sandbox_id}) to prepare artifacts..."
-                f"[{datetime.datetime.now() - start_time} sec]"
+                f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
             )
             sandbox = sb_manager.get(sandbox_id)
             status = getattr(sandbox, "sandbox_status")

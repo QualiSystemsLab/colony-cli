@@ -129,10 +129,6 @@ class SandboxesCommand(BaseCommand):
             if timeout < 0:
                 raise DocoptExit("Timeout must be positive")
 
-        if name is None:
-            suffix = datetime.datetime.now().strftime("%b%d%Y-%H:%M:%S")
-            name = f"{blueprint_name}-{suffix}"
-
         try:
             duration = int(self.args["--duration"] or 120)
             if duration <= 0:
@@ -170,6 +166,15 @@ class SandboxesCommand(BaseCommand):
             logger.debug(f"Unable to obtain default values. Details: {e}")
 
         branch_to_be_used = temp_working_branch or working_branch
+
+        if name is None:
+            suffix = datetime.datetime.now().strftime("%b%d%Y-%H:%M:%S")
+            branch_name_or_type = "colony-defined-branch"
+            if working_branch:
+                branch_name_or_type = working_branch
+            if temp_working_branch:
+                branch_name_or_type = "localchanges"
+            name = f"{blueprint_name}-{branch_name_or_type}-{suffix}"
 
         try:
             sandbox_id = self.manager.start(
