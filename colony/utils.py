@@ -42,7 +42,6 @@ class BlueprintRepo(Repo):
             logger.error(f"Failed to get remote branches names: {str(e)}")
             return False
 
-
     def is_current_branch_synced(self) -> bool:
         """Check if last commit in local and remote branch is the same"""
         local_branch = self.active_branch
