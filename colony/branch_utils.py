@@ -131,7 +131,7 @@ def create_local_branch(repo, uncommitted_branch_name):
 
 def stash_local_changes_and_preserve_uncommitted_code(repo):
     logger.debug("[GIT] Stash(SAVE --include-untracked)")
-    repo.git.stash("save","--include-untracked")
+    repo.git.stash("save", "--include-untracked")
     # id = id_unparsed.split(": ")[1].split(" U")[0]
     logger.debug("[GIT] Stash(APPLY)")
     repo.git.stash("apply")
