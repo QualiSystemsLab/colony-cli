@@ -15,17 +15,16 @@
 
 Colony CLI is a command line interface tool for CloudShell Colony.
 
-The main functionality this tool currently provides is validation of Colony blueprints and launching sandbox environments from main and development branches.
+The main functionality this tool currently provides is validation of Colony blueprints and launching sandbox environments from any branch in addition to testing local changes before commiting them.
 
 ## Why use Colony CLI
 
 When developing blueprints for Colony, it can be very helpful to immediately check your work for errors.
 
 Let's assume you are currently working in *development* branch, and you also have a main branch which is connected
-to a Colony space. You would like to be sure that your latest committed changes haven't broken anything before merging them to
-the main branch.
+to a Colony space. You would like to be sure that your latest local changes haven't broken anything before commiting to current branch and pushing to remote or before merging changes to main branch.
 
-This is where this tool might be handy for you. Instead of reconnecting Colony to your development branch in UI or "merge and pray" you can
+This is where this tool might be handy for you. Instead of reconnecting Colony to your development branch in the UI or going with "merge and pray" you can
 use Colony CLI to validate your current blueprints state and even launch sandboxes from them.
 
 ## Installing
