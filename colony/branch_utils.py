@@ -176,7 +176,7 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
             break
         else:
             time.sleep(10)
-            logger.debug(
+            BaseCommand.message(
                 f"Still waiting for sandbox (id={sandbox_id}) to prepare artifacts..."
                 f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
             )
