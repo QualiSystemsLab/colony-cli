@@ -106,8 +106,11 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> s
     try:
         # todo return id and use it for revert_from_temp_branch
         if repo.is_dirty() or repo.untracked_files:
-            stash_local_changes_and_preserve_uncommitted_code(repo)
+            stash_local_changes(repo)
         create_local_branch(repo, uncommitted_branch_name)
+        if repo.is_dirty() or repo.untracked_files:
+            preserve_uncommitted_code(repo)
+        commit_to_local_branch(repo)
         create_remote_branch(repo, uncommitted_branch_name)
     except Exception as e:
         raise e
@@ -122,16 +125,22 @@ def create_remote_branch(repo, uncommitted_branch_name):
 def create_local_branch(repo, uncommitted_branch_name):
     logger.debug(f"[GIT] Checkout (-b) {uncommitted_branch_name}")
     repo.git.checkout("-b", uncommitted_branch_name)
-    logger.debug("[GIT] Add (.)")
-    repo.git.add(".")
-    logger.debug("[GIT] Commit")
-    repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
 
 
-def stash_local_changes_and_preserve_uncommitted_code(repo):
+def commit_to_local_branch(repo):
+    if repo.is_dirty():
+        logger.debug("[GIT] Add (.)")
+        repo.git.add(".")
+        logger.debug("[GIT] Commit")
+        repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
+
+
+def stash_local_changes(repo):
     logger.debug("[GIT] Stash(SAVE --include-untracked)")
     repo.git.stash("save", "--include-untracked")
-    # id = id_unparsed.split(": ")[1].split(" U")[0]
+
+
+def preserve_uncommitted_code(repo):
     logger.debug("[GIT] Stash(APPLY)")
     repo.git.stash("apply")
 
