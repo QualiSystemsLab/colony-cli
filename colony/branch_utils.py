@@ -122,15 +122,16 @@ def create_remote_branch(repo, uncommitted_branch_name):
 def create_local_branch(repo, uncommitted_branch_name):
     logger.debug(f"[GIT] Checkout (-b) {uncommitted_branch_name}")
     repo.git.checkout("-b", uncommitted_branch_name)
-    logger.debug("[GIT] Add (.)")
-    repo.git.add(".")
-    logger.debug("[GIT] Commit")
-    repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
+    if repo.is_dirty():
+        logger.debug("[GIT] Add (.)")
+        repo.git.add(".")
+        logger.debug("[GIT] Commit")
+        repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
 
 
 def stash_local_changes_and_preserve_uncommitted_code(repo):
     logger.debug("[GIT] Stash(SAVE --include-untracked)")
-    repo.git.stash("save", "--include-untracked")
+    repo.git.stash("save","--include-untracked")
     # id = id_unparsed.split(": ")[1].split(" U")[0]
     logger.debug("[GIT] Stash(APPLY)")
     repo.git.stash("apply")
@@ -145,6 +146,8 @@ def revert_from_temp_branch(repo: BlueprintRepo, active_branch) -> None:
 
 
 def revert_from_uncommitted_code(repo):
+    logger.debug("[GIT] Clean(-xdf)")
+    repo.git.clean("-xdf")
     logger.debug("[GIT] Stash(POP)")
     repo.git.stash("pop")
 

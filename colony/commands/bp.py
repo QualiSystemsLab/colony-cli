@@ -41,7 +41,7 @@ class BlueprintsCommand(BaseCommand):
         if commit and branch is None:
             raise DocoptExit("Since commit is specified, branch is required")
 
-        repo, working_branch, temp_working_branch = figure_out_branches(branch, blueprint_name)
+        repo, repo_was_dirty, working_branch, temp_working_branch = figure_out_branches(branch, blueprint_name)
 
         validation_branch = temp_working_branch or working_branch
 
@@ -54,7 +54,7 @@ class BlueprintsCommand(BaseCommand):
             self.die()
         finally:
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                revert_from_temp_branch(repo, working_branch)
+                revert_from_temp_branch(repo, repo_was_dirty, working_branch, repo_was_dirty)
                 delete_temp_branch(repo, temp_working_branch)
 
         errors = getattr(bp, "errors")
