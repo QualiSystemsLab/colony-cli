@@ -20,17 +20,22 @@ def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str):
         raise BadBlueprintRepo("Repo's HEAD is in detached state")
 
     if not repo.repo_has_blueprint(blueprint_name):
-        logger.warning(f"Current repo does not contain a definition for the blueprint '{blueprint_name}'.")
+        logger.debug(f"Current repo does not contain a definition for the blueprint '{blueprint_name}'.")
 
     if repo.is_dirty():
-        logger.warning("You have uncommitted changes")
+        logger.debug("You have uncommitted changes")
+
+    if repo.untracked_files:
+        logger.debug(
+            "Untracked files detected - only staged or committed files will be used when testing local changes"
+        )
 
     if not repo.current_branch_exists_on_remote():
-        logger.warning("Your current local branch doesn't exist on remote")
+        logger.debug("Your current local branch doesn't exist on remote")
         # raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
 
     if not repo.is_current_branch_synced():
-        logger.warning("Your local branch is not synced with remote")
+        logger.debug("Your local branch is not synced with remote")
     return
 
 
@@ -84,6 +89,9 @@ def figure_out_branches(user_defined_branch, blueprint_name):
             try:
                 temp_working_branch = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(
+                    "Using your local blueprint changes (including uncommitted changes and/or untracked files)"
+                )
+                logger.debug(
                     f"Using temp branch: {temp_working_branch} "
                     f"(This shall include any uncommitted changes and untracked files)"
                 )
@@ -97,7 +105,8 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> s
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
     try:
         # todo return id and use it for revert_from_temp_branch
-        stash_local_changes_and_preserve_uncommitted_code(repo)
+        if repo.is_dirty() or repo.untracked_files:
+            stash_local_changes_and_preserve_uncommitted_code(repo)
         create_local_branch(repo, uncommitted_branch_name)
         create_remote_branch(repo, uncommitted_branch_name)
     except Exception as e:
@@ -111,7 +120,7 @@ def create_remote_branch(repo, uncommitted_branch_name):
 
 
 def create_local_branch(repo, uncommitted_branch_name):
-    logger.debug("[GIT] Checkout (-b) {uncommitted_branch_name}")
+    logger.debug(f"[GIT] Checkout (-b) {uncommitted_branch_name}")
     repo.git.checkout("-b", uncommitted_branch_name)
     logger.debug("[GIT] Add (.)")
     repo.git.add(".")
@@ -166,10 +175,10 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
             delete_temp_branch(repo, temp_branch)
             break
         else:
-            time.sleep(3)
+            time.sleep(10)
             logger.debug(
                 f"Still waiting for sandbox (id={sandbox_id}) to prepare artifacts..."
-                f"[{datetime.datetime.now() - start_time} sec]"
+                f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
             )
             sandbox = sb_manager.get(sandbox_id)
             status = getattr(sandbox, "sandbox_status")
