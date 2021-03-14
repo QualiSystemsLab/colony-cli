@@ -46,17 +46,6 @@ def get_blueprint_working_branch(repo: BlueprintRepo) -> str:
 
     return branch
 
-'''
-def set_blueprint_working_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> str:
-    temp_branch = defined_branch_in_file
-
-    try:
-        temp_branch, stashed_flag = switch_to_temp_branch(repo, defined_branch_in_file)
-    except Exception as e:
-        logger.error(f"Was not able to create temp branch for validation - {str(e)}")
-
-    return stashed_flag, temp_branch
-'''
 
 def figure_out_branches(user_defined_branch, blueprint_name):
     temp_working_branch = ""
@@ -101,7 +90,7 @@ def figure_out_branches(user_defined_branch, blueprint_name):
     return repo, working_branch, temp_working_branch, stashed_flag
 
 
-def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str) -> str:
+def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
     stashed_flag = False
     random_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(10))
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
