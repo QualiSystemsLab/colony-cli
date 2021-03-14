@@ -100,7 +100,7 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
             stash_local_changes(repo)
             stashed_flag = True
         create_local_branch(repo, uncommitted_branch_name)
-        if repo.is_dirty() or repo.untracked_files:
+        if stashed_flag:
             preserve_uncommitted_code(repo)
         commit_to_local_branch(repo)
         create_remote_branch(repo, uncommitted_branch_name)
