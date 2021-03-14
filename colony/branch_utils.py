@@ -96,7 +96,7 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
     try:
         # todo return id and use it for revert_from_temp_branch
-        if repo.is_dirty():
+        if repo.is_dirty() or not (repo.is_current_branch_synced()):
             stash_local_changes(repo)
             stashed_flag = True
         create_local_branch(repo, uncommitted_branch_name)
