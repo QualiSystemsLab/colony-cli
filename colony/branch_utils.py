@@ -129,7 +129,7 @@ def commit_to_local_branch(repo):
 
 def stash_local_changes(repo):
     logger.debug("[GIT] Stash(Push --include-untracked)")
-    repo.git.stash("push", "--include-untracked")
+    repo.git.stash("push", "--include-untracked", "--keep-index")
     # logger.debug("[GIT] Stash(Push)")
     # repo.git.stash("push")
 
@@ -150,7 +150,7 @@ def revert_from_temp_branch(repo: BlueprintRepo, active_branch, stashed_flag) ->
 
 def revert_from_uncommitted_code(repo):
     logger.debug("[GIT] Stash(POP)")
-    repo.git.stash("pop")
+    repo.git.stash("pop", "--index")
 
 
 def delete_temp_branch(repo, temp_branch):
