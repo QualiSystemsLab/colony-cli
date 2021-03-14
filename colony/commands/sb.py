@@ -6,8 +6,12 @@ import time
 import tabulate
 from docopt import DocoptExit
 
-from colony.branch_utils import figure_out_branches, revert_from_temp_branch, wait_and_then_delete_branch, \
-    revert_and_delete_temp_branch
+from colony.branch_utils import (
+    figure_out_branches,
+    revert_from_temp_branch,
+    wait_and_then_delete_branch,
+    revert_and_delete_temp_branch,
+)
 from colony.commands.base import BaseCommand
 from colony.constants import UNCOMMITTED_BRANCH_NAME
 from colony.sandboxes import SandboxesManager
