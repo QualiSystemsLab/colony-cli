@@ -79,11 +79,11 @@ def figure_out_branches(user_defined_branch, blueprint_name):
             try:
                 temp_working_branch, stashed_flag = switch_to_temp_branch(repo, working_branch)
                 BaseCommand.message(
-                    "Using your local blueprint changes (including uncommitted changes and/or untracked files)"
+                    "Using your local blueprint changes (including uncommitted changes but not untracked files)"
                 )
                 logger.debug(
                     f"Using temp branch: {temp_working_branch} "
-                    f"(This shall include any uncommitted changes and untracked files)"
+                    f"(This shall include any uncommitted changes but not untracked files)"
                 )
             except Exception as e:
                 logger.warning(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
@@ -96,7 +96,7 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
     try:
         # todo return id and use it for revert_from_temp_branch
-        if repo.is_dirty() or repo.untracked_files:
+        if repo.is_dirty():
             stash_local_changes(repo)
             stashed_flag = True
         create_local_branch(repo, uncommitted_branch_name)
@@ -128,8 +128,10 @@ def commit_to_local_branch(repo):
 
 
 def stash_local_changes(repo):
-    logger.debug("[GIT] Stash(Push --include-untracked)")
-    repo.git.stash("push", "--include-untracked")
+    # logger.debug("[GIT] Stash(Push --include-untracked)")
+    # repo.git.stash("push", "--include-untracked")
+    logger.debug("[GIT] Stash(Push)")
+    repo.git.stash("push")
 
 
 def preserve_uncommitted_code(repo):
