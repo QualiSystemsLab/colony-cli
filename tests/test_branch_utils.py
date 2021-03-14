@@ -11,9 +11,9 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.revert = branch_utils.revert_from_temp_branch
 
     @patch.object(branch_utils, "create_remote_branch")
-    @patch.object(branch_utils, "commit_to_local_branch")
+    @patch.object(branch_utils, "commit_to_local_temp_branch")
     @patch.object(branch_utils, "preserve_uncommitted_code")
-    @patch.object(branch_utils, "create_local_branch")
+    @patch.object(branch_utils, "create_local_temp_branch")
     @patch.object(branch_utils, "stash_local_changes")
     def test_switch_to_temp_branch_dirtyrepo(self, mock5, mock4, mock3, mock2, mock1):
         # Arrange:
