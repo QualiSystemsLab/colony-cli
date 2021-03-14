@@ -144,7 +144,7 @@ You can get additional help information for a particular command by specifying *
 ```
 
 * If code is not committed or out-of-sync:
-1) A temp branch shall be created and code (but not including untracked files) will be committed and push to that branch
+1) A temp branch shall be created and code (including untracked files) will be committed and push to that branch
 2) The temp branch will be used for the validation
 3) Once validation has finished the repo will revert to current branch and remote and local temp-branch will be deleted
 
