@@ -42,7 +42,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         mock_repo.untracked_files = False
         defined_branch_in_file = MagicMock()
         # Act:
-        uncommitted_branch_name = self.switch(mock_repo, defined_branch_in_file)
+        uncommitted_branch_name, flag = self.switch(mock_repo, defined_branch_in_file)
         # Assert:
         mock1.assert_called_once_with(mock_repo, uncommitted_branch_name)
         mock2.assert_called_once_with(mock_repo)
