@@ -17,12 +17,12 @@ class BlueprintsCommand(BaseCommand):
         colony (bp | blueprint) [--help]
 
     options:
-       -b --branch <branch>     Specify the name of remote git branch. If not provided, we will try to automatically
-                                detect the current working branch if the command is used in a git enabled folder.
+       -b --branch <branch>     Specify the name of the remote git branch. If not provided, the CLI will attempt to
+                                automatically detect the current working branch. The latest branch commit will be used
+                                by default unless the commit parameter is also specified.
 
-       -c --commit <commitId>   Specify commit ID. It's required to validate a blueprint from an historic commit.
-                                Must be used together with the branch option. If not specified then the latest commit
-                                will be used.
+       -c --commit <commitId>   Specify the commit ID. This can be used to validate a blueprint from an historic commit.
+                                This option be used together with the branch parameter.
 
        -h --help                Show this message
     """
@@ -38,7 +38,7 @@ class BlueprintsCommand(BaseCommand):
         commit = self.args.get("--commit")
 
         if commit and branch is None:
-            raise DocoptExit("Since commit is specified, branch is required")
+            raise DocoptExit("Since a commit was specified, a branch parameter is also required")
 
         repo, working_branch, temp_working_branch, stashed_flag = figure_out_branches(branch, blueprint_name)
 
