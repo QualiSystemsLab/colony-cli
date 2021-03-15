@@ -5,10 +5,10 @@ Usage: colony [--space=<space>] [--token=<token>] [--profile=<profile>] [--help]
 Options:
   -h --help             Show this screen.
   --version             Show current version
-  --space=<space>       Use a specific Colony Space, this will override any default set in the .colony\config file
+  --space=<space>       Use a specific Colony Space, this will override any default set in the Colony config file
   --token=<token>       Use a specific token for authentication, this will override any default set in the
-                        .colony\config file
-  --profile=<profile>   Use a specific Profile section in .colony\config file
+                        .colony\\config file
+  --profile=<profile>   Use a specific Profile section in .colony\\config file
 
 Commands:
     bp, blueprint       validate colony blueprints
@@ -25,7 +25,6 @@ from colony.config import ColonyConfigProvider, ColonyConnection
 from colony.exceptions import ConfigError
 
 logger = logging.getLogger(__name__)
-
 
 commands_table = {
     "bp": bp.BlueprintsCommand,
