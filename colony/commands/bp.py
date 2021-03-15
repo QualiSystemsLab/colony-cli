@@ -22,7 +22,7 @@ class BlueprintsCommand(BaseCommand):
                                 by default unless the commit parameter is also specified.
 
        -c --commit <commitId>   Specify the commit ID. This can be used to validate a blueprint from an historic commit.
-                                This option be used together with the branch parameter.
+                                This option can be used together with the branch parameter.
 
        -h --help                Show this message
     """
