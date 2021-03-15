@@ -8,7 +8,6 @@ from docopt import DocoptExit
 
 from colony.branch_utils import (
     figure_out_branches,
-    revert_and_delete_temp_branch,
     revert_from_temp_branch,
     wait_and_then_delete_branch,
 )
