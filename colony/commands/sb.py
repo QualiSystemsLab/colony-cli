@@ -143,7 +143,7 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-        repo, working_branch, temp_working_branch = figure_out_branches(branch, blueprint_name)
+        repo, working_branch, temp_working_branch, stashed_flag = figure_out_branches(branch, blueprint_name)
 
         # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
@@ -187,7 +187,7 @@ class SandboxesCommand(BaseCommand):
             self.die()
         finally:
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                revert_from_temp_branch(repo, working_branch)
+                revert_from_temp_branch(repo, working_branch, stashed_flag)
 
         if timeout is None:
             wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
