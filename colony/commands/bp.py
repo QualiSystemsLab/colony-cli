@@ -50,7 +50,6 @@ class BlueprintsCommand(BaseCommand):
         except Exception as e:
             logger.exception(e, exc_info=False)
             bp = None
-            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
             self.die()
         finally:
             revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)

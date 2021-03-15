@@ -189,7 +189,6 @@ class SandboxesCommand(BaseCommand):
         except Exception as e:
             logger.exception(e, exc_info=False)
             sandbox_id = None
-            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
             self.die()
         finally:
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):

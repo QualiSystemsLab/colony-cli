@@ -128,7 +128,7 @@ def commit_to_local_temp_branch(repo):
 
 def stash_local_changes(repo):
     logger.debug("[GIT] Stash(Push --include-untracked)")
-    repo.git.stash("push", "--include-untracked", "--keep-index")
+    repo.git.stash("push", "--include-untracked")
     # logger.debug("[GIT] Stash(Push)")
     # repo.git.stash("push")
 
