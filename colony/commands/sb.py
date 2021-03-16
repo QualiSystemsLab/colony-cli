@@ -26,31 +26,33 @@ class SandboxesCommand(BaseCommand):
 
     options:
        -h --help                        Show this message
-       -d, --duration <minutes>         Sandbox will automatically deprovision at the end of the provided duration
-       -n, --name <sandbox_name>        Provide name of Sandbox. If not set, the name will be generated using timestamp
+       -d, --duration <minutes>         The Sandbox will automatically de-provision at the end of the provided duration
+       -n, --name <sandbox_name>        Provide a name for the Sandbox. If not set, the name will be generated
+                                        automatically using the source branch (or local changes) and current time.
 
-       -i, --inputs <input_params>      Comma separated list of input parameters. Example: key1=value1, key2=value2.
-                                        By default Colony CLI will try to take default values for inputs from blueprint
-                                        definition yaml file (if you are inside a git-enabled folder of blueprint repo).
-                                        Use this option to override them.
+       -i, --inputs <input_params>      The Blueprints inputs can be provided as a comma-separated list of key=value
+                                        pairs. For example: key1=value1, key2=value2.
+                                        By default Colony CLI will try to take the default values for these inputs
+                                        from the Blueprint definition yaml file.
 
-       -a, --artifacts <artifacts>      Comma separated list of artifacts with paths where artifacts are defined per
-                                        application. The artifact name is the name of the application.
+       -a, --artifacts <artifacts>      A comma-separated list of artifacts per application. These are relative to the
+                                        artifact repository root defined in Colony.
                                         Example: appName1=path1, appName2=path2.
                                         By default Colony CLI will try to take artifacts from blueprint definition yaml
-                                        file (if you are inside a git-enabled folder of blueprint repo).
-                                        Use this option to override them.
+                                        file.
 
-       -b, --branch <branch>            Specify the name of remote git branch. If not provided, we will try to
-                                        automatically detect the current working branch if the command is used in a
-                                        git enabled folder.
+       -b, --branch <branch>            Run the Blueprint version from a remote Git branch. If not provided,
+                                        the CLI will attempt to automatically detect the current working branch.
+                                        The CLI will automatically run any local uncommitted or untracked changes in a
+                                        temporary branch created for the validation or for the development Sandbox.
 
-       -c, --commit <commitId>          Specify commit ID. It's required to run sandbox from a blueprint from an
-                                        historic commit. Must be used together with the branch option.
-                                        If not specified then the latest commit will be used
+       -c, --commit <commitId>          Specify a specific Commit ID. This is used in order to run a Sandbox from a
+                                        specific Blueprint historic version. If this parameter is used, the
+                                        Branch parameter must also be specified.
 
-       -w, --wait <timeout>             Set the timeout in minutes for the sandbox to become active. If not set, command
-                                        will not block terminal and just return the ID of started sandbox
+       -w, --wait <timeout>             Set the timeout in minutes to wait for the sandbox to become active. If not set,
+                                        the CLI will wait for a default timeout of 30 minutes until the sandbox is
+                                        ready.
 
     """
 
@@ -191,12 +193,12 @@ class SandboxesCommand(BaseCommand):
 
         if timeout is None:
             wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
-            self.success(f"Sandbox {sandbox_id} was created")
+            self.success(f"The Sandbox {sandbox_id} was created")
 
         else:
             start_time = datetime.datetime.now()
 
-            logger.debug(f"Waiting for sandbox {sandbox_id}...")
+            logger.debug(f"Waiting for the Sandbox {sandbox_id} to start...")
             # Waiting loop
             while (datetime.datetime.now() - start_time).seconds < timeout * 60:
                 sandbox = self.manager.get(sandbox_id)
@@ -212,9 +214,9 @@ class SandboxesCommand(BaseCommand):
 
                 else:
                     wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
-                    self.die(f"Sandbox {sandbox_id} started with {status} state")
+                    self.die(f"The Sandbox {sandbox_id} has started. Current state is: {status}")
 
             # timeout exceeded
-            logger.error(f"Sandbox {sandbox_id} is not active after {timeout} minutes")
+            logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
             wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
             self.die()

@@ -66,7 +66,7 @@ def figure_out_branches(user_defined_branch, blueprint_name):
             working_branch = None
             logger.warning(
                 f"Branch could not be identified/used from the working directory; "
-                f"reason: {e}. A branch of the Blueprints Repository attached to Colony Space will be used"
+                f"reason: {e}. The Blueprints Repository branch attached to Colony Space will be used"
             )
 
         # Checking if:
@@ -180,7 +180,7 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
         else:
             time.sleep(10)
             BaseCommand.message(
-                f"Still waiting for sandbox (id={sandbox_id}) to prepare artifacts..."
+                f"Waiting for the Sandbox ({sandbox_id}) to start with local changes..."
                 f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
             )
             sandbox = sb_manager.get(sandbox_id)
