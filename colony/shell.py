@@ -75,7 +75,7 @@ def main():
     debug = args.pop("--debug", None)
 
     level = logging.DEBUG if debug else logging.WARNING
-    logging.basicConfig(format="%(levelname)s - %(name)s - %(message)s", level=level)
+    logging.basicConfig(format="%(levelname)s - %(message)s", level=level)
 
     # Take command
     command_name = args["<command>"]

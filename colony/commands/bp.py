@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 
 import tabulate
 from docopt import DocoptExit
@@ -58,7 +59,7 @@ class BlueprintsCommand(BaseCommand):
 
         if errors:
             # We don't need error code
-            err_table = [{"Name": err["name"], "Message": err["message"]} for err in errors]
+            err_table = [OrderedDict([("NAME", err["name"]), ("MESSAGE", err["message"])]) for err in errors]
 
             logger.error("Blueprint validation failed")
             self.die(tabulate.tabulate(err_table, headers="keys"))
