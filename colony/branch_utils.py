@@ -164,6 +164,7 @@ def delete_temp_branch(repo, temp_branch):
 
 def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, temp_branch):
     if not temp_branch:
+        logger.debug(f"Not temp branch")
         return
     start_time = datetime.datetime.now()
     sandbox = sb_manager.get(sandbox_id)

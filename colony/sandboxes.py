@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from .base import Resource, ResourceManager
 
 
@@ -30,30 +32,40 @@ class Sandbox(Resource):
 
 class SandboxesManager(ResourceManager):
     resource_obj = Sandbox
+    SANDBOXES_PATH = 'sandbox'
+
+    def get_sandbox_url(self, sandbox_id: str) -> str:
+        return self._get_full_url(f"{self.SANDBOXES_PATH}/{sandbox_id}")
+
+    def get_sandbox_ui_link(self, sandbox_id: str) -> str:
+        url = urlparse(self.get_sandbox_url(sandbox_id))
+        space = url.path.split('/')[3]
+
+        ui_url = f'https://{url.hostname}/{space}/{self.SANDBOXES_PATH}/{sandbox_id}'
+        return ui_url
 
     def get(self, sandbox_id: str) -> Sandbox:
-        url = f"sandbox/{sandbox_id}"
+        url = f"{self.SANDBOXES_PATH}/{sandbox_id}"
         sb_json = self._get(url)
 
         return self.resource_obj.json_deserialize(self, sb_json)
 
     def list(self, count: int = 25, filter_opt: str = "my"):
-        url = "sandbox"
 
         filter_params = {"count": count, "filter": filter_opt}
-        list_json = self._list(path=url, filter_params=filter_params)
+        list_json = self._list(path=self.SANDBOXES_PATH, filter_params=filter_params)
 
         return [self.resource_obj.json_deserialize(self, obj) for obj in list_json]
 
     def start(
-        self,
-        sandbox_name: str,
-        blueprint_name: str,
-        duration: int = 120,
-        branch: str = None,
-        commit: str = None,
-        artifacts: dict = None,
-        inputs: dict = None,
+            self,
+            sandbox_name: str,
+            blueprint_name: str,
+            duration: int = 120,
+            branch: str = None,
+            commit: str = None,
+            artifacts: dict = None,
+            inputs: dict = None,
     ) -> str:
         url = "sandbox"
 
@@ -81,7 +93,7 @@ class SandboxesManager(ResourceManager):
         return sandbox_id
 
     def end(self, sandbox_id: str):
-        url = f"sandbox/{sandbox_id}"
+        url = f"{self.SANDBOXES_PATH}/{sandbox_id}"
 
         try:
             self.get(sandbox_id)
