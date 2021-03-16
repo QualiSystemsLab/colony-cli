@@ -180,7 +180,7 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
         else:
             time.sleep(10)
             BaseCommand.message(
-                f"Waiting for the Sandbox ({sandbox_id}) to launch..."
+                f"Waiting for the Sandbox ({sandbox_id}) to start with local changes..."
                 f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
             )
             sandbox = sb_manager.get(sandbox_id)
