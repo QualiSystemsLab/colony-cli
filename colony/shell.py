@@ -5,10 +5,10 @@ Usage: colony [--space=<space>] [--token=<token>] [--profile=<profile>] [--help]
 Options:
   -h --help             Show this screen.
   --version             Show current version
-  --space=<space>       Use a specific Colony Space, this will override any default set in the Colony config file
+  --space=<space>       Use a specific Colony Space, this will override any default set in the config file
   --token=<token>       Use a specific token for authentication, this will override any default set in the
-                        .colony\\config file
-  --profile=<profile>   Use a specific Profile section in .colony\\config file
+                        config file
+  --profile=<profile>   Use a specific Profile section in the config file
 
 Commands:
     bp, blueprint       validate colony blueprints
