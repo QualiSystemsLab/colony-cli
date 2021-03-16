@@ -22,15 +22,6 @@ class MainShellTest(unittest.TestCase):
         args = docopt(doc=self.main_doc, options_first=True, argv=user_input)
         self.assertTrue(shell.is_help_needed(args))
 
-    def test_validate_both_profile_and_creds(self):
-        expected = "If --profile is set, neither --space or --token must be provided!\n" + self.base_usage
-
-        user_input = ["--token", "abc", "--profile", "tester", "sb"]
-        args = docopt(doc=self.main_doc, options_first=True, argv=user_input)
-        with self.assertRaises(DocoptExit) as ctx:
-            shell.validate_connection_params(args)
-        self.assertEqual(expected, str(ctx.exception))
-
 
 if __name__ == "__main__":
     unittest.main()
