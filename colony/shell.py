@@ -9,6 +9,7 @@ Options:
   --token=<token>       Use a specific token for authentication, this will override any default set in the
                         config file
   --profile=<profile>   Use a specific Profile section in the config file
+                        You still can override config with --token/--space options.
 
 Commands:
     bp, blueprint       validate colony blueprints
@@ -42,12 +43,6 @@ def is_help_needed(args):
     return "--help" in subcommand_args or "-h" in subcommand_args
 
 
-# NOTE: added to simplify command syntax
-def validate_connection_params(args):
-    if args["--profile"] and any([args.get("--token", None), args.get("--space", None)]):
-        raise DocoptExit("If --profile is set, neither --space or --token must be provided!")
-
-
 def get_connection_params(args) -> ColonyConnection:
     # first try to get them as options or from env variable
     token = args.pop("--token", None) or os.environ.get("COLONY_TOKEN", None)
@@ -58,6 +53,7 @@ def get_connection_params(args) -> ColonyConnection:
         logger.debug("Couldn't fetch token/space neither from command line nor environment variables")
         profile = args.pop("--profile", None)
         config_file = os.environ.get("COLONY_CONFIG_PATH", None)
+        logger.debug("Trying to obtain unset values from configuration file")
         try:
             colony_conn = ColonyConfigProvider(config_file).load_connection(profile)
             token = token or colony_conn["token"]
@@ -71,7 +67,6 @@ def get_connection_params(args) -> ColonyConnection:
 def main():
     version = pkg_resources.get_distribution("colony-cli").version
     args = docopt(__doc__, options_first=True, version=version)
-    validate_connection_params(args)
     debug = args.pop("--debug", None)
 
     level = logging.DEBUG if debug else logging.WARNING
