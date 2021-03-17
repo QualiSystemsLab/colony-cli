@@ -19,6 +19,7 @@ import logging
 import os
 
 import pkg_resources
+from colorama import init
 from docopt import DocoptExit, docopt
 
 from colony.commands import bp, sb
@@ -47,7 +48,7 @@ def get_connection_params(args) -> ColonyConnection:
     # first try to get them as options or from env variable
     token = args.pop("--token", None) or os.environ.get("COLONY_TOKEN", None)
     space = args.pop("--space", None) or os.environ.get("COLONY_SPACE", None)
-
+    account = None
     # then try to load them from file
     if not all([token, space]):
         logger.debug("Couldn't fetch token/space neither from command line nor environment variables")
@@ -58,13 +59,17 @@ def get_connection_params(args) -> ColonyConnection:
             colony_conn = ColonyConfigProvider(config_file).load_connection(profile)
             token = token or colony_conn["token"]
             space = space or colony_conn["space"]
+            if "account" in colony_conn:
+                account = colony_conn["account"]
         except ConfigError as e:
             raise DocoptExit(f"Unable to read the Colony credentials. Reason: {e}")
 
-    return ColonyConnection(token=token, space=space)
+    return ColonyConnection(token=token, space=space, account=account)
 
 
 def main():
+    # Colorama init for colored output
+    init()
     version = pkg_resources.get_distribution("colony-cli").version
     args = docopt(__doc__, options_first=True, version=version)
     debug = args.pop("--debug", None)

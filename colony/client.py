@@ -16,7 +16,8 @@ class ColonyClient(object):
 
     def __init__(
         self,
-        colony_host: str = "https://cloudshellcolony.com",
+        colony_host_prefix: str = "https://",
+        colony_host: str = "cloudshellcolony.com",
         space: str = None,
         token: str = None,
         account: str = None,
@@ -25,9 +26,14 @@ class ColonyClient(object):
         session: ColonySession = ColonySession(),
     ):
 
-        self.base_url = urljoin(colony_host, self.API_URL)
+        if account:
+            self.base_url = urljoin(f'{colony_host_prefix}{account}.{colony_host}', self.API_URL)
+        else:
+            self.base_url = urljoin(f'{colony_host_prefix}{colony_host}', self.API_URL)
+
         self.session = session
         self.space = space
+        self.account = account
 
         if token:
             self.token = token

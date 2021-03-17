@@ -33,15 +33,19 @@ class Sandbox(Resource):
 class SandboxesManager(ResourceManager):
     resource_obj = Sandbox
     SANDBOXES_PATH = 'sandbox'
+    SPECIFIC_SANDBOX_PATH = 'sandboxes'
 
     def get_sandbox_url(self, sandbox_id: str) -> str:
-        return self._get_full_url(f"{self.SANDBOXES_PATH}/{sandbox_id}")
+        return self._get_full_url(f"{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}")
 
     def get_sandbox_ui_link(self, sandbox_id: str) -> str:
         url = urlparse(self.get_sandbox_url(sandbox_id))
         space = url.path.split('/')[3]
+        if self.client.account:
+            ui_url = f'https://{url.hostname}/{space}/{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}'
+        else:
+            ui_url = f'https://[YOUR_ACCOUNT].{url.hostname}/{space}/{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}'
 
-        ui_url = f'https://{url.hostname}/{space}/{self.SANDBOXES_PATH}/{sandbox_id}'
         return ui_url
 
     def get(self, sandbox_id: str) -> Sandbox:
