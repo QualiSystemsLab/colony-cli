@@ -44,6 +44,7 @@ class BlueprintsCommand(BaseCommand):
         repo, working_branch, temp_working_branch, stashed_flag = figure_out_branches(branch, blueprint_name)
 
         validation_branch = temp_working_branch or working_branch
+        reverted_flag = False
 
         try:
             bp = self.manager.validate(blueprint=blueprint_name, branch=validation_branch, commit=commit)
@@ -51,9 +52,12 @@ class BlueprintsCommand(BaseCommand):
         except Exception as e:
             logger.exception(e, exc_info=False)
             bp = None
+            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
+            reverted_flag = True
             self.die()
         finally:
-            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
+            if not reverted_flag:
+                revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
 
         errors = getattr(bp, "errors")
 
