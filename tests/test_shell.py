@@ -8,7 +8,7 @@ from colony import shell
 class MainShellTest(unittest.TestCase):
     def setUp(self) -> None:
         self.main_doc = shell.__doc__
-        self.base_usage = """Usage: colony [--space=<space>] [--token=<token>] [--profile=<profile>] [--help] [--debug]
+        self.base_usage = """Usage: colony [--space=<space>] [--token=<token>] [--account=<account>][--profile=<profile>] [--help] [--debug]
               <command> [<args>...]"""
 
     def test_show_base_usage_line(self):
