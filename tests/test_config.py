@@ -41,10 +41,15 @@ class TestConfigProvider(unittest.TestCase):
         with self.assertRaises(ConfigError):
             _ = self.provider.load_connection(wrong_profile)
 
-    def test_wrong_number_of_settings(self):
+    def test_token_and_space_must_appear_together(self):
         wrong_profile = "tester-3"
         with self.assertRaises(ConfigError):
             _ = self.provider.load_connection(wrong_profile)
+
+    def test_account_is_accepted_as_config_setting(self):
+        expected = ("trial", "abcd", "myaccount")
+        result = self.provider.load_connection("tester-4")
+        self.assertEqual(expected, (result["space"], result["token"], result["account"]))
 
 
 if __name__ == "__main__":
