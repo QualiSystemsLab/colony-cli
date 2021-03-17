@@ -31,8 +31,8 @@ class Sandbox(Resource):
 
 class SandboxesManager(ResourceManager):
     resource_obj = Sandbox
-    SANDBOXES_PATH = 'sandbox'
-    SPECIFIC_SANDBOX_PATH = 'sandboxes'
+    SANDBOXES_PATH = "sandbox"
+    SPECIFIC_SANDBOX_PATH = "sandboxes"
 
     def get_sandbox_url(self, sandbox_id: str) -> str:
         return self._get_full_url(f"{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}")

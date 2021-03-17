@@ -10,13 +10,17 @@ class TestSandboxes(unittest.TestCase):
         self.sandboxes = SandboxesManager(self.client_with_account)
 
     def test_ui_link_is_properly_generated(self):
-        self.assertEqual(self.sandboxes.get_sandbox_ui_link("blah"),
-                         "https://my_account.cloudshellcolony.com/my_space/sandboxes/blah")
+        self.assertEqual(
+            self.sandboxes.get_sandbox_ui_link("blah"),
+            "https://my_account.cloudshellcolony.com/my_space/sandboxes/blah",
+        )
 
     def test_sandbox_url_properly_generated(self):
-        self.assertEqual(self.sandboxes.get_sandbox_url("blah"),
-                         "https://my_account.cloudshellcolony.com/api/spaces/my_space/sandboxes/blah")
+        self.assertEqual(
+            self.sandboxes.get_sandbox_url("blah"),
+            "https://my_account.cloudshellcolony.com/api/spaces/my_space/sandboxes/blah",
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

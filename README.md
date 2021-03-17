@@ -44,7 +44,7 @@ In order to allow the CLI tool to authenticate with Colony you must provide seve
 click “Connect” under any of the CI tools -> click “New Token”* to get an API token.
 * *Space* The space in the Colony to use which is mapped to the Git repo you are using
 * *Account* (optional) providing the account name (appearing as the subdomain in your Colony URL,
-e.g https://YOURACCOUNT.cloudshellcolony.com). This is not a mandatory value but will help generate easy links.
+e.g <https://YOURACCOUNT.cloudshellcolony.com>). This is not a mandatory value but will help generate easy links.
 
 The *Token*, *Space* and *Account* parameters can be provided via special command line flags (*--token*, *--space*,  
 and *--account* respectively) but can be conveniently placed in a config file relative to your user folder,
