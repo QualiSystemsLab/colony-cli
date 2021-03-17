@@ -46,7 +46,7 @@ class ColonyConfigProvider(object):
 
         if not all(k in config[profile] for k in ("token", "space")):
             raise colony.exceptions.ConfigError(
-                "Missing configuration settings. Profile must contain these settings: `token` " "and `space`"
+                "Missing configuration settings. Profile must contain these settings: `token` and `space`"
             )
 
         return config[profile]
