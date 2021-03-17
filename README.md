@@ -107,13 +107,13 @@ Options:
   --token=<token>       Use a specific token for authentication, this will override any default set in the
                         config file
   --account=<account>   [Optional] Your Colony account name. The account name is equal to your subdomain in
-                        the Colony URL. e.g. https://YOURACCOUNT.cloudshellcolony.com//
+                        the Colony URL. e.g. <https://YOURACCOUNT.cloudshellcolony.com//>
   --profile=<profile>   Use a specific Profile section in the config file
                         You still can override config with --token/--space options.
 
 Commands:
-    bp, blueprint       validate colony blueprints
-    sb, sandbox         start sandbox, end sandbox and get its status
+    bp, blueprint       validate colony Blueprints
+    sb, sandbox         start a Sandbox, end a Sandbox, get a Sandbox status or list all Sandboxes
 ```
 
 You can get additional help information for a particular command by specifying *--help* flag after command name, like:
