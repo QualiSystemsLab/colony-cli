@@ -1,5 +1,5 @@
 """
-Usage: colony [--space=<space>] [--token=<token>] [--profile=<profile>] [--help] [--debug]
+Usage: colony [--space=<space>] [--token=<token>] [--account=<account>] [--profile=<profile>] [--help] [--debug]
               <command> [<args>...]
 
 Options:
@@ -8,6 +8,8 @@ Options:
   --space=<space>       Use a specific Colony Space, this will override any default set in the config file
   --token=<token>       Use a specific token for authentication, this will override any default set in the
                         config file
+  --account=<account>   [Optional] Your Colony account name. The account name is equal to your subdomain in
+                        the Colony URL. e.g. https://YOURACCOUNT.cloudshellcolony.com//
   --profile=<profile>   Use a specific Profile section in the config file
                         You still can override config with --token/--space options.
 
@@ -48,7 +50,7 @@ def get_connection_params(args) -> ColonyConnection:
     # first try to get them as options or from env variable
     token = args.pop("--token", None) or os.environ.get("COLONY_TOKEN", None)
     space = args.pop("--space", None) or os.environ.get("COLONY_SPACE", None)
-    account = None
+    account = args.pop("--account", None) or os.environ.get("COLONY_ACCOUNT", None)
     # then try to load them from file
     if not all([token, space]):
         logger.debug("Couldn't fetch token/space neither from command line nor environment variables")
