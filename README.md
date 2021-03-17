@@ -13,19 +13,19 @@
 
 ## Cloudshell Colony CLI
 
-Colony CLI is a command line interface tool for CloudShell Colony.
+Colony CLI is a Command Line interface tool for CloudShell Colony.
 
-The main functionality this tool currently provides is validation of Colony blueprints and launching sandbox environments from any branch in addition to testing local changes before commiting them.
+The main functionality this tool currently provides is validation of Colony Blueprints and launching of Sandbox environments from any branch in addition to testing local changes before committing them.
 
 ## Why use Colony CLI
 
-When developing blueprints for Colony, it can be very helpful to immediately check your work for errors.
+When developing Blueprints for Colony, it can be very helpful to immediately check your work for errors.
 
 Let's assume you are currently working in *development* branch, and you also have a main branch which is connected
 to a Colony space. You would like to be sure that your latest local changes haven't broken anything before commiting to current branch and pushing to remote or before merging changes to main branch.
 
 This is where this tool might be handy for you. Instead of reconnecting Colony to your development branch in the UI or going with "merge and pray" you can
-use Colony CLI to validate your current blueprints state and even launch sandboxes from them.
+use Colony CLI to validate your current Blueprints state and even launch Sandboxes.
 
 ## Installing
 
@@ -86,8 +86,8 @@ export COLONY_ACCOUNT = MYACCOUNT
 
 Colony CLI currently allows you to make two actions:
 
-- validate blueprint (using `colony bp validate` command)
-- start sandbox (via `colony sb start`)
+- Validate a Blueprint (using the `colony bp validate` command)
+- Start a Sandbox (via `colony sb start`)
 
 In order to get help run:
 
@@ -140,7 +140,7 @@ You can get additional help information for a particular command by specifying *
        -a, --artifacts <artifacts>      A comma-separated list of artifacts per application. These are relative to the
                                         artifact repository root defined in Colony.
                                         Example: appName1=path1, appName2=path2.
-                                        By default Colony CLI will try to take artifacts from blueprint definition yaml
+                                        By default Colony CLI will try to take artifacts from Blueprint definition yaml
                                         file.
 
        -b, --branch <branch>            Run the Blueprint version from a remote Git branch. If not provided,
@@ -159,26 +159,26 @@ You can get additional help information for a particular command by specifying *
 
 ### Blueprint validation
 
-* If you are currently inside a git-enabled folder containing your blueprint, commit and push your latest changes and run (Colony CLI will automatically detect the current working branch):
+* If you are currently inside a git-enabled folder containing your Blueprint, commit and push your latest changes and run (Colony CLI will automatically detect the current working branch):
 
     `$ colony bp validate MyBlueprint`
 
 
-* If you want to validate a blueprint from another branch you can specify _--branch_ argument or even check validation in a
+* If you want to validate a Blueprint from another branch you can specify _--branch_ argument or even check validation in a
 specific point in time by setting _--commit_:
 
     `$ colony bp validate MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
 
 ### Testing Local Changes
 
-The Colony CLI can validate your blueprints and test your sandboxes even before you commit and push your code to a
+The Colony CLI can validate your Blueprints and test your Sandboxes even before you commit and push your code to a
 remote branch. It does so by creating a temporary branch on the remote repository with your local staged and even
 untracked changes which gets deleted automatically after the Sandbox is created or the Blueprint validation is
 complete. The CLI will automatically detect if you have some local changes and use them unless you explicitly
 set the --branch flag.
 
 Please notice that in order to create a Sandbox from your local changes, the CLI must make sure they are
-picked up by the sandbox setup process before completing the action and deleting the temporary branch. This means
+picked up by the Sandbox setup process before completing the action and deleting the temporary branch. This means
 that when you launch a local Sandbox the CLI command will not return immediately. You'll also receive a warning
 not to abort the wait as that might not give Colony enough time to pull your changes and the Sandbox may fail.
 Feel free to launch the CLI command asynchronously or continue working in a new tab.
@@ -186,12 +186,13 @@ Feel free to launch the CLI command asynchronously or continue working in a new 
 ---
 **NOTE**
 
-If you are not it git-enabled folder of your blueprint repo and haven't set --branch/--commit arguments tool will
-validate blueprint with name "MyBlueprint" from branch currently attached to your Colony space.
+If you are not it git-enabled folder of your Blueprint repo and haven't set --branch/--commit arguments tool will
+validate Blueprint with name "MyBlueprint" from branch currently attached to your Colony space.
 
 ---
 
-If blueprint is valid you will get output with "Valid" message. If no, it will print you a table with found errors.
+The result will indicate whether the Blueprint is valid. If there are ny issues, you will see them printed out as 
+a table describing each issue found.
 
 **Example:**
 
@@ -204,33 +205,33 @@ message                                                                      nam
 Cloud account: AWS is not recognized as a valid cloud account in this space  Blueprint unknown cloud account
 ```
 
-### Launching sandbox
+### Launching a Sandbox
 
 * Similar to the previous command you can omit *--branch/--commit* arguments if you are in a git-enabled folder of your
-  blueprint repo:
+  Blueprint repo:
 
     `$ colony sb start MyBlueprint`
 
-* This will create a sandbox from the specified blueprint
+* This will create a Sandbox from the specified Blueprint
 
-* If you want to start a sandbox from a blueprint in a specific state, specify _--branch_ and _--commit_ arguments:
+* If you want to start a Sandbox from a Blueprint in a specific state, specify _--branch_ and _--commit_ arguments:
 
     `$ colony sb start MyBlueprint --branch dev --commit fb88a5e3275q5d54697cff82a160a29885dfed24`
 
 * Additional optional options that you can provide here are:
-  * `-d, --duration <minutes>` - you can specify duration for the sandbox environment in minutes. Default is 120 minutes
-  * `-n, --name <sandbox_name>` - the name of sandbox you want to create. By default it will generate name using blueprint name + current timestamp
-  * `-i, --inputs <input_params>` - comma-separated list of input parameters for sandbox, like: _"param1=val1, param2=val2_"
-  * `-a, --artifacts <artifacts>` - comma-separated list of sandbox artifacts, like: "_app1=path1, app2=path2_"
-  * `-w, --wait <timeout>` - <timeout> is a number of minutes. If set, you Colony CLI will wait for sandbox to become active and lock your terminal.
+  * `-d, --duration <minutes>` - you can specify duration for the Sandbox environment in minutes. Default is 120 minutes
+  * `-n, --name <sandbox_name>` - the name of the Sandbox you want to create. By default the cli will generate a name using the Blueprint name, branch or local changes, and the current timestamp
+  * `-i, --inputs <input_params>` - comma-separated list of input parameters for the Sandbox, For example:_"param1=val1, param2=val2_"
+  * `-a, --artifacts <artifacts>` - comma-separated list of Sandbox artifacts, like: "_app1=path1, app2=path2_"
+  * `-w, --wait <timeout>` - <timeout> is a number of minutes. If set, you Colony CLI will wait for the Sandbox to become active and lock your terminal.
 ---
 **NOTE**
 
-1. If you are not it git-enabled folder of your blueprint repo and haven't set --branch/--commit arguments tool will
-start sandbox using blueprint with name "MyBlueprint" from branch currently attached to your Colony space.
+1. If you are not it git-enabled folder of your Blueprint repo and haven't set --branch/--commit arguments tool will
+start a Sandbox using the Blueprint "MyBlueprint" from the branch currently attached to your Colony space.
 
 2. If you omit artifacts and inputs options, you are inside a git enabled folder and the local is in sync with remote,
-then Colony Cli will try to get default values for artifacts and inputs from the blueprint yaml.
+then Colony Cli will try to get default values for artifacts and inputs from the Blueprint YAML file.
 ---
 
 Result of the command is a Sandbox ID.
@@ -245,22 +246,22 @@ ybufpamyok03c11
 
 ### Other functionality
 
-You can also end colony sandbox knowing its Id with command:
+You can also end a Colony Sandbox by using the "end" command and specifying its Id:
 
 `$ colony sb end <sandbox> id`
 
-To get current sandbox status run:
+To get the current status of a Sandbox status run:
 
 `$ colony sb status <sandbox> id`
 
-In order to list sandboxes in your space use the following command:
+In order to list all Sandboxes in your space use the following command:
 
 `$ colony sb list`
 
-- By default it will show only yours sandbox which are not in an ended status.
-- You can include ended sandboxes by setting `--show-ended` flag
+- By default this command will show only Sandboxes launched by the CLI user which are not in an ended status.
+- You can include historic completed Sandboxes by setting `--show-ended` flag
 - Default output length is 25. You can override with option `--count=N` where N < 1000
-- You can also list sandboxes created by other users or filter only automation sandboxes by setting option
+- You can also list Sandboxes created by other users or filter only automation Sandboxes by setting option
 `--filter={all|my|auto}`. Default is `my`.
 
 ## Troubleshooting and Help
