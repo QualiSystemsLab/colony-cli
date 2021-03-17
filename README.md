@@ -191,7 +191,7 @@ validate Blueprint with name "MyBlueprint" from branch currently attached to you
 
 ---
 
-The result will indicate whether the Blueprint is valid. If there are ny issues, you will see them printed out as 
+The result will indicate whether the Blueprint is valid. If there are ny issues, you will see them printed out as
 a table describing each issue found.
 
 **Example:**
