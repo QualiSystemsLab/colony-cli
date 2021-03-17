@@ -26,7 +26,6 @@ class Sandbox(Resource):
         # sb.status = json_obj.get("sandbox_status", "")
         # sb.launching_progress = json_obj.get("launching_progress", {})
         # sb.__dict__ = json_obj.copy()
-
         return sb
 
 
@@ -40,11 +39,11 @@ class SandboxesManager(ResourceManager):
 
     def get_sandbox_ui_link(self, sandbox_id: str) -> str:
         url = urlparse(self.get_sandbox_url(sandbox_id))
-        space = url.path.split('/')[3]
+        space = url.path.split("/")[3]
         if self.client.account:
-            ui_url = f'https://{url.hostname}/{space}/{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}'
+            ui_url = f"https://{url.hostname}/{space}/{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}"
         else:
-            ui_url = f'https://[YOUR_ACCOUNT].{url.hostname}/{space}/{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}'
+            ui_url = f"https://[YOUR_ACCOUNT].{url.hostname}/{space}/{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}"
 
         return ui_url
 
@@ -62,14 +61,14 @@ class SandboxesManager(ResourceManager):
         return [self.resource_obj.json_deserialize(self, obj) for obj in list_json]
 
     def start(
-            self,
-            sandbox_name: str,
-            blueprint_name: str,
-            duration: int = 120,
-            branch: str = None,
-            commit: str = None,
-            artifacts: dict = None,
-            inputs: dict = None,
+        self,
+        sandbox_name: str,
+        blueprint_name: str,
+        duration: int = 120,
+        branch: str = None,
+        commit: str = None,
+        artifacts: dict = None,
+        inputs: dict = None,
     ) -> str:
         url = "sandbox"
 

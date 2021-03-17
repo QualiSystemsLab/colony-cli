@@ -40,14 +40,14 @@ Or if you want to install it for your user:
 ### Configuration
 
 In order to allow the CLI tool to authenticate with Colony you must provide several parameters:
-* *Token* The easiest way to generate a token is via the Colony UI. Navigate to *Settings (in your space) -> Integrations -> 
+* *Token* The easiest way to generate a token is via the Colony UI. Navigate to *Settings (in your space) -> Integrations ->
 click “Connect” under any of the CI tools -> click “New Token”* to get an API token.
 * *Space* The space in the Colony to use which is mapped to the Git repo you are using
-* *Account* (optional) providing the account name (appearing as the subdomain in your Colony URL, 
+* *Account* (optional) providing the account name (appearing as the subdomain in your Colony URL,
 e.g https://YOURACCOUNT.cloudshellcolony.com). This is not a mandatory value but will help generate easy links.
 
 The *Token*, *Space* and *Account* parameters can be provided via special command line flags (*--token*, *--space*,  
-and *--account* respectively) but can be conveniently placed in a config file relative to your user folder, 
+and *--account* respectively) but can be conveniently placed in a config file relative to your user folder,
 so they don't need to be provided each time.
 
 Use credentials file, with profiles. Create an INI formatted file like this:
@@ -67,7 +67,7 @@ account = MYACCOUNT
 ```
 
 Save the file relative to your home user directory ('~/.colony/config' on Mac and Linux or in '%UserProfile%\\.colony\\config' on Windows).
-If you wish to place credentials file in a different location, you can specify that location via an environment 
+If you wish to place credentials file in a different location, you can specify that location via an environment
 variable:
 
 `$ export COLONY_CONFIG_PATH=/path/to/file`
@@ -172,17 +172,17 @@ specific point in time by setting _--commit_:
 ### Testing Local Changes
 
 The Colony CLI can validate your blueprints and test your sandboxes even before you commit and push your code to a
-remote branch. It does so by creating a temporary branch on the remote repository with your local staged and even 
-untracked changes which gets deleted automatically after the Sandbox is created or the Blueprint validation is 
+remote branch. It does so by creating a temporary branch on the remote repository with your local staged and even
+untracked changes which gets deleted automatically after the Sandbox is created or the Blueprint validation is
 complete. The CLI will automatically detect if you have some local changes and use them unless you explicitly
 set the --branch flag.
 
-Please notice that in order to create a Sandbox from your local changes, the CLI must make sure they are 
+Please notice that in order to create a Sandbox from your local changes, the CLI must make sure they are
 picked up by the sandbox setup process before completing the action and deleting the temporary branch. This means
 that when you launch a local Sandbox the CLI command will not return immediately. You'll also receive a warning
 not to abort the wait as that might not give Colony enough time to pull your changes and the Sandbox may fail.
 Feel free to launch the CLI command asynchronously or continue working in a new tab.
- 
+
 ---
 **NOTE**
 

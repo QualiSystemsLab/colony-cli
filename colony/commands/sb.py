@@ -186,7 +186,7 @@ class SandboxesCommand(BaseCommand):
                 name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
             )
             BaseCommand.action_announcement("Starting sandbox")
-            BaseCommand.important_value(f"Id: ", sandbox_id)
+            BaseCommand.important_value("Id: ", sandbox_id)
             BaseCommand.url(prefix_message="URL: ", message=self.manager.get_sandbox_ui_link(sandbox_id))
 
         except Exception as e:
@@ -194,14 +194,14 @@ class SandboxesCommand(BaseCommand):
             sandbox_id = None
             self.die()
         finally:
-            logger.debug(f"Cleaning up")
+            logger.debug("Cleaning up")
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
                 revert_from_temp_branch(repo, working_branch, stashed_flag)
 
         # todo: I think the below can be simplified and refactored
         if timeout is None:
             wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
-            self.success(f"The Sandbox was created")
+            self.success("The Sandbox was created")
 
         else:
             start_time = datetime.datetime.now()

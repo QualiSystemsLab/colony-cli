@@ -1,6 +1,5 @@
 import logging
 import os
-from urllib.parse import urlparse
 
 import yaml
 from git import InvalidGitRepositoryError, Repo
