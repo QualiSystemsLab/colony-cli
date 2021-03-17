@@ -2,6 +2,7 @@ from urllib.parse import urljoin
 
 from colony.client import ColonyClient
 
+
 # TODO(ddovbii): Make classes abstract
 
 
@@ -12,7 +13,7 @@ class ResourceManager(object):
         self.client = client
         self.endpoint = urljoin(self.client.base_url, f"spaces/{self.client.space}/")
 
-    def _get_full_url(self, path:str):
+    def _get_full_url(self, path: str):
         url = urljoin(self.endpoint, path)
         return url
 

@@ -27,9 +27,9 @@ class ColonyClient(object):
     ):
 
         if account:
-            self.base_url = urljoin(f'{colony_host_prefix}{account}.{colony_host}', self.API_URL)
+            self.base_url = urljoin(f"{colony_host_prefix}{account}.{colony_host}", self.API_URL)
         else:
-            self.base_url = urljoin(f'{colony_host_prefix}{colony_host}', self.API_URL)
+            self.base_url = urljoin(f"{colony_host_prefix}{colony_host}", self.API_URL)
 
         self.session = session
         self.space = space

@@ -148,7 +148,7 @@ class SandboxesCommand(BaseCommand):
         repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
 
         if not success:
-            self.error('Unable to start sandbox')
+            self.error("Unable to start Sandbox")
 
         # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")

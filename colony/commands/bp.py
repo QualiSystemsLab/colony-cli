@@ -44,7 +44,7 @@ class BlueprintsCommand(BaseCommand):
         repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
 
         if not success:
-            self.error('Unable to validate blueprint')
+            self.error("Unable to validate Blueprint")
             return
 
         validation_branch = temp_working_branch or working_branch

@@ -1,11 +1,11 @@
 import sys
 
+from colorama import Fore, Style
 from docopt import DocoptExit, docopt
 
 from colony.base import ResourceManager
 from colony.client import ColonyClient
 from colony.config import ColonyConnection
-from colorama import Fore, Back, Style
 
 
 class BaseCommand(object):
@@ -90,7 +90,7 @@ class BaseCommand(object):
     def important_value(prefix_message: str = "", value: str = ""):
         if prefix_message:
             BaseCommand.styled_text(Style.DIM, prefix_message, False)
-        BaseCommand.styled_text(Fore.CYAN,value)
+        BaseCommand.styled_text(Fore.CYAN, value)
 
     @staticmethod
     def message(message: str = ""):
