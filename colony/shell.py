@@ -9,7 +9,7 @@ Options:
   --token=<token>       Use a specific token for authentication, this will override any default set in the
                         config file
   --account=<account>   [Optional] Your Colony account name. The account name is equal to your subdomain in
-                        the Colony URL. e.g. https://YOURACCOUNT.cloudshellcolony.com//
+                        the Colony URL. e.g. https://YOURACCOUNT.cloudshellcolony.com/
   --profile=<profile>   Use a specific Profile section in the config file
                         You still can override config with --token/--space options.
 

@@ -91,7 +91,7 @@ class SandboxesCommand(BaseCommand):
                 }
             )
 
-        self.success(tabulate.tabulate(result_table, headers="keys"))
+        self.message(tabulate.tabulate(result_table, headers="keys"))
 
     def do_status(self):
         sandbox_id = self.args["<sandbox_id>"]
