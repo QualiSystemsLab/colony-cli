@@ -5,7 +5,7 @@ import random
 import string
 import time
 
-from yaspin import yaspin
+from yaspin import yaspin, base_spinner, Spinner
 
 from colony.commands.base import BaseCommand
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
@@ -182,7 +182,9 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
     BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
     BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
 
-    with yaspin(text="Starting", color="yellow") as spinner:
+    spinner = Spinner("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏", 160)
+
+    with yaspin(spinner=spinner, text="Starting", color="yellow", timer=True) as spinner:
 
         while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
 
@@ -191,7 +193,7 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
                 break
             else:
                 time.sleep(10)
-                spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
+                #spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
                 sandbox = sb_manager.get(sandbox_id)
                 status = getattr(sandbox, "sandbox_status")
                 progress = getattr(sandbox, "launching_progress")

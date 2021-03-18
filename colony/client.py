@@ -58,7 +58,7 @@ class ColonyClient(object):
         email: str,
         password: str,
         session: Session = ColonySession(),
-        endpoint: str = "https://cloudshellcolony.com/api",
+        endpoint: str = "https://cloudshellcolony.com/api/",
     ):
         path = urljoin(endpoint, f"accounts/{account}/login")
         payload = {"email": email, "password": password}

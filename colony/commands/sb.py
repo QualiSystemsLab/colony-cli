@@ -185,8 +185,8 @@ class SandboxesCommand(BaseCommand):
             sandbox_id = self.manager.start(
                 name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
             )
-            BaseCommand.action_announcement("Starting sandbox")
-            BaseCommand.important_value("Id: ", sandbox_id)
+            #BaseCommand.action_announcement("Starting sandbox")
+            BaseCommand.important_value("Sandbox Id: ", sandbox_id)
             BaseCommand.url(prefix_message="URL: ", message=self.manager.get_sandbox_ui_link(sandbox_id))
 
         except Exception as e:

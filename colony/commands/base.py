@@ -83,7 +83,7 @@ class BaseCommand(object):
     @staticmethod
     # Unimportant info that can be de-emphasized
     def info(message: str = ""):
-        BaseCommand.styled_text(Fore.LIGHTBLUE_EX, message)
+        BaseCommand.styled_text(Style.RESET_ALL, message)
 
     @staticmethod
     # Unimportant info that can be de-emphasized
