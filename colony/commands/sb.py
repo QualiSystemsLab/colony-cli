@@ -91,7 +91,7 @@ class SandboxesCommand(BaseCommand):
                 }
             )
 
-        self.success(tabulate.tabulate(result_table, headers="keys"))
+        self.message(tabulate.tabulate(result_table, headers="keys"))
 
     def do_status(self):
         sandbox_id = self.args["<sandbox_id>"]
@@ -145,7 +145,10 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-        repo, working_branch, temp_working_branch, stashed_flag = figure_out_branches(branch, blueprint_name)
+        repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
+
+        if not success:
+            self.error("Unable to start Sandbox")
 
         # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
@@ -182,18 +185,23 @@ class SandboxesCommand(BaseCommand):
             sandbox_id = self.manager.start(
                 name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
             )
+            BaseCommand.action_announcement("Starting sandbox")
+            BaseCommand.important_value("Id: ", sandbox_id)
+            BaseCommand.url(prefix_message="URL: ", message=self.manager.get_sandbox_ui_link(sandbox_id))
 
         except Exception as e:
             logger.exception(e, exc_info=False)
             sandbox_id = None
             self.die()
         finally:
+            logger.debug("Cleaning up")
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
                 revert_from_temp_branch(repo, working_branch, stashed_flag)
 
+        # todo: I think the below can be simplified and refactored
         if timeout is None:
             wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
-            self.success(f"The Sandbox {sandbox_id} was created")
+            self.success("The Sandbox was created")
 
         else:
             start_time = datetime.datetime.now()

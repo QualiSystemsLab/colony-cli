@@ -8,9 +8,10 @@ logger = logging.getLogger(__name__)
 
 
 class ColonyConnection(object):
-    def __init__(self, space: str, token: str):
+    def __init__(self, space: str, token: str, account: str):
         self.space = space
         self.token = token
+        self.account = account
 
 
 class ColonyConfigProvider(object):
@@ -43,12 +44,9 @@ class ColonyConfigProvider(object):
         if profile not in config:
             raise colony.exceptions.ConfigError("Provided profile does not exist in config file")
 
-        if len(config[profile]) != 2:
-            raise colony.exceptions.ConfigError("Profile must contain exactly two settings: `token` and `space`")
-
         if not all(k in config[profile] for k in ("token", "space")):
             raise colony.exceptions.ConfigError(
-                "Wrong settings. Profile must contain exactly two settings: `token` " "and `space`"
+                "Missing configuration settings. Profile must contain these settings: `token` and `space`"
             )
 
         return config[profile]

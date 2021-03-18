@@ -12,6 +12,10 @@ class ResourceManager(object):
         self.client = client
         self.endpoint = urljoin(self.client.base_url, f"spaces/{self.client.space}/")
 
+    def _get_full_url(self, path: str):
+        url = urljoin(self.endpoint, path)
+        return url
+
     def _get(self, path: str, headers: dict = None):
         if headers is None:
             headers = {}

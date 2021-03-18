@@ -12,5 +12,8 @@ space = trial
 
 [tester-3]
 token = abcd
+
+[tester-4]
+token = abcd
 space = trial
-pass = qwerty
+account = myaccount
