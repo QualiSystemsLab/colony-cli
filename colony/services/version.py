@@ -39,6 +39,7 @@ class VersionCheckService:
             logger.debug(traceback.format_exc())
 
     def _find_latest_release(self, pypi_project_info: Dict) -> str:
+        """ Find latest not pre-release version """
         releases_info_dict = pypi_project_info["releases"]
         latest_version = self.current_version
 
