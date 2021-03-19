@@ -1,7 +1,9 @@
 import datetime
+import json
 import logging
 import os
 import time
+from string import Template
 
 import tabulate
 from docopt import DocoptExit
@@ -11,6 +13,12 @@ from colony.commands.base import BaseCommand
 from colony.constants import UNCOMMITTED_BRANCH_NAME
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo, parse_comma_separated_string
+
+API_AUTOMATION_SANDBOXES_FITLER = "auto"
+
+API_ALL_SANDBOXES_FILTER = "all"
+
+API_MY_SANDBOXES_FILTER = "my"
 
 logger = logging.getLogger(__name__)
 
@@ -57,13 +65,14 @@ class SandboxesCommand(BaseCommand):
     """
 
     RESOURCE_MANAGER = SandboxesManager
+    SANDBOX_NAME_TEMPLATE = 'cli-$blueprint_name-$branch_name-$remote_or_local-$date'
 
     def get_actions_table(self) -> dict:
         return {"status": self.do_status, "start": self.do_start, "end": self.do_end, "list": self.do_list}
 
     def do_list(self):
-        list_filter = self.args["--filter"] or "my"
-        if list_filter not in ["my", "all", "auto"]:
+        list_filter = self.args["--filter"] or API_MY_SANDBOXES_FILTER
+        if list_filter not in [API_MY_SANDBOXES_FILTER, API_ALL_SANDBOXES_FILTER, API_AUTOMATION_SANDBOXES_FITLER]:
             raise DocoptExit("--filter value must be in [my, all, auto]")
 
         show_ended = self.args["--show-ended"]
@@ -115,6 +124,25 @@ class SandboxesCommand(BaseCommand):
 
         self.success("End request has been sent")
 
+    def _get_existing_sandboxes(self, blueprint, branch, is_local):
+        try:
+            name_search = Template(self.SANDBOX_NAME_TEMPLATE) \
+                .substitute(blueprint_name=blueprint, branch_name=branch,
+                            remote_or_local="local" if is_local else "remote", date="")
+            logging.basicConfig(level=logging.DEBUG)
+            sandbox_list = self.manager.list(filter_opt=API_MY_SANDBOXES_FILTER, count=10, sandbox_name=name_search)
+            if sandbox_list:
+                logger.debug('Existing sandboxes found:')
+
+            for sandbox in sandbox_list:
+                logger.debug(f'name: {sandbox.name} id: {sandbox.sandbox_id} status: {sandbox.sandbox_status}')
+
+            return [sandbox.sandbox_id for sandbox in sandbox_list if sandbox.sandbox_status != "Ending"]
+
+        except Exception as e:
+            logger.exception(e, exc_info=False)
+            raise e
+
     def do_start(self):
         blueprint_name = self.args["<blueprint_name>"]
         branch = self.args.get("--branch")
@@ -146,7 +174,6 @@ class SandboxesCommand(BaseCommand):
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
         repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
-
         if not success:
             self.error("Unable to start Sandbox")
 
@@ -171,19 +198,24 @@ class SandboxesCommand(BaseCommand):
             logger.debug(f"Unable to obtain default values. Details: {e}")
 
         branch_to_be_used = temp_working_branch or working_branch
+        suffix_timestamp = datetime.datetime.now().strftime("%b%d-%H:%M:%S")
 
         if name is None:
-            suffix = datetime.datetime.now().strftime("%b%d-%H:%M:%S")
             branch_name_or_type = ""
             if working_branch:
-                branch_name_or_type = working_branch + "-"
+                branch_name_or_type = working_branch
             if temp_working_branch:
-                branch_name_or_type = "localchanges-"
-            name = f"{blueprint_name}-{branch_name_or_type}{suffix}"
+                branch_name_or_type = "localchanges"
+            # name = f"{blueprint_name}-{branch_name_or_type}-{suffix}"
 
         try:
+            self._end_existing_sandboxes(blueprint_name, temp_working_branch, working_branch)
+            sandbox_name_template = Template(self.SANDBOX_NAME_TEMPLATE)
+            sandbox_name = sandbox_name_template.substitute(blueprint_name=blueprint_name, branch_name=working_branch,
+                                                            remote_or_local="local" if temp_working_branch else "remote",
+                                                            date=suffix_timestamp)
             sandbox_id = self.manager.start(
-                name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
+                sandbox_name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
             )
             BaseCommand.action_announcement("Starting sandbox")
             BaseCommand.important_value("Id: ", sandbox_id)
@@ -228,3 +260,11 @@ class SandboxesCommand(BaseCommand):
             logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
             wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
             self.die()
+
+    def _end_existing_sandboxes(self, blueprint_name, temp_working_branch, working_branch):
+        existing_sandboxes = self._get_existing_sandboxes(blueprint=blueprint_name, branch=working_branch,
+                                                        is_local=temp_working_branch is not None)
+        if existing_sandboxes:
+            self.info(f"Ending previous {len(existing_sandboxes)} sandboxes")
+        for sandbox in existing_sandboxes:
+            self.manager.end(sandbox)

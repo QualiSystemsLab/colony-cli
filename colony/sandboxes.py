@@ -53,22 +53,22 @@ class SandboxesManager(ResourceManager):
 
         return self.resource_obj.json_deserialize(self, sb_json)
 
-    def list(self, count: int = 25, filter_opt: str = "my"):
+    def list(self, count: int = 25, filter_opt: str = "my", sandbox_name: str = ""):
 
-        filter_params = {"count": count, "filter": filter_opt}
+        filter_params = {"count": count, "filter": filter_opt, "sandbox_name": sandbox_name}
         list_json = self._list(path=self.SANDBOXES_PATH, filter_params=filter_params)
 
         return [self.resource_obj.json_deserialize(self, obj) for obj in list_json]
 
     def start(
-        self,
-        sandbox_name: str,
-        blueprint_name: str,
-        duration: int = 120,
-        branch: str = None,
-        commit: str = None,
-        artifacts: dict = None,
-        inputs: dict = None,
+            self,
+            sandbox_name: str,
+            blueprint_name: str,
+            duration: int = 120,
+            branch: str = None,
+            commit: str = None,
+            artifacts: dict = None,
+            inputs: dict = None,
     ) -> str:
         url = "sandbox"
 
