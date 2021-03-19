@@ -7,7 +7,6 @@ from tests.helpers.utils import AnyStringWith
 
 
 class VersionCheckServiceTests(unittest.TestCase):
-
     @patch("colony.services.version.requests")
     def test_no_newer_version_in_info(self, requests_mock):
         # arrange
