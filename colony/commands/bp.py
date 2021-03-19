@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 
 import tabulate
 from docopt import DocoptExit
@@ -40,7 +41,11 @@ class BlueprintsCommand(BaseCommand):
         if commit and branch is None:
             raise DocoptExit("Since a commit was specified, a branch parameter is also required")
 
-        repo, working_branch, temp_working_branch, stashed_flag = figure_out_branches(branch, blueprint_name)
+        repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
+
+        if not success:
+            self.error("Unable to validate Blueprint")
+            return
 
         validation_branch = temp_working_branch or working_branch
 
@@ -58,7 +63,7 @@ class BlueprintsCommand(BaseCommand):
 
         if errors:
             # We don't need error code
-            err_table = [{"Name": err["name"], "Message": err["message"]} for err in errors]
+            err_table = [OrderedDict([("NAME", err["name"]), ("MESSAGE", err["message"])]) for err in errors]
 
             logger.error("Blueprint validation failed")
             self.die(tabulate.tabulate(err_table, headers="keys"))

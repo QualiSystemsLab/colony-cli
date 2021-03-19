@@ -4,4 +4,5 @@ setuptools
 gitpython==3.1.12
 pyyaml==5.4.1
 tabulate==0.8.7
-halo==0.0.31
+colorama==0.4.3
+yaspin==1.4.1

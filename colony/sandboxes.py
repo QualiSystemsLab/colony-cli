@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from .base import Resource, ResourceManager
 
 
@@ -24,24 +26,37 @@ class Sandbox(Resource):
         # sb.status = json_obj.get("sandbox_status", "")
         # sb.launching_progress = json_obj.get("launching_progress", {})
         # sb.__dict__ = json_obj.copy()
-
         return sb
 
 
 class SandboxesManager(ResourceManager):
     resource_obj = Sandbox
+    SANDBOXES_PATH = "sandbox"
+    SPECIFIC_SANDBOX_PATH = "sandboxes"
+
+    def get_sandbox_url(self, sandbox_id: str) -> str:
+        return self._get_full_url(f"{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}")
+
+    def get_sandbox_ui_link(self, sandbox_id: str) -> str:
+        url = urlparse(self.get_sandbox_url(sandbox_id))
+        space = url.path.split("/")[3]
+        if self.client.account:
+            ui_url = f"https://{url.hostname}/{space}/{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}"
+        else:
+            ui_url = f"https://[YOUR_ACCOUNT].{url.hostname}/{space}/{self.SPECIFIC_SANDBOX_PATH}/{sandbox_id}"
+
+        return ui_url
 
     def get(self, sandbox_id: str) -> Sandbox:
-        url = f"sandbox/{sandbox_id}"
+        url = f"{self.SANDBOXES_PATH}/{sandbox_id}"
         sb_json = self._get(url)
 
         return self.resource_obj.json_deserialize(self, sb_json)
 
     def list(self, count: int = 25, filter_opt: str = "my"):
-        url = "sandbox"
 
         filter_params = {"count": count, "filter": filter_opt}
-        list_json = self._list(path=url, filter_params=filter_params)
+        list_json = self._list(path=self.SANDBOXES_PATH, filter_params=filter_params)
 
         return [self.resource_obj.json_deserialize(self, obj) for obj in list_json]
 
@@ -81,7 +96,7 @@ class SandboxesManager(ResourceManager):
         return sandbox_id
 
     def end(self, sandbox_id: str):
-        url = f"sandbox/{sandbox_id}"
+        url = f"{self.SANDBOXES_PATH}/{sandbox_id}"
 
         try:
             self.get(sandbox_id)
