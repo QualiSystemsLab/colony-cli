@@ -5,6 +5,8 @@ import random
 import string
 import time
 
+from yaspin import yaspin
+
 from colony.commands.base import BaseCommand
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
@@ -40,7 +42,6 @@ def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str):
 
 
 def get_blueprint_working_branch(repo: BlueprintRepo) -> str:
-
     branch = repo.active_branch.name
     logger.debug(f"Current working branch is '{branch}'")
 
@@ -51,6 +52,7 @@ def figure_out_branches(user_defined_branch, blueprint_name):
     temp_working_branch = ""
     repo = None
     stashed_flag = False
+    success = True
     if user_defined_branch:
         working_branch = user_defined_branch
     else:
@@ -60,7 +62,7 @@ def figure_out_branches(user_defined_branch, blueprint_name):
             repo = BlueprintRepo(os.getcwd())
             examine_blueprint_working_branch(repo, blueprint_name=blueprint_name)
             working_branch = get_blueprint_working_branch(repo)
-            BaseCommand.message(f"Automatically detected current working branch: {working_branch}")
+            BaseCommand.fyi_info(f"Automatically detected current working branch: {working_branch}")
 
         except BadBlueprintRepo as e:
             working_branch = None
@@ -78,7 +80,7 @@ def figure_out_branches(user_defined_branch, blueprint_name):
         if not user_defined_branch and working_branch and not repo.is_current_state_synced_with_remote():
             try:
                 temp_working_branch, stashed_flag = switch_to_temp_branch(repo, working_branch)
-                BaseCommand.message(
+                BaseCommand.info(
                     "Using your local blueprint changes (including uncommitted changes and/or untracked files)"
                 )
                 logger.debug(
@@ -87,7 +89,9 @@ def figure_out_branches(user_defined_branch, blueprint_name):
                 )
             except Exception as e:
                 logger.warning(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
-    return repo, working_branch, temp_working_branch, stashed_flag
+                success = False
+
+    return repo, working_branch, temp_working_branch, stashed_flag, success
 
 
 def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
@@ -105,7 +109,9 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
             commit_to_local_temp_branch(repo)
         create_remote_branch(repo, uncommitted_branch_name)
     except Exception as e:
+        revert_and_delete_temp_branch(repo, defined_branch_in_file, uncommitted_branch_name, stashed_flag)
         raise e
+
     return uncommitted_branch_name, stashed_flag
 
 
@@ -164,6 +170,7 @@ def delete_temp_branch(repo, temp_branch):
 
 def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, temp_branch):
     if not temp_branch:
+        logger.debug("Not temp branch")
         return
     start_time = datetime.datetime.now()
     sandbox = sb_manager.get(sandbox_id)
@@ -172,21 +179,23 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
     prep_art_status = progress.get("preparing_artifacts").get("status")
     logger.debug("Waiting for sandbox (id={}) to prepare artifacts (before deleting temp branch)...".format(sandbox_id))
 
-    while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
+    BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
+    BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
 
-        if status in FINAL_SB_STATUSES or (status == "Launching" and prep_art_status != "Pending"):
-            delete_temp_branch(repo, temp_branch)
-            break
-        else:
-            time.sleep(10)
-            BaseCommand.message(
-                f"Waiting for the Sandbox ({sandbox_id}) to start with local changes..."
-                f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
-            )
-            sandbox = sb_manager.get(sandbox_id)
-            status = getattr(sandbox, "sandbox_status")
-            progress = getattr(sandbox, "launching_progress")
-            prep_art_status = progress.get("preparing_artifacts").get("status")
+    with yaspin(text="Starting", color="yellow") as spinner:
+
+        while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
+
+            if status in FINAL_SB_STATUSES or (status == "Launching" and prep_art_status != "Pending"):
+                delete_temp_branch(repo, temp_branch)
+                break
+            else:
+                time.sleep(10)
+                spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
+                sandbox = sb_manager.get(sandbox_id)
+                status = getattr(sandbox, "sandbox_status")
+                progress = getattr(sandbox, "launching_progress")
+                prep_art_status = progress.get("preparing_artifacts").get("status")
 
 
 def checkout_remote_branch(repo, active_branch):
