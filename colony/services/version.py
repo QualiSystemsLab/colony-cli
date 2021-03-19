@@ -2,8 +2,8 @@ import logging
 import traceback
 from typing import Dict, List
 
-import semantic_version
 import requests
+import semantic_version
 
 from colony.commands.base import BaseCommand
 
@@ -66,7 +66,7 @@ class VersionCheckService:
     def _show_new_version_message(self, latest_version: str):
         # todo - add color to the this message
         message = f"""================================================================
-New version available: {latest_version}                          
+New version available: {latest_version}
 Run 'pip install --upgrade colony-cli' to get the latest version
 ================================================================
 """

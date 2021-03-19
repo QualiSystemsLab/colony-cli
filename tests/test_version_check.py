@@ -1,9 +1,8 @@
 import unittest
-from typing import Dict, List
 from unittest.mock import Mock, patch
 
 from colony.services.version import VersionCheckService
-from tests.helpers.builders import ReleaseInfoBuilder, PyPiProjectInfoBuilder
+from tests.helpers.builders import PyPiProjectInfoBuilder, ReleaseInfoBuilder
 from tests.helpers.utils import AnyStringWith
 
 
@@ -73,12 +72,15 @@ class VersionCheckServiceTests(unittest.TestCase):
         # arrange
         versions_checker = VersionCheckService("1.0.0")
 
-        project_info = PyPiProjectInfoBuilder().with_version("1.1.0b1")\
-            .with_release(ReleaseInfoBuilder("1.2.0b1").with_yanked(True))\
-            .with_release(ReleaseInfoBuilder("1.1.0b1")) \
-            .with_release(ReleaseInfoBuilder("1.0.1")) \
-            .with_release(ReleaseInfoBuilder("1.0.0")) \
+        project_info = (
+            PyPiProjectInfoBuilder()
+            .with_version("1.1.0b1")
+            .with_release(ReleaseInfoBuilder("1.2.0b1").with_yanked(True))
+            .with_release(ReleaseInfoBuilder("1.1.0b1"))
+            .with_release(ReleaseInfoBuilder("1.0.1"))
+            .with_release(ReleaseInfoBuilder("1.0.0"))
             .build()
+        )
 
         # act
         latest_version = versions_checker._find_latest_release(project_info)

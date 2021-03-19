@@ -4,9 +4,7 @@ from typing import Dict, List
 class ReleaseInfoBuilder:
     def __init__(self, version: str):
         self._version = version
-        self._release = {
-            "yanked": False
-        }
+        self._release = {"yanked": False}
 
     def with_yanked(self, is_yanked: bool = False):
         self._release["yanked"] = is_yanked
@@ -18,10 +16,7 @@ class ReleaseInfoBuilder:
 
 class PyPiProjectInfoBuilder:
     def __init__(self):
-        self._project = {
-            "info": {},
-            "releases": {}
-        }
+        self._project = {"info": {}, "releases": {}}
         self._releases: List[ReleaseInfoBuilder] = []
 
     def with_version(self, version: str):
