@@ -73,13 +73,19 @@ class TestBlueprintRepo(unittest.TestCase):
             Repo.init(wrong_dir, bare=True)
             self.assertRaises(BadBlueprintRepo, BlueprintRepo, wrong_dir)
 
+    def test_unable_to_create_bp_repo_without_blueprints_dir(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            Repo.init(temp_dir)
+            self.assertRaises(BadBlueprintRepo, BlueprintRepo, temp_dir)
+
     def test_has_remote_branch(self):
         self.assertTrue(self.bp_repo.current_branch_exists_on_remote())
 
     def test_no_branch_on_remote(self):
         local_branch = "my_super_branch"
-        current = self.bp_repo.create_head(local_branch)
-        current.checkout()
+        new_branch = self.bp_repo.create_head(local_branch)
+        assert self.bp_repo.active_branch != new_branch
+        new_branch.checkout()
         self.assertFalse(self.bp_repo.current_branch_exists_on_remote())
 
     def test_is_synced(self):
@@ -97,6 +103,14 @@ class TestBlueprintRepo(unittest.TestCase):
 
         index.commit("my commit message", author=author, committer=committer)
         self.assertFalse(self.bp_repo.is_current_branch_synced())
+
+    def test_no_remote_branch_on_fresh_repo(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            Repo.init(temp_dir)
+            os.mkdir(f"{temp_dir}/blueprints")
+            repo = BlueprintRepo(temp_dir)
+            actual = repo.current_branch_exists_on_remote()
+            self.assertFalse(actual)
 
     def tearDown(self):
         # Close the file, the directory will be removed after the test
