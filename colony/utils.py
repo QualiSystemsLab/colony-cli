@@ -24,6 +24,9 @@ class BlueprintRepo(Repo):
         if self.bare:
             raise BadBlueprintRepo("Cannot get folder tree structure. Repo is bare")
 
+        if not self.remotes:
+            raise BadBlueprintRepo("Local repository not connected to the remote space repository")
+
         self.blueprints = self._fetch_blueprints_list()
 
     def repo_has_blueprint(self, blueprint_name) -> bool:
