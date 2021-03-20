@@ -201,14 +201,6 @@ class SandboxesCommand(BaseCommand):
         branch_to_be_used = temp_working_branch or working_branch
         suffix_timestamp = datetime.datetime.now().strftime("%b%d-%H:%M:%S")
 
-        if name is None:
-            branch_name_or_type = ""
-            if working_branch:
-                branch_name_or_type = working_branch
-            if temp_working_branch:
-                branch_name_or_type = "localchanges"
-            # name = f"{blueprint_name}-{branch_name_or_type}-{suffix}"
-
         try:
 
             if not self._end_existing_sandboxes(blueprint_name, temp_working_branch, working_branch):
@@ -221,11 +213,12 @@ class SandboxesCommand(BaseCommand):
                 remote_or_local="local" if temp_working_branch else "remote",
                 date=suffix_timestamp,
             )
+
+            logger.debug("Starting sandbox")
             sandbox_id = self.manager.start(
                 sandbox_name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
             )
-            BaseCommand.action_announcement("Starting sandbox")
-            BaseCommand.important_value("Id: ", sandbox_id)
+            BaseCommand.action_announcement_with_value("Starting sandbox", sandbox_id)
             BaseCommand.url(prefix_message="URL: ", message=self.manager.get_sandbox_ui_link(sandbox_id))
 
         except Exception as e:

@@ -81,6 +81,12 @@ class BaseCommand(object):
         BaseCommand.styled_text(Fore.YELLOW, message)
 
     @staticmethod
+    # Something active is being performed
+    def action_announcement_with_value(message: str = "", val: str = ""):
+        BaseCommand.styled_text(Fore.YELLOW, message, newline=False)
+        BaseCommand.styled_text(Fore.BLUE, f" [{val}] ")
+
+    @staticmethod
     # Unimportant info that can be de-emphasized
     def info(message: str = ""):
         BaseCommand.styled_text(Fore.LIGHTBLUE_EX, message)

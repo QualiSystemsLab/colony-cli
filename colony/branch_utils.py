@@ -16,7 +16,7 @@ from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo
 from colony.view.application_shortcut_view import ApplicationShortcutView
 from colony.view.application_status_view import ApplicationStatusView
-from colony.view.applications_status_view import ApplicationsStatusView
+from colony.view.applications_and_services_status_view import ApplicationsAndServicesStatusView
 from colony.view.sandbox_progress_items_view import SandboxProgressItemsView
 
 logging.getLogger("git").setLevel(logging.WARNING)
@@ -188,7 +188,9 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
     BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
     BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
     displayed_shortcuts = []
-    with yaspin(text="Starting", color="yellow", side="right") as spinner:
+    spinner = getattr(Spinners, "dots")
+
+    with yaspin(spinner, text="Starting", color="yellow", side="right") as spinner:
 
         alt = False
         while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
@@ -207,7 +209,8 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
                             displayed_shortcuts.append(shortcut)
 
                 if alt:
-                    spinner.text = ApplicationsStatusView(sandbox.applications).render()
+                    spinner.text = ApplicationsAndServicesStatusView(sandbox.applications,
+                                                                     sandbox.services).render()
                 else:
                     spinner.text = SandboxProgressItemsView(sandbox.sandbox_progress).render()
                 alt = not alt

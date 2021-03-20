@@ -1,10 +1,16 @@
+import json
+import logging
 from urllib.parse import urlparse
 
 from .base import ResourceManager
 from .model.sandbox import Sandbox
 
+logger = logging.getLogger(__name__)
+
 
 class SandboxesManager(ResourceManager):
+
+
     resource_obj = Sandbox
     SANDBOXES_PATH = "sandbox"
     SPECIFIC_SANDBOX_PATH = "sandboxes"
@@ -66,6 +72,7 @@ class SandboxesManager(ResourceManager):
             }
             params["source"]["commit"] = commit or ""
 
+        logger.debug(json.dumps(params))
         result_json = self._post(url, params)
         sandbox_id = result_json["id"]
         return sandbox_id
