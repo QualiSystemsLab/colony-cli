@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 class SandboxesManager(ResourceManager):
 
-
     resource_obj = Sandbox
     SANDBOXES_PATH = "sandbox"
     SPECIFIC_SANDBOX_PATH = "sandboxes"

@@ -209,8 +209,7 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
                             displayed_shortcuts.append(shortcut)
 
                 if alt:
-                    spinner.text = ApplicationsAndServicesStatusView(sandbox.applications,
-                                                                     sandbox.services).render()
+                    spinner.text = ApplicationsAndServicesStatusView(sandbox.applications, sandbox.services).render()
                 else:
                     spinner.text = SandboxProgressItemsView(sandbox.sandbox_progress).render()
                 alt = not alt
