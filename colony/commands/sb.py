@@ -6,6 +6,7 @@ import time
 from string import Template
 
 import tabulate
+from colorama import Fore
 from docopt import DocoptExit
 
 from colony.branch_utils import figure_out_branches, revert_from_temp_branch, wait_and_then_delete_branch
@@ -65,7 +66,7 @@ class SandboxesCommand(BaseCommand):
     """
 
     RESOURCE_MANAGER = SandboxesManager
-    SANDBOX_NAME_TEMPLATE = 'cli-$blueprint_name-$branch_name-$remote_or_local-$date'
+    SANDBOX_NAME_TEMPLATE = "cli-$blueprint_name-$branch_name-$remote_or_local-$date"
 
     def get_actions_table(self) -> dict:
         return {"status": self.do_status, "start": self.do_start, "end": self.do_end, "list": self.do_list}
@@ -126,18 +127,18 @@ class SandboxesCommand(BaseCommand):
 
     def _get_existing_sandboxes(self, blueprint, branch, is_local):
         try:
-            name_search = Template(self.SANDBOX_NAME_TEMPLATE) \
-                .substitute(blueprint_name=blueprint, branch_name=branch,
-                            remote_or_local="local" if is_local else "remote", date="")
+            name_search = Template(self.SANDBOX_NAME_TEMPLATE).substitute(
+                blueprint_name=blueprint, branch_name=branch, remote_or_local="local" if is_local else "remote", date=""
+            )
             logging.basicConfig(level=logging.DEBUG)
             sandbox_list = self.manager.list(filter_opt=API_MY_SANDBOXES_FILTER, count=10, sandbox_name=name_search)
             if sandbox_list:
-                logger.debug('Existing sandboxes found:')
+                logger.debug("Existing sandboxes found:")
 
             for sandbox in sandbox_list:
-                logger.debug(f'name: {sandbox.name} id: {sandbox.sandbox_id} status: {sandbox.sandbox_status}')
+                logger.debug(f"name: {sandbox.name} id: {sandbox.sandbox_id} status: {sandbox.sandbox_status}")
 
-            return [sandbox.sandbox_id for sandbox in sandbox_list if sandbox.sandbox_status != "Ending"]
+            return [sandbox.sandbox_id for sandbox in sandbox_list if sandbox.sandbox_status not in ["Ending", "Ended"]]
 
         except Exception as e:
             logger.exception(e, exc_info=False)
@@ -209,11 +210,17 @@ class SandboxesCommand(BaseCommand):
             # name = f"{blueprint_name}-{branch_name_or_type}-{suffix}"
 
         try:
-            self._end_existing_sandboxes(blueprint_name, temp_working_branch, working_branch)
+
+            if not self._end_existing_sandboxes(blueprint_name, temp_working_branch, working_branch):
+                self.message("One or more previous sandbox could not be ended")
+
             sandbox_name_template = Template(self.SANDBOX_NAME_TEMPLATE)
-            sandbox_name = sandbox_name_template.substitute(blueprint_name=blueprint_name, branch_name=working_branch,
-                                                            remote_or_local="local" if temp_working_branch else "remote",
-                                                            date=suffix_timestamp)
+            sandbox_name = sandbox_name_template.substitute(
+                blueprint_name=blueprint_name,
+                branch_name=working_branch,
+                remote_or_local="local" if temp_working_branch else "remote",
+                date=suffix_timestamp,
+            )
             sandbox_id = self.manager.start(
                 sandbox_name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
             )
@@ -262,9 +269,22 @@ class SandboxesCommand(BaseCommand):
             self.die()
 
     def _end_existing_sandboxes(self, blueprint_name, temp_working_branch, working_branch):
-        existing_sandboxes = self._get_existing_sandboxes(blueprint=blueprint_name, branch=working_branch,
-                                                        is_local=temp_working_branch is not None)
-        if existing_sandboxes:
-            self.info(f"Ending previous {len(existing_sandboxes)} sandboxes")
+
+        existing_sandboxes = self._get_existing_sandboxes(
+            blueprint=blueprint_name, branch=working_branch, is_local=temp_working_branch is not None
+        )
+        if len(existing_sandboxes) == 1:
+            self.info("Ending the previous Sandbox for this branch launched by the CLI")
+
+        if len(existing_sandboxes) > 1:
+            self.info(f"Ending the {len(existing_sandboxes)} previous Sandboxes for this branch launched by the CLI")
+
+        success = True
         for sandbox in existing_sandboxes:
-            self.manager.end(sandbox)
+            try:
+                self.manager.end(sandbox)
+            except Exception as e:
+                logger.debug(f"Could not end {sandbox} reason: {e}")
+                success = False
+
+        return success

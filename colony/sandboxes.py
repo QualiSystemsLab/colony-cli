@@ -1,32 +1,7 @@
 from urllib.parse import urlparse
 
-from .base import Resource, ResourceManager
-
-
-class Sandbox(Resource):
-    def __init__(self, manager: ResourceManager, sandbox_id: str, name: str, blueprint_name: str):
-        super(Sandbox, self).__init__(manager)
-
-        self.sandbox_id = sandbox_id
-        self.name = name
-        self.blueprint_name = blueprint_name
-
-    @classmethod
-    def json_deserialize(cls, manager: ResourceManager, json_obj: dict):
-        try:
-            sb = Sandbox(manager, json_obj["id"], json_obj["name"], json_obj["blueprint_name"])
-        except KeyError as e:
-            raise NotImplementedError(f"unable to create object. Missing keys in Json. Details: {e}")
-
-        for attr in ["description", "errors", "sandbox_status", "launching_progress"]:
-            sb.__dict__[attr] = json_obj.get(attr, "")
-        # TODO(ddovbii): set all needed attributes
-        # sb.errors = json_obj.get("errors", [])
-        # sb.description = json_obj.get("description", "")
-        # sb.status = json_obj.get("sandbox_status", "")
-        # sb.launching_progress = json_obj.get("launching_progress", {})
-        # sb.__dict__ = json_obj.copy()
-        return sb
+from .base import ResourceManager
+from .model.sandbox import Sandbox
 
 
 class SandboxesManager(ResourceManager):
@@ -61,14 +36,14 @@ class SandboxesManager(ResourceManager):
         return [self.resource_obj.json_deserialize(self, obj) for obj in list_json]
 
     def start(
-            self,
-            sandbox_name: str,
-            blueprint_name: str,
-            duration: int = 120,
-            branch: str = None,
-            commit: str = None,
-            artifacts: dict = None,
-            inputs: dict = None,
+        self,
+        sandbox_name: str,
+        blueprint_name: str,
+        duration: int = 120,
+        branch: str = None,
+        commit: str = None,
+        artifacts: dict = None,
+        inputs: dict = None,
     ) -> str:
         url = "sandbox"
 

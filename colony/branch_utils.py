@@ -5,13 +5,19 @@ import random
 import string
 import time
 
+from colorama import Fore, Style, Back
 from yaspin import yaspin
+from yaspin.spinners import Spinners
 
 from colony.commands.base import BaseCommand
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo
+from colony.view.application_shortcut_view import ApplicationShortcutView
+from colony.view.application_status_view import ApplicationStatusView
+from colony.view.applications_status_view import ApplicationsStatusView
+from colony.view.sandbox_progress_items_view import SandboxProgressItemsView
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -181,9 +187,10 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
 
     BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
     BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
+    displayed_shortcuts = []
+    with yaspin(text="Starting", color="yellow", side="right") as spinner:
 
-    with yaspin(text="Starting", color="yellow") as spinner:
-
+        alt = False
         while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
 
             if status in FINAL_SB_STATUSES or (status == "Launching" and prep_art_status != "Pending"):
@@ -191,8 +198,20 @@ def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id, repo, 
                 break
             else:
                 time.sleep(10)
-                spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
                 sandbox = sb_manager.get(sandbox_id)
+                apps_with_shortcuts = [app for app in sandbox.applications if app.shortcuts]
+                for app in apps_with_shortcuts:
+                    for shortcut in app.shortcuts:
+                        if shortcut not in displayed_shortcuts:
+                            spinner.write(ApplicationShortcutView(app, shortcut).render())
+                            displayed_shortcuts.append(shortcut)
+
+                if alt:
+                    spinner.text = ApplicationsStatusView(sandbox.applications).render()
+                else:
+                    spinner.text = SandboxProgressItemsView(sandbox.sandbox_progress).render()
+                alt = not alt
+                # spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
                 status = getattr(sandbox, "sandbox_status")
                 progress = getattr(sandbox, "launching_progress")
                 prep_art_status = progress.get("preparing_artifacts").get("status")

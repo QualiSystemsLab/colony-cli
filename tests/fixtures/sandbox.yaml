@@ -1,0 +1,160 @@
+{
+  "blueprint_description": "A Java Spring website deployed on a Tomcat server and RDS MySQL database instance\n",
+  "applications": [
+    {
+      "private_address": "10.0.0.240",
+      "public_address": "sandb-MainA-169LM70NPOL5W-151226573.eu-west-1.elb.amazonaws.com",
+      "internal_ports": [
+        "8080"
+      ],
+      "external_ports": [
+        "8080"
+      ],
+      "shortcuts": [
+        "http://sandb-MainA-169LM70NPOL5W-151226573.eu-west-1.elb.amazonaws.com:8080"
+      ],
+      "image_name": "ami-f90a4880",
+      "internal_dns": "java-spring-website.e7l8ur1s7m02c1.sandbox.com",
+      "instances": [
+        {
+          "status": "Deploying",
+          "infra_id": "i-03d1af43c958e7ecf",
+          "instance_type": "t2.medium",
+          "memory_limit": null,
+          "cpu_limit": null,
+          "access_links": [],
+          "private_ip": "10.0.0.240",
+          "compute_availability": "on_demand",
+          "links": null
+        }
+      ],
+      "icon": null,
+      "direct_access_protocols": [],
+      "name": "java-spring-website",
+      "status": "Deploying",
+      "cloud": {
+        "provider": "aws",
+        "cloud_account_name": "AWS",
+        "compute_service": {
+          "name": "aws/EC2",
+          "type": "EC2",
+          "created_date": "2018-08-20T07:06:26.426962",
+          "created_by": "Joe Smith",
+          "user_defined": false
+        },
+        "region": {
+          "id": "eu-west-1",
+          "name": "EU (Ireland)"
+        }
+      }
+    }
+  ],
+  "services": [
+    {
+      "name": "rds-mysql-instance",
+      "status": "Setup",
+      "type": "TerraForm",
+      "icon": null
+    }
+  ],
+  "artifacts": {
+    "java-spring-website": "latest/colony-java-spring-sample-1.0.0-BUILD-SNAPSHOT.war"
+  },
+  "inputs": [
+    {
+      "name": "DB_USER",
+      "value": "root",
+      "display_style": null,
+      "description": null,
+      "optional": false
+    },
+    {
+      "name": "DB_PASS",
+      "value": "Colony!123",
+      "display_style": "masked",
+      "description": "please set the root database password",
+      "optional": false
+    },
+    {
+      "name": "DB_NAME",
+      "value": "demo_db",
+      "display_style": null,
+      "description": null,
+      "optional": false
+    }
+  ],
+  "network": {
+    "region": null,
+    "network_id": null,
+    "gateway_subnet": null,
+    "management_subnet": null,
+    "application_subnets": null
+  },
+  "scheduled_end_time": "2021-03-20T23:21:40+00:00",
+  "automation": false,
+  "sandbox_status": "Launching",
+  "end_time": "2021-03-20T23:21:40+00:00",
+  "source": null,
+  "id": "e7l8ur1s7m02c1",
+  "name": "test sandbox",
+  "blueprint_name": "Website Unit Tests",
+  "status_details": "Deploying",
+  "status_error_description": null,
+  "deployment_start_time": null,
+  "create_time": "2021-03-20T21:21:46.051066+00:00",
+  "build": null,
+  "errors": [],
+  "owner": {
+    "first_name": "Roni",
+    "last_name": "Dover",
+    "email": "roni.d@quali.com",
+    "join_date": "2018-09-19T19:38:13.854125"
+  },
+  "debugging_service": "not_ready",
+  "launching_progress": {
+    "creating_infrastructure": {
+      "status": "InProgress",
+      "total": 3,
+      "succeeded": 2,
+      "failed": 0
+    },
+    "preparing_artifacts": {
+      "status": "Done",
+      "total": 1,
+      "succeeded": 1,
+      "failed": 0
+    },
+    "deploying_applications": {
+      "status": "Pending",
+      "total": 1,
+      "succeeded": 0,
+      "failed": 0
+    },
+    "verifying_environment": {
+      "status": "Pending",
+      "total": 1,
+      "succeeded": 0,
+      "failed": 0
+    }
+  },
+  "cost": null,
+  "internet_facing": true,
+  "direct_access": "off",
+  "links": [
+    {
+      "rel": "blueprint",
+      "href": "https://colony-demo.cloudshellcolony.com/api/spaces/webapp-example/catalog/Website%20Unit%20Tests",
+      "method": "GET"
+    },
+    {
+      "rel": "all",
+      "href": "https://colony-demo.cloudshellcolony.com/api/spaces/webapp-example/sandbox",
+      "method": "GET"
+    },
+    {
+      "rel": "terminate sandbox",
+      "href": "https://colony-demo.cloudshellcolony.com/api/spaces/webapp-example/sandbox/e7l8ur1s7m02c1",
+      "method": "DELETE"
+    }
+  ]
+}
