@@ -2,11 +2,11 @@ from colorama import Back, Style
 
 from colony.model.sandbox import Sandbox
 
-STATUS_COLOR_CODE = {"Pending": Back.LIGHTBLACK_EX, "Deploying": Back.YELLOW, "Error": Back.RED}
+STATUS_COLOR_CODE = {"Pending": Back.LIGHTBLACK_EX, "Deploying": Back.YELLOW, "Error": Back.RED, "Setup": Back.YELLOW}
 
 
 class ApplicationStatusView(object):
-    def __init__(self, app: Sandbox.Application):
+    def __init__(self, app):
         self.app = app
 
     @staticmethod
@@ -14,4 +14,4 @@ class ApplicationStatusView(object):
         return STATUS_COLOR_CODE.get(status, Back.GREEN) + status + Style.RESET_ALL
 
     def render(self) -> str:
-        return f"{self.app.name}: {ApplicationStatusView.app_status_to_colored_string(self.app.status)} "
+        return f"{STATUS_COLOR_CODE.get(self.app.status, Back.GREEN)}{self.app.name}{Back.RESET}"

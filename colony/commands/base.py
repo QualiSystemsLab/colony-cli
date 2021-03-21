@@ -6,6 +6,7 @@ from docopt import DocoptExit, docopt
 from colony.base import ResourceManager
 from colony.client import ColonyClient
 from colony.config import ColonyConnection
+from colony.rendering.cli_renderer import CliRenderer
 
 
 class BaseCommand(object):
@@ -13,6 +14,7 @@ class BaseCommand(object):
     usage: colony
     """
 
+    renderer = CliRenderer()
     RESOURCE_MANAGER = ResourceManager
 
     def __init__(self, command_args: list, connection: ColonyConnection = None):
@@ -48,10 +50,7 @@ class BaseCommand(object):
     @staticmethod
     def styled_text(style, message: str = "", newline=True):
         if message:
-            sys.stdout.write(style + message)
-            sys.stdout.write(Style.RESET_ALL)
-        if newline:
-            sys.stdout.write("\n")
+            BaseCommand.renderer.render_new_line(style + message + Style.RESET_ALL, newline)
 
     @staticmethod
     def error(message: str = ""):
@@ -100,8 +99,7 @@ class BaseCommand(object):
 
     @staticmethod
     def message(message: str = ""):
-        sys.stdout.write(message)
-        sys.stdout.write("\n")
+        BaseCommand.styled_text(message)
 
     @staticmethod
     def url(prefix_message, message: str = ""):
