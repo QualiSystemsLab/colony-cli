@@ -56,7 +56,8 @@ class CliRenderer(BaseRenderer):
 
     def restore_from_buffer(self):
         for line in self.buffer:
-            self.render_new_line(line)
+            sys.stdout.write(line)
+        sys.stdout.flush()
 
     def get_terminal_size(self):
         return shutil.get_terminal_size((80, 24))

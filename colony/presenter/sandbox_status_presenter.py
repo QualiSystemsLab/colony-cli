@@ -118,6 +118,7 @@ class SandboxStatusPresenter:
         if width != self.width:
             self.renderer.clear()
             self.renderer.restore_from_buffer()
+            self.width = width
 
     def stop_showing_status(self):
         self.active = False
