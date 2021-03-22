@@ -36,6 +36,7 @@ jobs:
           LINTER_RULES_PATH: .
           PYTHON_BLACK_CONFIG_FILE: pyproject.toml
           PYTHON_ISORT_CONFIG_FILE: pyproject.toml
+          JSCPD_CONFIG_FILE: .jscpd.json
       - name: Test with unittest
         run: |
           python -m unittest

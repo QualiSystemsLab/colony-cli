@@ -27,6 +27,7 @@ from docopt import DocoptExit, docopt
 from colony.commands import bp, sb
 from colony.config import ColonyConfigProvider, ColonyConnection
 from colony.exceptions import ConfigError
+from colony.services.version import VersionCheckService
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +76,9 @@ def main():
     version = pkg_resources.get_distribution("colony-cli").version
     args = docopt(__doc__, options_first=True, version=version)
     debug = args.pop("--debug", None)
+
+    # Check for new version
+    VersionCheckService(version).check_for_new_version_safely()
 
     level = logging.DEBUG if debug else logging.WARNING
     logging.basicConfig(format="%(levelname)s - %(message)s", level=level)
