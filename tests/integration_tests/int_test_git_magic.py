@@ -24,6 +24,7 @@ class GitMagicTests(unittest.TestCase):
         # -> copy base_repo to temp folder
 
         dst = tempfile.mkdtemp()
+        print(f"temp dir ={dst}")
         # -> set working directory to temp folder
         os.chdir(f"{dst}")
         os.mkdir("blueprints")
