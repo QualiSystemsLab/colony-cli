@@ -33,7 +33,7 @@ class BlueprintsCommand(BaseCommand):
     def get_actions_table(self) -> dict:
         return {"validate": self.do_validate}
 
-    def do_validate(self):
+    def do_validate(self) -> bool:
         blueprint_name = self.args.get("<name>")
         branch = self.args.get("--branch")
         commit = self.args.get("--commit")
@@ -45,7 +45,7 @@ class BlueprintsCommand(BaseCommand):
 
         if not success:
             self.error("Unable to validate Blueprint")
-            return
+            return False
 
         validation_branch = temp_working_branch or working_branch
 
@@ -55,11 +55,16 @@ class BlueprintsCommand(BaseCommand):
         except Exception as e:
             logger.exception(e, exc_info=False)
             bp = None
-            self.die()
+            return self.die()
         finally:
             revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
 
-        errors = getattr(bp, "errors")
+        try:
+            errors = getattr(bp, "errors")
+        except Exception as e:
+            logger.exception(e, exc_info=False)
+            errors = None
+
 
         if errors:
             # We don't need error code
@@ -69,4 +74,4 @@ class BlueprintsCommand(BaseCommand):
             self.die(tabulate.tabulate(err_table, headers="keys"))
 
         else:
-            self.success("Blueprint is valid")
+            return self.success("Blueprint is valid")

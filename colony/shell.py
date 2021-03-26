@@ -19,8 +19,10 @@ Commands:
 """
 import logging
 import os
+import sys
 
 import pkg_resources
+from colony import utils
 from colorama import init
 from docopt import DocoptExit, docopt
 
@@ -94,7 +96,10 @@ def main():
 
     command_class = commands_table[command_name]
     command = command_class(argv, conn)
-    command.execute()
+    command_result = command.execute()
+
+    if not command_result:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
