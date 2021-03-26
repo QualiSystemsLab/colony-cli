@@ -1,7 +1,6 @@
 import logging
 import os
 import shutil
-
 import stat
 import sys
 import tempfile
@@ -49,7 +48,7 @@ class GitMagicTests(unittest.TestCase):
         bp_validate,
         create_remote_branch,
         is_current_state_synced_with_remote,
-        examine_blueprint_working_branch
+        examine_blueprint_working_branch,
     ):
         # Arrange
         # need to be tested with True as well

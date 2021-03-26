@@ -21,7 +21,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         create_local_temp_branch,
         preserve_uncommitted_code,
         commit_to_local_temp_branch,
-        create_remote_branch
+        create_remote_branch,
     ):
         # Arrange:
         mock_repo = MagicMock()
@@ -48,7 +48,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         create_local_temp_branch,
         preserve_uncommitted_code,
         commit_to_local_temp_branch,
-        create_remote_branch
+        create_remote_branch,
     ):
         # Arrange:
         mock_repo = MagicMock()
