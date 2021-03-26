@@ -59,13 +59,10 @@ def figure_out_branches(user_defined_branch: str, blueprint_name: str):
         # Try to detect branch from current git-enabled folder
         logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
         try:
-            print("1")
+            print(f"os.getcwd()={os.getcwd()}")
             repo = BlueprintRepo(os.getcwd())
-            print("2")
             examine_blueprint_working_branch(repo, blueprint_name=blueprint_name)
-            print("3")
             working_branch = get_blueprint_working_branch(repo)
-            print("4")
             BaseCommand.fyi_info(f"Automatically detected current working branch: {working_branch}")
 
         except Exception as e:
