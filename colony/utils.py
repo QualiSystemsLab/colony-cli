@@ -24,6 +24,9 @@ class BlueprintRepo(Repo):
         if self.bare:
             raise BadBlueprintRepo("Cannot get folder tree structure. Repo is bare")
 
+        if not self.remotes:
+            raise BadBlueprintRepo("Local repository not connected to the remote space repository")
+
         self.blueprints = self._fetch_blueprints_list()
 
     def repo_has_blueprint(self, blueprint_name) -> bool:
@@ -34,21 +37,19 @@ class BlueprintRepo(Repo):
         return self.head.is_detached
 
     def current_branch_exists_on_remote(self) -> bool:
-        try:
-            local_branch_name = self.active_branch.name
-            remote_branches = self._get_remote_branches_names()
-            return local_branch_name in remote_branches
-        except Exception as e:
-            logger.error(f"Failed to get remote branches names: {str(e)}")
-            return False
+        local_branch_name = self.active_branch.name
+        remote_branches = self._get_remote_branches_names()
+        return local_branch_name in remote_branches
 
     def is_current_branch_synced(self) -> bool:
         """Check if last commit in local and remote branch is the same"""
         local_branch = self.active_branch
+        if local_branch.name not in self._get_remote_branches_names():
+            return False
+
         for remote in self.remote().refs:
             if local_branch.name == remote.remote_head:
                 return local_branch.commit.__eq__(remote.commit)
-        return False
 
     # (TODO:ddovbii): must be moved to separated class (BlueprintYamlHandler or smth)
     def get_blueprint_artifacts(self, blueprint_name: str) -> dict:
@@ -108,7 +109,10 @@ class BlueprintRepo(Repo):
         return bps
 
     def _get_remote_branches_names(self):
-        return [ref.remote_head for ref in self.remote().refs]
+        if self.remotes:
+            return [ref.remote_head for ref in self.remote().refs]
+        else:
+            return []
 
     def get_active_branch(self) -> str:
         return self._active_branch

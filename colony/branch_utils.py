@@ -67,10 +67,8 @@ def figure_out_branches(user_defined_branch: str, blueprint_name: str):
 
         except Exception as e:
             working_branch = None
-            logger.warning(
-                f"Branch could not be identified/used from the working directory; "
-                f"reason: {e}. The Blueprints Repository branch attached to Colony Space will be used"
-            )
+            logger.error(f"Branch could not be identified/used from the working directory; reason: {e}.")
+            success = False
 
         # Checking if:
         # 1) User has specified not use local (specified a branch)
@@ -89,7 +87,7 @@ def figure_out_branches(user_defined_branch: str, blueprint_name: str):
                     f"(This shall include any uncommitted changes but and/or untracked files)"
                 )
             except Exception as e:
-                logger.warning(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
+                logger.error(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
                 success = False
 
     return repo, working_branch, temp_working_branch, stashed_flag, success
