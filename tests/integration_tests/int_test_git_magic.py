@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 class GitMagicTests(unittest.TestCase):
     def setUp(self) -> None:
+        os.system("git config --global user.name \"test test\"")
+        os.system("git config --global user.email \"test@test.com\"")
         self._repo = None
         self._cwd = os.getcwd()
         # setup testing env
