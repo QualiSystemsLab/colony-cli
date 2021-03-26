@@ -18,8 +18,6 @@ logger = logging.getLogger(__name__)
 
 class GitMagicTests(unittest.TestCase):
     def setUp(self) -> None:
-        os.system('git config --global user.name "test test"')
-        os.system('git config --global user.email "test@test.com"')
         self._repo = None
         self._cwd = os.getcwd()
         # setup testing env
@@ -88,6 +86,8 @@ class GitMagicTests(unittest.TestCase):
 
     def _create_clean_repo(self):
         self._repo = git.Repo.init()
+        self._repo.config_writer().set_value("user", "name", "test").release()
+        self._repo.config_writer().set_value("user", "email", "test@test.io").release()
         with open("clean.txt", "w") as fp:
             fp.close()
             pass
