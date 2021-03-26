@@ -65,7 +65,6 @@ class BlueprintsCommand(BaseCommand):
             logger.exception(e, exc_info=False)
             errors = None
 
-
         if errors:
             # We don't need error code
             err_table = [OrderedDict([("NAME", err["name"]), ("MESSAGE", err["message"])]) for err in errors]

@@ -179,8 +179,9 @@ def delete_temp_remote_branch(repo: BlueprintRepo, temp_branch: str) -> None:
     repo.git.push("origin", "--delete", temp_branch)
 
 
-def wait_and_then_delete_branch(sb_manager: SandboxesManager, sandbox_id: str,
-                                repo: BlueprintRepo, temp_branch: str) -> None:
+def wait_and_then_delete_branch(
+    sb_manager: SandboxesManager, sandbox_id: str, repo: BlueprintRepo, temp_branch: str
+) -> None:
     if not temp_branch:
         logger.debug("Not temp branch")
         return
@@ -215,8 +216,9 @@ def checkout_remote_branch(repo: BlueprintRepo, active_branch: str):
     repo.git.checkout(active_branch)
 
 
-def revert_and_delete_temp_branch(repo: BlueprintRepo, working_branch: str,
-                                  temp_working_branch: str, stashed_flag: bool):
+def revert_and_delete_temp_branch(
+    repo: BlueprintRepo, working_branch: str, temp_working_branch: str, stashed_flag: bool
+) -> None:
     if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
         revert_from_temp_branch(repo, working_branch, stashed_flag)
         delete_temp_branch(repo, temp_working_branch)

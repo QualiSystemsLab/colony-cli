@@ -15,9 +15,14 @@ class TestStashLogicFunctions(unittest.TestCase):
     @patch.object(branch_utils, "preserve_uncommitted_code")
     @patch.object(branch_utils, "create_local_temp_branch")
     @patch.object(branch_utils, "stash_local_changes")
-    def test_switch_to_temp_branch_dirtyrepo(self, stash_local_changes, create_local_temp_branch,
-                                             preserve_uncommitted_code, commit_to_local_temp_branch,
-                                             create_remote_branch):
+    def test_switch_to_temp_branch_dirtyrepo(
+        self,
+        stash_local_changes,
+        create_local_temp_branch,
+        preserve_uncommitted_code,
+        commit_to_local_temp_branch,
+        create_remote_branch
+    ):
         # Arrange:
         mock_repo = MagicMock()
         mock_repo.is_dirty = MagicMock(return_value=True)
@@ -37,9 +42,14 @@ class TestStashLogicFunctions(unittest.TestCase):
     @patch.object(branch_utils, "preserve_uncommitted_code")
     @patch.object(branch_utils, "create_local_temp_branch")
     @patch.object(branch_utils, "stash_local_changes")
-    def test_switch_to_temp_branch_cleanrepo(self, stash_local_changes, create_local_temp_branch,
-                                             preserve_uncommitted_code, commit_to_local_temp_branch,
-                                             create_remote_branch):
+    def test_switch_to_temp_branch_cleanrepo(
+        self,
+        stash_local_changes,
+        create_local_temp_branch,
+        preserve_uncommitted_code,
+        commit_to_local_temp_branch,
+        create_remote_branch
+    ):
         # Arrange:
         mock_repo = MagicMock()
         mock_repo.is_dirty = MagicMock(return_value=False)

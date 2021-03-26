@@ -22,7 +22,6 @@ import os
 import sys
 
 import pkg_resources
-from colony import utils
 from colorama import init
 from docopt import DocoptExit, docopt
 
