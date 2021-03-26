@@ -38,22 +38,22 @@ class GitMagicTests(unittest.TestCase):
         os.chdir(self._cwd)
         shutil.rmtree(self._repo.working_dir, onerror=readonly_handler)
 
-    @patch.object(branch_utils, "examine_blueprint_working_branch")
     @patch("colony.utils.BlueprintRepo.is_current_state_synced_with_remote")
     @patch.object(branch_utils, "create_remote_branch")
     @patch("colony.blueprints.BlueprintsManager.validate")
     @patch.object(branch_utils, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.get_connection_params")
+    @patch("colony.branch_utils.examine_blueprint_working_branch")
     def test_blueprint_validate_uncommitted_untracked(
         self,
+        examine_blueprint_working_branch,
         get_connection_params,
         pkg_resources_get_distribution,
         delete_temp_remote_branch,
         bp_validate,
         create_remote_branch,
         is_current_state_synced_with_remote,
-        examine_blueprint_working_branch,
     ):
         # Arrange
         # need to be tested with True as well
