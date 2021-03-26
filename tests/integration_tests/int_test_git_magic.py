@@ -43,8 +43,10 @@ class GitMagicTests(unittest.TestCase):
     @patch("colony.blueprints.BlueprintsManager.validate")
     @patch.object(branch_utils, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
+    @patch("colony.shell.get_connection_params")
     def test_blueprint_validate_uncommitted_untracked(
         self,
+        get_connection_params,
         pkg_resources_get_distribution,
         delete_temp_remote_branch,
         bp_validate,
