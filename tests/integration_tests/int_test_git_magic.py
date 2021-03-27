@@ -1,16 +1,15 @@
 import logging
 import os
 import shutil
-import stat
 import sys
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-import git
-
 from colony import branch_utils, shell
 from colony.constants import UNCOMMITTED_BRANCH_NAME
+from tests.integration_tests.helpers.repo_utils import readonly_handler, achieve_dirty_and_untracked_repo, \
+    create_clean_repo
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -21,16 +20,15 @@ class GitMagicTests(unittest.TestCase):
         self._repo = None
         self._cwd = os.getcwd()
         # setup testing env
-        # -> copy base_repo to temp folder
 
         dst = tempfile.mkdtemp()
-        print(f"temp dir ={dst}")
+        print(f"Temp repo dir = {dst}")
         # -> set working directory to temp folder
         os.chdir(f"{dst}")
         os.mkdir("blueprints")
 
         # -> do git init on temp folder
-        self._create_clean_repo()
+        self._repo = create_clean_repo()
         print("")
 
     def tearDown(self) -> None:
@@ -57,19 +55,19 @@ class GitMagicTests(unittest.TestCase):
     ):
         # Arrange
         # need to be tested with True as well
-        is_current_state_synced_with_remote.return_value = False
+
         bp_validate.return_value = Mock(errors="")
         current_branch = self._repo.active_branch.name
+        is_current_state_synced_with_remote.return_value = False
 
         # manipulate files/git state to set up current test case
-        self._achieve_dirty_and_untracked_repo()
+        achieve_dirty_and_untracked_repo(self._repo)
 
         # Act
         sys.argv[1:] = ["--debug", "bp", "validate", "test2"]
         shell.main()
 
         # Assert
-
         # Can`t check is_current_state_synced_with_remote as it is mocked
 
         # Check state is dirty+untracked
@@ -88,35 +86,3 @@ class GitMagicTests(unittest.TestCase):
         self.assertEqual(self._repo.active_branch.name, current_branch)
 
         return
-
-    def _create_clean_repo(self):
-        self._repo = git.Repo.init()
-        self._repo.config_writer().set_value("user", "name", "test").release()
-        self._repo.config_writer().set_value("user", "email", "test@test.io").release()
-        with open("clean.txt", "w") as fp:
-            fp.close()
-            pass
-        self._repo.git.add(".")
-        self._repo.git.commit("-m", "Initial commit")
-
-    def _achieve_dirty_and_untracked_repo(self):
-        self._make_repo_dirty()
-        self._add_untracked()
-
-    def _make_repo_dirty(self):
-        os.chdir(self._repo.working_dir)
-        with open("dirty.txt", "w") as fp:
-            fp.close()
-            pass
-        self._repo.git.add("dirty.txt")
-
-    def _add_untracked(self):
-        os.chdir(self._repo.working_dir)
-        with open("untracked.txt", "w") as fp:
-            fp.close()
-            pass
-
-
-def readonly_handler(func, path, execinfo):
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
