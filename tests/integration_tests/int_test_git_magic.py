@@ -8,11 +8,7 @@ from unittest.mock import Mock, patch
 
 from colony import branch_utils, shell
 from colony.constants import UNCOMMITTED_BRANCH_NAME
-from tests.helpers.repo_utils import (
-    achieve_dirty_and_untracked_repo,
-    create_clean_repo,
-    readonly_handler,
-)
+from tests.helpers.repo_utils import achieve_dirty_and_untracked_repo, create_clean_repo, readonly_handler
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
