@@ -6,6 +6,7 @@ from docopt import DocoptExit
 from colony.commands.base import BaseCommand
 from colony.commands.bp import BlueprintsCommand
 from colony.commands.sb import SandboxesCommand
+from commands.configure import ConfigureCommand
 
 
 class TestBaseCommand(unittest.TestCase):
@@ -110,5 +111,21 @@ class TestSandboxCommand(unittest.TestCase):
         self.validate_command_input(line, func)
 
 
-if __name__ == "__main__":
-    unittest.main()
+class TestConfigureCommand(unittest.TestCase):
+    def test_base_help_usage_line(self):
+        expected_usage = """usage:
+        colony (configure) set
+        colony (configure) list
+        colony (configure) [--help]"""
+
+        with self.assertRaises(DocoptExit) as ctx:
+            _ = ConfigureCommand(command_args=[])
+
+        self.assertEqual(expected_usage, str(ctx.exception))
+
+    def test_actions_table(self):
+        args = "configure list".split()
+        command = ConfigureCommand(command_args=args)
+        expected_actions = ["set", "list"]
+        for action in command.get_actions_table():
+            self.assertIn(action, expected_actions)

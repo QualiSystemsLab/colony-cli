@@ -6,5 +6,9 @@ class ConfigError(Exception):
     pass
 
 
+class ConfigFileMissingError(ConfigError):
+    pass
+
+
 class BadBlueprintRepo(Exception):
     pass

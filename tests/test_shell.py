@@ -3,6 +3,7 @@ import unittest
 from docopt import DocoptExit, docopt
 
 from colony import shell
+from parsers.input_parser import GlobalInputParser
 
 
 class MainShellTest(unittest.TestCase):
@@ -20,8 +21,5 @@ class MainShellTest(unittest.TestCase):
     def test_help_needed_with_command(self):
         user_input = ["sb", "--help"]
         args = docopt(doc=self.main_doc, options_first=True, argv=user_input)
-        self.assertTrue(shell.is_help_needed(args))
-
-
-if __name__ == "__main__":
-    unittest.main()
+        input_parser = GlobalInputParser(args)
+        self.assertTrue(shell.BootstrapHelper.is_help_message_requested(input_parser))

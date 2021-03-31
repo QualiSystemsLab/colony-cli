@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from colony.config import ColonyConfigProvider
+from services.config import ColonyConfigProvider
 from colony.exceptions import ConfigError
 
 
@@ -11,12 +11,12 @@ class TestConfigProvider(unittest.TestCase):
         self.provider = ColonyConfigProvider(filename=test_config_file)
 
     def test_correct_default_path(self):
-        self.assertEqual(self.provider.default_config_path, "~/.colony/config")
+        self.assertEqual(ColonyConfigProvider().filename, "~/.colony/config")
 
     def test_filename_not_exist(self):
         wrong_file_name = "fixtures/test_config_wrong"
         with self.assertRaises(ConfigError):
-            _ = ColonyConfigProvider(filename=wrong_file_name)
+            _ = ColonyConfigProvider(filename=wrong_file_name).load_connection()
 
     def test_raise_on_wrong_profile(self):
         wrong_profile = "fake_tester"
@@ -34,7 +34,7 @@ class TestConfigProvider(unittest.TestCase):
     def test_wrong_setting_file(self):
         filename = "fixtures/wrong_config"
         with self.assertRaises(ConfigError):
-            _ = ColonyConfigProvider(filename=filename)
+            _ = ColonyConfigProvider(filename).load_connection()
 
     def test_wrong_settings(self):
         wrong_profile = "tester-2"
