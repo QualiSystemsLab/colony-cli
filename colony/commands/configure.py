@@ -20,17 +20,17 @@ class ConfigureCommand(BaseCommand):
     usage:
         colony (configure) set
         colony (configure) list
+        colony (configure) remove <profile>
         colony (configure) [--help|-h]
 
     options:
-       -h --help                        Show this message
-
+        -h --help                   Show this message
     """
 
     RESOURCE_MANAGER = SandboxesManager
 
     def get_actions_table(self) -> dict:
-        return {"set": self.do_configure, "list": self.do_list}
+        return {"set": self.do_configure, "list": self.do_list, "remove": self.do_remove}
 
     def do_list(self):
         config = None
@@ -46,6 +46,17 @@ class ConfigureCommand(BaseCommand):
 
         result_table = ConfigureListView(config).render()
         self.message(result_table)
+        self.success()
+
+    def do_remove(self):
+        profile_to_remove = self.args["<profile>"]
+        if not profile_to_remove:
+            raise DocoptExit("Please provide a profile name to remove")
+
+        config_file = GlobalInputParser.get_config_path()
+        config_provider = ColonyConfigProvider(config_file)
+        config_provider.remove_profile(profile_to_remove)
+
         self.success()
 
     def do_configure(self):

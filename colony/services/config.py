@@ -36,6 +36,51 @@ class ColonyConfigProvider(object):
 
         return config[profile]
 
+    def load_all(self) -> dict:
+        self._validate_config_file_exists()
+        self._load_config_from_path()
+        config = self._parse_config()
+        return config
+
+    def save_profile(self, profile_name: str, token: str, space: str, account: str = ""):
+        try:
+            self._try_load_config()
+            if not self.config_obj:
+                self.config_obj = ConfigParser()
+            if not self.config_obj.has_section(profile_name):
+                self.config_obj.add_section(profile_name)
+
+            self.config_obj.set(profile_name, ColonyConfigKeys.SPACE, space)
+            self.config_obj.set(profile_name, ColonyConfigKeys.TOKEN, token)
+            if account:
+                self.config_obj.set(profile_name, ColonyConfigKeys.ACCOUNT, account)
+
+            self._save_config_to_file()
+
+        except Exception as exc:
+            ConfigError(f"Error saving profile in config {self.config_path}. Error: f{str(exc)}")
+
+    def remove_profile(self, profile_name):
+        self._validate_config_file_exists()
+        self._load_config_from_path()
+
+        if not self.config_obj:
+            return
+
+        if self.config_obj.has_section(profile_name):
+            self.config_obj.remove_section(profile_name)
+
+            try:
+                self._save_config_to_file()
+            except:
+                raise ConfigError(f"Error saving config to file {self.config_path}")
+
+        logger.debug("Nothing to remove. Provided profile does not exist in config file")
+
+    def _save_config_to_file(self):
+        with open(self.config_path, 'w') as cfgfile:
+            self.config_obj.write(cfgfile)
+
     def _validate_profile_exists_in_config(self, config, profile):
         if profile not in config:
             raise ConfigError("Provided profile does not exist in config file")
@@ -49,6 +94,12 @@ class ColonyConfigProvider(object):
         except ParsingError as e:
             raise ConfigError(f"Wrong format of config file. Details {e}")
 
+    def _try_load_config(self):
+        try:
+            self._load_config_from_path()
+        except:
+            pass
+
     def _validate_config_file_exists(self):
         if not os.path.isfile(self.config_path):
             raise ConfigFileMissingError("Config file doesn't exist")
@@ -59,25 +110,3 @@ class ColonyConfigProvider(object):
                 config[section] = dict(self.config_obj.items(section))
 
             return config
-
-    def load_all(self) -> dict:
-        self._validate_config_file_exists()
-        self._load_config_from_path()
-        config = self._parse_config()
-        return config
-
-    def save_profile(self, profile_name: str, token: str, space: str, account: str = ""):
-        try:
-            if not self.config_obj.has_section(profile_name):
-                self.config_obj.add_section(profile_name)
-
-            self.config_obj.set(profile_name, ColonyConfigKeys.SPACE, space)
-            self.config_obj.set(profile_name, ColonyConfigKeys.TOKEN, token)
-            if account:
-                self.config_obj.set(profile_name, ColonyConfigKeys.ACCOUNT, account)
-
-            with open(self.config_path, 'w') as cfgfile:
-                self.config_obj.write(cfgfile)
-
-        except Exception as exc:
-            ConfigError(f"Failed to save profile in config {self.config_path}. Error: f{str(exc)}")
