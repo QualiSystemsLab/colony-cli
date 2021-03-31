@@ -116,7 +116,8 @@ class TestConfigureCommand(unittest.TestCase):
         expected_usage = """usage:
         colony (configure) set
         colony (configure) list
-        colony (configure) [--help]"""
+        colony (configure) remove <profile>
+        colony (configure) [--help|-h]"""
 
         with self.assertRaises(DocoptExit) as ctx:
             _ = ConfigureCommand(command_args=[])
@@ -126,6 +127,6 @@ class TestConfigureCommand(unittest.TestCase):
     def test_actions_table(self):
         args = "configure list".split()
         command = ConfigureCommand(command_args=args)
-        expected_actions = ["set", "list"]
+        expected_actions = ["set", "list", "remove"]
         for action in command.get_actions_table():
             self.assertIn(action, expected_actions)
