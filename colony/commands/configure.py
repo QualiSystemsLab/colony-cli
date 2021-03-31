@@ -38,7 +38,7 @@ class ConfigureCommand(BaseCommand):
             config_file = GlobalInputParser.get_config_path()
             config = ColonyConfigProvider(config_file).load_all()
 
-        except ConfigFileMissingError as e:
+        except ConfigFileMissingError:
             raise DocoptExit("Config file doesn't exist. Use 'colony configure set' to configure Colony CLI.")
         except Exception as e:
             logger.exception(e, exc_info=False)
@@ -62,10 +62,11 @@ class ConfigureCommand(BaseCommand):
     def do_configure(self):
         config_file = GlobalInputParser.get_config_path()
         config_provider = ColonyConfigProvider(config_file)
+        config = {}
         try:
             config = config_provider.load_all()
-        except:
-            config = {}
+        except Exception:
+            pass
 
         # read profile
         profile = input("Profile Name [default]: ")
@@ -96,7 +97,3 @@ class ConfigureCommand(BaseCommand):
         config_provider.save_profile(profile, token, space, account)
 
         self.success()
-
-
-
-

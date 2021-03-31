@@ -3,16 +3,15 @@ import logging
 from docopt import DocoptExit
 
 from colony.constants import ColonyConfigKeys
-from colony.services.config import ColonyConfigProvider
 from colony.exceptions import ConfigError
 from colony.models.connection import ColonyConnection
 from colony.parsers.input_parser import GlobalInputParser
+from colony.services.config import ColonyConfigProvider
 
 logger = logging.getLogger(__name__)
 
 
 class ColonyConnectionProvider:
-
     def __init__(self, args_parser: GlobalInputParser):
         self._args_parser = args_parser
 

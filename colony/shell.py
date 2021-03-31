@@ -23,11 +23,11 @@ import pkg_resources
 from colorama import init
 from docopt import DocoptExit, docopt
 
-from colony.commands import bp, sb, configure
+from colony.commands import bp, configure, sb
 from colony.models.connection import ColonyConnection
-from colony.services.version import VersionCheckService
 from colony.parsers.input_parser import GlobalInputParser
 from colony.services.connection import ColonyConnectionProvider
+from colony.services.version import VersionCheckService
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +36,11 @@ commands_table = {
     "blueprint": bp.BlueprintsCommand,
     "sb": sb.SandboxesCommand,
     "sandbox": sb.SandboxesCommand,
-    "configure": configure.ConfigureCommand
+    "configure": configure.ConfigureCommand,
 }
 
 
 class BootstrapHelper:
-
     @staticmethod
     def is_help_message_requested(input_parser: GlobalInputParser) -> bool:
         if not input_parser.command_args:
@@ -73,8 +72,9 @@ class BootstrapHelper:
 
     @staticmethod
     def should_get_connection_params(input_parser: GlobalInputParser) -> bool:
-        return not BootstrapHelper.is_help_message_requested(input_parser) and \
-               not BootstrapHelper.is_config_mode(input_parser)
+        return not BootstrapHelper.is_help_message_requested(input_parser) and not BootstrapHelper.is_config_mode(
+            input_parser
+        )
 
 
 def main():

@@ -19,10 +19,8 @@ class ConfigureListView:
                     "Profile Name": profile,
                     "Colony Account": self.config[profile].get(ColonyConfigKeys.ACCOUNT, None),
                     "Space Name": self.config[profile].get(ColonyConfigKeys.SPACE, None),
-                    "Token": mask_token(self.config[profile].get(ColonyConfigKeys.TOKEN, None))
+                    "Token": mask_token(self.config[profile].get(ColonyConfigKeys.TOKEN, None)),
                 }
             )
 
         return tabulate.tabulate(result_table, headers="keys")
-
-

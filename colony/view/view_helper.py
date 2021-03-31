@@ -1,4 +1,3 @@
-
 def mask_token(token: str) -> str:
     if not token:
         return ""
