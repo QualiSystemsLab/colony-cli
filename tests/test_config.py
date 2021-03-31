@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from services.config import ColonyConfigProvider
+from colony.services.config import ColonyConfigProvider
 from colony.exceptions import ConfigError
 
 

@@ -6,7 +6,7 @@ from docopt import DocoptExit
 from colony.commands.base import BaseCommand
 from colony.commands.bp import BlueprintsCommand
 from colony.commands.sb import SandboxesCommand
-from commands.configure import ConfigureCommand
+from colony.commands.configure import ConfigureCommand
 
 
 class TestBaseCommand(unittest.TestCase):
