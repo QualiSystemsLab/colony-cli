@@ -98,3 +98,23 @@ class VersionCheckServiceTests(unittest.TestCase):
 
         # assert
         base_command_mock.message.assert_called_once_with(AnyStringWith(latest_version))
+
+    @patch("colony.services.version.requests")
+    def test_check_for_new_version_is_safe(self, requests_mock):
+        # arrange 1
+        versions_checker = VersionCheckService("1.0.0")
+        versions_checker._show_new_version_message = Mock()
+        requests_mock.get = Mock(side_effect=Exception())
+
+        # act 1
+        versions_checker.check_for_new_version_safely()
+        versions_checker._show_new_version_message.assert_not_called()
+
+        # arrange 2
+        project_info = PyPiProjectInfoBuilder().with_version("BAD_VERSION").build()
+        requests_mock.get.side_effect = None
+        requests_mock.get.return_value = Mock(json=Mock(return_value=project_info))
+        versions_checker._find_latest_release = Mock(side_effect=Exception())
+
+        # act 2
+        versions_checker.check_for_new_version_safely()
