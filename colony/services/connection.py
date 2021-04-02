@@ -34,6 +34,6 @@ class ColonyConnectionProvider:
                 if ColonyConfigKeys.ACCOUNT in colony_conn:
                     account = colony_conn[ColonyConfigKeys.ACCOUNT]
             except ConfigError as e:
-                    raise DocoptExit(f"Unable to read Colony credentials. Reason: {e}")
+                raise DocoptExit(f"Unable to read Colony credentials. Reason: {e}")
 
         return ColonyConnection(token=token, space=space, account=account)

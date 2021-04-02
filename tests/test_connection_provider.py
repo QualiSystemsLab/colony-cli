@@ -116,7 +116,7 @@ class TestColonyConnectionProvider(unittest.TestCase):
         self.assertEqual(connection.account, account)
 
     @patch("colony.services.connection.ColonyConfigProvider")
-    def test_get_connection_with_all_arg_inputs(self, config_provider):
+    def test_get_connection_config_provider_raises(self, config_provider):
         # arrange
         TestColonyConnectionProviderHelper.set_input_parse_return_values(self.input_parser_mock)
         config_provider.side_effect = ConfigError()
@@ -138,8 +138,9 @@ class TestColonyConnectionProviderHelper:
         return colony_conn_dict
 
     @staticmethod
-    def set_input_parse_return_values(input_parser_mock: Mock, space: str = None, token: str = None,
-                                      account: str = None):
+    def set_input_parse_return_values(
+            input_parser_mock: Mock, space: str = None, token: str = None, account: str = None
+    ):
         input_parser_mock.token = token
         input_parser_mock.space = space
         input_parser_mock.account = account
