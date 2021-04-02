@@ -57,14 +57,11 @@ class ColonyConfigProvider(object):
             self._save_config_to_file()
 
         except Exception as exc:
-            ConfigError(f"Error saving profile in config {self.config_path}. Error: f{str(exc)}")
+            raise ConfigError(f"Error saving profile in config {self.config_path}. Error: f{str(exc)}")
 
     def remove_profile(self, profile_name):
         self._validate_config_file_exists()
         self._load_config_from_path()
-
-        if not self.config_obj:
-            return
 
         if self.config_obj.has_section(profile_name):
             self.config_obj.remove_section(profile_name)
@@ -73,8 +70,8 @@ class ColonyConfigProvider(object):
                 self._save_config_to_file()
             except Exception:
                 raise ConfigError(f"Error saving config to file {self.config_path}")
-
-        logger.debug("Nothing to remove. Provided profile does not exist in config file")
+        else:
+            logger.debug("Nothing to remove. Provided profile does not exist in config file")
 
     def _save_config_to_file(self):
         with open(self.config_path, "w") as cfgfile:
