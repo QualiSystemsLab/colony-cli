@@ -139,7 +139,7 @@ class TestColonyConnectionProviderHelper:
 
     @staticmethod
     def set_input_parse_return_values(
-            input_parser_mock: Mock, space: str = None, token: str = None, account: str = None
+        input_parser_mock: Mock, space: str = None, token: str = None, account: str = None
     ):
         input_parser_mock.token = token
         input_parser_mock.space = space

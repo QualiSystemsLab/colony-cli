@@ -1,7 +1,7 @@
 import os
 import unittest
 from configparser import ConfigParser
-from unittest.mock import Mock, patch, mock_open
+from unittest.mock import Mock, mock_open, patch
 
 from colony.exceptions import ConfigError, ConfigFileMissingError
 from colony.services.config import ColonyConfigProvider
@@ -133,7 +133,7 @@ class TestConfigProvider(unittest.TestCase):
 
     def test_save_config_to_file(self):
         self.provider.config_obj = Mock()
-        with patch('builtins.open', mock_open()) as open_mock:
+        with patch("builtins.open", mock_open()) as open_mock:
             self.provider._save_config_to_file()
             self.provider.config_obj.write.assert_called_once_with(open_mock.return_value)
 
