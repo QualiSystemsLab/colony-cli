@@ -53,7 +53,7 @@ class MainShellTest(unittest.TestCase):
     @patch("colony.shell.ColonyConnectionProvider")
     @patch("colony.shell.BootstrapHelper.should_get_connection_params")
     def test_get_connection_params_returns_connection(
-            self, should_get_connection_params_mock, connection_provider_class_mock
+        self, should_get_connection_params_mock, connection_provider_class_mock
     ):
         # arrange
         input_parser = Mock()

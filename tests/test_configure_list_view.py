@@ -51,10 +51,12 @@ default                           space1        *********ken1"""
 
     def test_render_multiple_profiles(self):
         # arrange
-        config = ConfigBuilder()\
-            .with_profile("default", "space1", "token1") \
-            .with_profile("customer2", "space2", "token2", "account2") \
+        config = (
+            ConfigBuilder()
+            .with_profile("default", "space1", "token1")
+            .with_profile("customer2", "space2", "token2", "account2")
             .build()
+        )
 
         expected_result = """Profile Name    Colony Account    Space Name    Token
 --------------  ----------------  ------------  -------------
