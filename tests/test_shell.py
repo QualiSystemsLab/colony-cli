@@ -135,7 +135,3 @@ class MainShellTest(unittest.TestCase):
         result = BootstrapHelper.should_get_connection_params(input_parser)
         # assert 3
         self.assertFalse(result)
-
-
-
-
