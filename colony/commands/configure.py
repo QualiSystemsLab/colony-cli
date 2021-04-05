@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 class ConfigureCommand(BaseCommand):
     """
     usage:
-        colony (configure) set
-        colony (configure) list
-        colony (configure) remove <profile>
-        colony (configure) [--help|-h]
+        colony configure set
+        colony configure list
+        colony configure remove <profile>
+        colony configure [--help|-h]
 
     options:
         -h --help                   Show this message
