@@ -114,10 +114,10 @@ class TestSandboxCommand(unittest.TestCase):
 class TestConfigureCommand(unittest.TestCase):
     def test_base_help_usage_line(self):
         expected_usage = """usage:
-        colony (configure) set
-        colony (configure) list
-        colony (configure) remove <profile>
-        colony (configure) [--help|-h]"""
+        colony configure set
+        colony configure list
+        colony configure remove <profile>
+        colony configure [--help|-h]"""
 
         with self.assertRaises(DocoptExit) as ctx:
             _ = ConfigureCommand(command_args=[])
