@@ -44,7 +44,7 @@ class GitMagicTests(unittest.TestCase):
     @patch("colony.blueprints.BlueprintsManager.validate")
     @patch.object(branch_utils, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
-    @patch("colony.shell.get_connection_params")
+    @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
     def test_blueprint_validate_uncommitted_untracked(self, examine, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
@@ -67,14 +67,12 @@ class GitMagicTests(unittest.TestCase):
             self._assert_dirty_state_reverted_dirty()
             self._assert_branch_states_reverted(current_branch)
 
-        return
-
     @patch("colony.utils.BlueprintRepo.is_current_branch_synced")
     @patch.object(branch_utils, "create_remote_branch")
     @patch("colony.blueprints.BlueprintsManager.validate")
     @patch.object(branch_utils, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
-    @patch("colony.shell.get_connection_params")
+    @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
     def test_blueprint_validate_uncommitted(self, examine, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
@@ -97,14 +95,12 @@ class GitMagicTests(unittest.TestCase):
             self._assert_dirty_state_reverted_dirty()
             self._assert_branch_states_reverted(current_branch)
 
-        return
-
     @patch("colony.utils.BlueprintRepo.is_current_branch_synced")
     @patch.object(branch_utils, "create_remote_branch")
     @patch("colony.blueprints.BlueprintsManager.validate")
     @patch.object(branch_utils, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
-    @patch("colony.shell.get_connection_params")
+    @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
     def test_blueprint_validate_committed_untracked(self, examine, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
@@ -127,14 +123,12 @@ class GitMagicTests(unittest.TestCase):
             self._assert_dirty_state_reverted_clean()
             self._assert_branch_states_reverted(current_branch)
 
-        return
-
     @patch("colony.utils.BlueprintRepo.is_current_branch_synced")
     @patch.object(branch_utils, "create_remote_branch")
     @patch("colony.blueprints.BlueprintsManager.validate")
     @patch.object(branch_utils, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
-    @patch("colony.shell.get_connection_params")
+    @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
     def test_blueprint_validate_committed(self, examine, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
@@ -154,8 +148,6 @@ class GitMagicTests(unittest.TestCase):
             self._assert_untracked_reverted_without_untracked()
             self._assert_dirty_state_reverted_clean()
             self._assert_branch_states_reverted(current_branch)
-
-        return
 
     def _assert_dirty_state_reverted_dirty(self) -> None:
         changed_files_list = self._repo.git.diff("HEAD", name_only=True).split("\n")
