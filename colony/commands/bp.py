@@ -70,7 +70,7 @@ class BlueprintsCommand(BaseCommand):
             err_table = [OrderedDict([("NAME", err["name"]), ("MESSAGE", err["message"])]) for err in errors]
 
             logger.error("Blueprint validation failed")
-            self.die(tabulate.tabulate(err_table, headers="keys"))
+            return self.die(tabulate.tabulate(err_table, headers="keys"))
 
         else:
             return self.success("Blueprint is valid")

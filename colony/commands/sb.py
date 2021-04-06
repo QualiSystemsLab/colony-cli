@@ -74,7 +74,7 @@ class SandboxesCommand(BaseCommand):
         except Exception as e:
             logger.exception(e, exc_info=False)
             sandbox_list = None
-            self.die()
+            return self.die()
 
         result_table = []
         for sb in sandbox_list:
@@ -100,10 +100,10 @@ class SandboxesCommand(BaseCommand):
         except Exception as e:
             logger.exception(e, exc_info=False)
             sandbox = None
-            self.die()
+            return self.die()
 
         status = getattr(sandbox, "sandbox_status")
-        self.success(status)
+        return self.success(status)
 
     def do_end(self):
         sandbox_id = self.args["<sandbox_id>"]
@@ -111,9 +111,9 @@ class SandboxesCommand(BaseCommand):
             self.manager.end(sandbox_id)
         except Exception as e:
             logger.exception(e, exc_info=False)
-            self.die()
+            return self.die()
 
-        self.success("End request has been sent")
+        return self.success("End request has been sent")
 
     def do_start(self):
         blueprint_name = self.args["<blueprint_name>"]
@@ -192,7 +192,7 @@ class SandboxesCommand(BaseCommand):
         except Exception as e:
             logger.exception(e, exc_info=False)
             sandbox_id = None
-            self.die()
+            return self.die()
         finally:
             logger.debug("Cleaning up")
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
@@ -201,7 +201,7 @@ class SandboxesCommand(BaseCommand):
         # todo: I think the below can be simplified and refactored
         if timeout is None:
             wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
-            self.success("The Sandbox was created")
+            return self.success("The Sandbox was created")
 
         else:
             start_time = datetime.datetime.now()
@@ -212,7 +212,7 @@ class SandboxesCommand(BaseCommand):
                 sandbox = self.manager.get(sandbox_id)
                 status = getattr(sandbox, "sandbox_status")
                 if status == "Active":
-                    self.success(sandbox_id)
+                    return self.success(sandbox_id)
 
                 elif status == "Launching":
                     progress = getattr(sandbox, "launching_progress")
@@ -222,9 +222,9 @@ class SandboxesCommand(BaseCommand):
 
                 else:
                     wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
-                    self.die(f"The Sandbox {sandbox_id} has started. Current state is: {status}")
+                    return self.die(f"The Sandbox {sandbox_id} has started. Current state is: {status}")
 
             # timeout exceeded
             logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
             wait_and_then_delete_branch(self.manager, sandbox_id, repo, temp_working_branch)
-            self.die()
+            return self.die()
