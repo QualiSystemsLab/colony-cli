@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import tabulate
 
 from colony.constants import ColonyConfigKeys
@@ -14,13 +16,11 @@ class ConfigureListView:
 
         result_table = []
         for profile in self.config.keys():
-            result_table.append(
-                {
-                    "Profile Name": profile,
-                    "Colony Account": self.config[profile].get(ColonyConfigKeys.ACCOUNT, None),
-                    "Space Name": self.config[profile].get(ColonyConfigKeys.SPACE, None),
-                    "Token": mask_token(self.config[profile].get(ColonyConfigKeys.TOKEN, None)),
-                }
-            )
+            item = OrderedDict()
+            item["Profile Name"] = profile
+            item["Colony Account"] = self.config[profile].get(ColonyConfigKeys.ACCOUNT, None)
+            item["Space Name"] = self.config[profile].get(ColonyConfigKeys.SPACE, None)
+            item["Token"] = mask_token(self.config[profile].get(ColonyConfigKeys.TOKEN, None))
+            result_table.append(item)
 
         return tabulate.tabulate(result_table, headers="keys")

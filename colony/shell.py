@@ -16,6 +16,7 @@ Options:
 Commands:
     bp, blueprint       validate colony blueprints
     sb, sandbox         start sandbox, end sandbox and get its status
+    configure           set, list and remove connection profiles to colony
 """
 import logging
 
