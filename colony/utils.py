@@ -131,7 +131,7 @@ class BlueprintRepo(Repo):
     def is_current_state_synced_with_remote(self) -> bool:
         # is_dirty() -> means there is *uncommitted* delta for tracked files between local and remote
         # untracked_files -> means there is a delta which are the untracked files (uncommitted)
-        # is_current_branch_synced() -> means thoug current state *committed* there is a delta between local and remote
+        # is_current_branch_synced() -> means though current state *committed* there is a delta between local and remote
         return not (self.is_dirty() or self.untracked_files or not self.is_current_branch_synced())
 
 

@@ -100,6 +100,7 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
     try:
         # todo return id and use it for revert_from_temp_branch
         if repo.is_dirty() or repo.untracked_files:
+            create_gitkeep_in_branch()
             stash_local_changes(repo)
             stashed_flag = True
         created_local_temp_branch = create_local_temp_branch(repo, uncommitted_branch_name)
@@ -113,6 +114,24 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
         raise
 
     return uncommitted_branch_name, stashed_flag
+
+
+def create_gitkeep_in_branch() -> None:
+    for currentpath, folders, files in os.walk(os.getcwd()):
+        if ".git" not in currentpath and not files:
+            with open(os.path.join(currentpath, ".colonygitkeep"), "w") as fp:
+                fp.close()
+
+
+def remove_gitkeep_in_branch() -> None:
+    files_to_delete = []
+    for currentpath, folders, files in os.walk(os.getcwd()):
+        if (os.sep + ".git") not in currentpath:
+            for file in files:
+                if file == ".colonygitkeep":
+                    files_to_delete.append(os.path.join(currentpath, ".colonygitkeep"))
+    for file in files_to_delete:
+        os.remove(file)
 
 
 def create_remote_branch(repo: BlueprintRepo, uncommitted_branch_name: str) -> None:
@@ -157,6 +176,7 @@ def revert_from_temp_branch(repo: BlueprintRepo, active_branch: str, stashed_fla
 def revert_from_uncommitted_code(repo: BlueprintRepo) -> None:
     logger.debug("[GIT] Stash(POP)")
     repo.git.stash("pop", "--index")
+    remove_gitkeep_in_branch()
 
 
 def delete_temp_branch(repo: BlueprintRepo, temp_branch: str) -> None:

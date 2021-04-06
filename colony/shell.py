@@ -19,7 +19,6 @@ Commands:
 """
 import logging
 import os
-import sys
 
 import pkg_resources
 from colorama import init
@@ -99,10 +98,7 @@ def main():
 
     command_class = commands_table[command_name]
     command = command_class(argv, conn)
-    command_result = command.execute()
-
-    if not command_result:
-        sys.exit(1)
+    command.execute()
 
 
 if __name__ == "__main__":
