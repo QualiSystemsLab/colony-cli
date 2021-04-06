@@ -4,6 +4,8 @@ from colony.client import ColonyClient
 
 # TODO(ddovbii): Make classes abstract
 
+# todo - alexa - its like a wrapper around our api
+
 
 class ResourceManager(object):
     resource_obj = None
