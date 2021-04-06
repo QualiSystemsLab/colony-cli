@@ -16,17 +16,18 @@ Options:
 Commands:
     bp, blueprint       validate colony blueprints
     sb, sandbox         start sandbox, end sandbox and get its status
+    configure           set, list and remove connection profiles to colony
 """
 import logging
-import os
 
 import pkg_resources
 from colorama import init
 from docopt import DocoptExit, docopt
 
-from colony.commands import bp, sb
-from colony.config import ColonyConfigProvider, ColonyConnection
-from colony.exceptions import ConfigError
+from colony.commands import bp, configure, sb
+from colony.models.connection import ColonyConnection
+from colony.parsers.input_parser import GlobalInputParser
+from colony.services.connection import ColonyConnectionProvider
 from colony.services.version import VersionCheckService
 
 logger = logging.getLogger(__name__)
@@ -36,38 +37,45 @@ commands_table = {
     "blueprint": bp.BlueprintsCommand,
     "sb": sb.SandboxesCommand,
     "sandbox": sb.SandboxesCommand,
+    "configure": configure.ConfigureCommand,
 }
 
 
-def is_help_needed(args):
-    subcommand_args = args["<args>"]
-    if not subcommand_args:
-        return True
+class BootstrapHelper:
+    @staticmethod
+    def is_help_message_requested(input_parser: GlobalInputParser) -> bool:
+        if not input_parser.command_args:
+            return True
 
-    return "--help" in subcommand_args or "-h" in subcommand_args
+        return "--help" in input_parser.command_args or "-h" in input_parser.command_args
 
+    @staticmethod
+    def get_connection_params(input_parser: GlobalInputParser) -> ColonyConnection:
+        # Take auth parameters
+        if BootstrapHelper.should_get_connection_params(input_parser):
+            connection_provider = ColonyConnectionProvider(input_parser)
+            conn = connection_provider.get_connection()
+        else:
+            # no need to init connection object, the command will show help message and exit or will start
+            # interactive config
+            conn = None
 
-def get_connection_params(args) -> ColonyConnection:
-    # first try to get them as options or from env variable
-    token = args.pop("--token", None) or os.environ.get("COLONY_TOKEN", None)
-    space = args.pop("--space", None) or os.environ.get("COLONY_SPACE", None)
-    account = args.pop("--account", None) or os.environ.get("COLONY_ACCOUNT", None)
-    # then try to load them from file
-    if not all([token, space]):
-        logger.debug("Couldn't fetch token/space neither from command line nor environment variables")
-        profile = args.pop("--profile", None)
-        config_file = os.environ.get("COLONY_CONFIG_PATH", None)
-        logger.debug("Trying to obtain unset values from configuration file")
-        try:
-            colony_conn = ColonyConfigProvider(config_file).load_connection(profile)
-            token = token or colony_conn["token"]
-            space = space or colony_conn["space"]
-            if "account" in colony_conn:
-                account = colony_conn["account"]
-        except ConfigError as e:
-            raise DocoptExit(f"Unable to read the Colony credentials. Reason: {e}")
+        return conn
 
-    return ColonyConnection(token=token, space=space, account=account)
+    @staticmethod
+    def validate_command(command_name: str) -> None:
+        if command_name not in commands_table:
+            raise DocoptExit("Invalid or unknown command. See usage instruction by running 'colony -h'")
+
+    @staticmethod
+    def is_config_mode(input_parser: GlobalInputParser) -> bool:
+        return input_parser.command == "configure"
+
+    @staticmethod
+    def should_get_connection_params(input_parser: GlobalInputParser) -> bool:
+        return not BootstrapHelper.is_help_message_requested(input_parser) and not BootstrapHelper.is_config_mode(
+            input_parser
+        )
 
 
 def main():
@@ -75,28 +83,23 @@ def main():
     init()
     version = pkg_resources.get_distribution("colony-cli").version
     args = docopt(__doc__, options_first=True, version=version)
-    debug = args.pop("--debug", None)
+    input_parser = GlobalInputParser(args)
 
     # Check for new version
     VersionCheckService(version).check_for_new_version_safely()
 
-    level = logging.DEBUG if debug else logging.WARNING
+    level = logging.DEBUG if input_parser.debug else logging.WARNING
     logging.basicConfig(format="%(levelname)s - %(message)s", level=level)
 
-    # Take command
-    command_name = args["<command>"]
-    if command_name not in commands_table:
-        raise DocoptExit("Invalid or unknown command. See usage instruction by running 'colony -h'")
+    # Validate command
+    BootstrapHelper.validate_command(input_parser.command)
 
     # Take auth parameters
-    if not is_help_needed(args):
-        conn = get_connection_params(args)
-    else:
-        conn = None
+    conn = BootstrapHelper.get_connection_params(input_parser)
 
-    argv = [args["<command>"]] + args["<args>"]
+    argv = [input_parser.command] + input_parser.command_args
 
-    command_class = commands_table[command_name]
+    command_class = commands_table[input_parser.command]
     command = command_class(argv, conn)
     command.execute()
 

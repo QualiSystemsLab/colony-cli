@@ -5,7 +5,7 @@ from docopt import DocoptExit, docopt
 
 from colony.base import ResourceManager
 from colony.client import ColonyClient
-from colony.config import ColonyConnection
+from colony.models.connection import ColonyConnection
 
 
 class BaseCommand(object):
