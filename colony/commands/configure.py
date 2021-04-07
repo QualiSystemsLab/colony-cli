@@ -85,13 +85,13 @@ class ConfigureCommand(BaseCommand):
         space = input(f"Colony Space [{current_space}]: ")
         space = space or current_space
         if not space:
-            return  self.die("Space cannot be empty")
+            return self.die("Space cannot be empty")
 
         # read token
         token = getpass.getpass(f"Colony Token [{mask_token(current_token)}]: ")
         token = token or current_token
         if not token:
-            return  self.die("Token cannot be empty")
+            return self.die("Token cannot be empty")
 
         # save user inputs
         config_provider.save_profile(profile, token, space, account)
