@@ -11,12 +11,11 @@ from git import Repo
 from colony import branch_utils, shell
 from colony.constants import UNCOMMITTED_BRANCH_NAME
 from tests.helpers.repo_utils import (
-     achieve_dirty_and_untracked_repo,
-     add_untracked,
-     create_clean_repo,
-     make_repo_dirty,
-     readonly_handler,
-
+    achieve_dirty_and_untracked_repo,
+    add_untracked,
+    create_clean_repo,
+    make_repo_dirty,
+    readonly_handler,
 )
 
 logging.getLogger("git").setLevel(logging.WARNING)
