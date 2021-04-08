@@ -59,11 +59,7 @@ class BlueprintsCommand(BaseCommand):
         finally:
             revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
 
-        try:
-            errors = getattr(bp, "errors")
-        except Exception as e:
-            logger.exception(e, exc_info=False)
-            errors = None
+        errors = getattr(bp, "errors")
 
         if errors:
             # We don't need error code

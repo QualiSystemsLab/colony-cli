@@ -32,24 +32,11 @@ class BaseCommand(object):
         args = self.args
 
         actions_table = self.get_actions_table()
-        called_action = False
-        action_result = None
         for action in actions_table:
-            if args.get(action, False):
-                # call action
-                action_result = actions_table[action]()
-                called_action = True
-                break
-
-        if not action_result:
-            # placeholder if we need to do something in case action failed
-            pass
-
-        # if subcommand was specified without args (actions), just show usage
-        if not called_action:
+            if action in args:
+                return actions_table[action]()
+        else:
             raise DocoptExit()
-
-        return action_result
 
     def get_actions_table(self) -> dict:
         return {}

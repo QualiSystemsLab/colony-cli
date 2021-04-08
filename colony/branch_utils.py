@@ -119,8 +119,8 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
 def create_gitkeep_in_branch() -> None:
     for currentpath, folders, files in os.walk(os.getcwd()):
         if ".git" not in currentpath and not files:
-            with open(os.path.join(currentpath, ".colonygitkeep"), "w") as fp:
-                fp.close()
+            with open(os.path.join(currentpath, ".colonygitkeep"), "w"):
+                pass
 
 
 def remove_gitkeep_in_branch() -> None:

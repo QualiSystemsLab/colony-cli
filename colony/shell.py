@@ -19,6 +19,7 @@ Commands:
     configure           set, list and remove connection profiles to colony
 """
 import logging
+import sys
 
 import pkg_resources
 from colorama import init
@@ -101,7 +102,16 @@ def main():
 
     command_class = commands_table[input_parser.command]
     command = command_class(argv, conn)
-    command.execute()
+    result = command.execute()
+
+    _exit(result)
+
+
+def _exit(run_result) -> None:
+    if not run_result:
+        sys.exit(1)
+    else:
+        sys.exit(0)
 
 
 if __name__ == "__main__":
