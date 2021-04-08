@@ -126,10 +126,8 @@ def create_gitkeep_in_branch() -> None:
 def remove_gitkeep_in_branch() -> None:
     files_to_delete = []
     for currentpath, folders, files in os.walk(os.getcwd()):
-        if (os.sep + ".git") not in currentpath:
-            for file in files:
-                if file == ".colonygitkeep":
-                    files_to_delete.append(os.path.join(currentpath, ".colonygitkeep"))
+        if (os.sep + ".git") not in currentpath and ".colonygitkeep" in files:
+            files_to_delete.append(os.path.join(currentpath, ".colonygitkeep"))
     for file in files_to_delete:
         os.remove(file)
 

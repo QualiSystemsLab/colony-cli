@@ -23,8 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class GitMagicTests(unittest.TestCase):
-    def setUp(self, *mocks) -> None:
-        # self._patcher()
+    def setUp(self) -> None:
         self._repo = None
         self._cwd = os.getcwd()
         # setup testing env
@@ -37,7 +36,6 @@ class GitMagicTests(unittest.TestCase):
 
         # -> do git init on temp folder
         self._repo = create_clean_repo()
-        print("")
 
     def tearDown(self) -> None:
         # delete temp folder
