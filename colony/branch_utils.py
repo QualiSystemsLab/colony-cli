@@ -110,7 +110,8 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
             commit_to_local_temp_branch(repo)
         create_remote_branch(repo, uncommitted_branch_name)
         created_remote_flag = True
-    except Exception:
+    except Exception as e:
+        logger.debug(f"An issue while creating temp branch: {str(e)}")
         if created_local_temp_branch:
             if created_remote_flag:
                 revert_and_delete_temp_branch(repo, defined_branch_in_file, uncommitted_branch_name, stashed_flag)
