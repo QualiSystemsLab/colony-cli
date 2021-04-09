@@ -94,6 +94,7 @@ def figure_out_branches(user_defined_branch: str, blueprint_name: str):
 
 def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
     stashed_flag = False
+    created_remote_flag = False
     created_local_temp_branch = False
     random_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(10))
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
@@ -108,9 +109,13 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
             preserve_uncommitted_code(repo)
             commit_to_local_temp_branch(repo)
         create_remote_branch(repo, uncommitted_branch_name)
+        created_remote_flag = True
     except Exception:
         if created_local_temp_branch:
-            revert_and_delete_temp_branch(repo, defined_branch_in_file, uncommitted_branch_name, stashed_flag)
+            if created_remote_flag:
+                revert_and_delete_temp_branch(repo, defined_branch_in_file, uncommitted_branch_name, stashed_flag)
+            else:
+                revert_from_temp_branch(repo, defined_branch_in_file, stashed_flag)
         raise
 
     return uncommitted_branch_name, stashed_flag
