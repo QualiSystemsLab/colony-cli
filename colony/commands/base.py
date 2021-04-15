@@ -38,7 +38,7 @@ class BaseCommand(object):
                 actions_table[action]()
                 break
 
-            # if subcommand was specified without args (actions), just show usage
+        # if subcommand was specified without args (actions), just show usage
         raise DocoptExit
 
     def get_actions_table(self) -> dict:
@@ -68,7 +68,6 @@ class BaseCommand(object):
             sys.stderr.write(message)
             sys.stderr.write("\n")
         return False
-        # sys.exit(1)
 
     @staticmethod
     # Unimportant info that can be de-emphasized
