@@ -49,9 +49,9 @@ class GitMagicTests(unittest.TestCase):
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
-    @patch("colony.shell._exit")
+    @patch("colony.shell.exit")
     def test_blueprint_validate_uncommitted_untracked(
-        self, _exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c
+        self, exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c
     ):
         # Arrange
         bp_validate.return_value = Mock(errors="")
@@ -80,8 +80,8 @@ class GitMagicTests(unittest.TestCase):
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
-    @patch("colony.shell._exit")
-    def test_blueprint_validate_uncommitted(self, _exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c):
+    @patch("colony.shell.exit")
+    def test_blueprint_validate_uncommitted(self, exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
         bp_validate.return_value = Mock(errors="")
 
@@ -109,8 +109,8 @@ class GitMagicTests(unittest.TestCase):
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
-    @patch("colony.shell._exit")
-    def test_blueprint_validate_committed_untracked(self, _exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c):
+    @patch("colony.shell.exit")
+    def test_blueprint_validate_committed_untracked(self, exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
         bp_validate.return_value = Mock(errors="")
 
@@ -138,8 +138,8 @@ class GitMagicTests(unittest.TestCase):
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
-    @patch("colony.shell._exit")
-    def test_blueprint_validate_committed(self, _exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c):
+    @patch("colony.shell.exit")
+    def test_blueprint_validate_committed(self, exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
         bp_validate.return_value = Mock(errors="")
 
