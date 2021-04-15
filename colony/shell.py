@@ -104,10 +104,10 @@ def main():
     command = command_class(argv, conn)
     result = command.execute()
 
-    _exit(result)
+    exit(result)
 
 
-def _exit(run_result) -> None:
+def exit(run_result) -> None:
     if not run_result:
         sys.exit(1)
     else:
