@@ -50,9 +50,7 @@ class GitMagicTests(unittest.TestCase):
     @patch("colony.shell.BootstrapHelper.get_connection_params")
     @patch("colony.branch_utils.examine_blueprint_working_branch")
     @patch("colony.shell.exit")
-    def test_blueprint_validate_uncommitted_untracked(
-        self, exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c
-    ):
+    def test_blueprint_validate_uncommitted_untracked(self, exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
         bp_validate.return_value = Mock(errors="")
 
