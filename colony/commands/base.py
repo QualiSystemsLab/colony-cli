@@ -35,11 +35,10 @@ class BaseCommand(object):
         for action in actions_table:
             if args.get(action, False):
                 # call action
-                actions_table[action]()
-                break
+                return actions_table[action]()
 
-            # if subcommand was specified without args (actions), just show usage
-            raise DocoptExit
+        # if subcommand was specified without args (actions), just show usage
+        raise DocoptExit
 
     def get_actions_table(self) -> dict:
         return {}
