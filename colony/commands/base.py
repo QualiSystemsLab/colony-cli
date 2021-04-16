@@ -25,19 +25,17 @@ class BaseCommand(object):
 
         self.args = docopt(self.__doc__, argv=command_args)
 
-    def execute(self):
+    def execute(self) -> bool:
         """Finds a subcommand passed to with command in
         object actions table and executes mapped method"""
 
         args = self.args
 
         actions_table = self.get_actions_table()
-
         for action in actions_table:
             if args.get(action, False):
                 # call action
-                actions_table[action]()
-                break
+                return actions_table[action]()
 
         # if subcommand was specified without args (actions), just show usage
         raise DocoptExit
@@ -54,21 +52,21 @@ class BaseCommand(object):
             sys.stdout.write("\n")
 
     @staticmethod
-    def error(message: str = ""):
+    def error(message: str = "") -> bool:
         BaseCommand.styled_text(Fore.RED, message)
-        sys.exit(1)
+        return False
 
     @staticmethod
-    def success(message: str = ""):
+    def success(message: str = "") -> bool:
         BaseCommand.styled_text(Fore.GREEN, message)
-        sys.exit()
+        return True
 
     @staticmethod
-    def die(message: str = ""):
+    def die(message: str = "") -> bool:
         if message:
             sys.stderr.write(message)
             sys.stderr.write("\n")
-        sys.exit(1)
+        return False
 
     @staticmethod
     # Unimportant info that can be de-emphasized

@@ -42,11 +42,11 @@ class ConfigureCommand(BaseCommand):
             raise DocoptExit("Config file doesn't exist. Use 'colony configure set' to configure Colony CLI.")
         except Exception as e:
             logger.exception(e, exc_info=False)
-            self.die()
+            return self.die()
 
         result_table = ConfigureListView(config).render()
         self.message(result_table)
-        self.success()
+        return self.success()
 
     def do_remove(self):
         profile_to_remove = self.args["<profile>"]
@@ -57,7 +57,7 @@ class ConfigureCommand(BaseCommand):
         config_provider = ColonyConfigProvider(config_file)
         config_provider.remove_profile(profile_to_remove)
 
-        self.success()
+        return self.success()
 
     def do_configure(self):
         config_file = GlobalInputParser.get_config_path()
@@ -85,15 +85,15 @@ class ConfigureCommand(BaseCommand):
         space = input(f"Colony Space [{current_space}]: ")
         space = space or current_space
         if not space:
-            self.die("Space cannot be empty")
+            return self.die("Space cannot be empty")
 
         # read token
         token = getpass.getpass(f"Colony Token [{mask_token(current_token)}]: ")
         token = token or current_token
         if not token:
-            self.die("Token cannot be empty")
+            return self.die("Token cannot be empty")
 
         # save user inputs
         config_provider.save_profile(profile, token, space, account)
 
-        self.success()
+        return self.success()

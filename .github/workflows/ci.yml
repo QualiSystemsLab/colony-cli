@@ -33,6 +33,9 @@ jobs:
       - name: Test with unittest
         run: |
           python -m unittest
+      - name: Run integrations tests
+        run: |
+          python -m unittest discover -p "int_test*.py"
 
   Coverage:
     name: Test Coverage
