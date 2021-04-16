@@ -38,8 +38,8 @@ class BaseCommand(object):
                 actions_table[action]()
                 break
 
-        # if subcommand was specified without args (actions), just show usage
-        raise DocoptExit
+            # if subcommand was specified without args (actions), just show usage
+            raise DocoptExit
 
     def get_actions_table(self) -> dict:
         return {}
