@@ -159,8 +159,6 @@ def commit_to_local_temp_branch(repo: BlueprintRepo) -> None:
 def stash_local_changes(repo: BlueprintRepo):
     logger.debug("[GIT] Stash(Push --include-untracked)")
     repo.git.stash("push", "--include-untracked")
-    # logger.debug("[GIT] Stash(Push)")
-    # repo.git.stash("push")
 
 
 def preserve_uncommitted_code(repo: BlueprintRepo) -> None:
@@ -194,43 +192,60 @@ def delete_temp_branch(repo: BlueprintRepo, temp_branch: str) -> None:
 def delete_temp_local_branch(repo: BlueprintRepo, temp_branch: str) -> None:
     logger.debug(f"[GIT] Deleting local branch {temp_branch}")
     repo.delete_head("-D", temp_branch)
+    # local_branches_names = [h.name for h in repo.heads]
 
 
 def delete_temp_remote_branch(repo: BlueprintRepo, temp_branch: str) -> None:
     logger.debug(f"[GIT] Deleting remote branch {temp_branch}")
     repo.git.push("origin", "--delete", temp_branch)
+    # remote_branches_names = [h.name for h in repo.remote().refs]
 
 
-def wait_and_then_delete_branch(
-    sb_manager: SandboxesManager, sandbox_id: str, repo: BlueprintRepo, temp_branch: str
+def wait_and_delete_temp_branch(
+    sb_manager: SandboxesManager, sandbox_id: str, repo: BlueprintRepo, temp_branch: str, blueprint_name: str
 ) -> None:
-    if not temp_branch:
-        logger.debug("Not temp branch")
-        return
-    start_time = datetime.datetime.now()
-    sandbox = sb_manager.get(sandbox_id)
-    status = getattr(sandbox, "sandbox_status")
-    progress = getattr(sandbox, "launching_progress")
-    prep_art_status = progress.get("preparing_artifacts").get("status")
-    logger.debug("Waiting for sandbox (id={}) to prepare artifacts (before deleting temp branch)...".format(sandbox_id))
+    try:
+        k8s_blueprint = is_k8s_blueprint(blueprint_name, repo)
+        start_time = datetime.datetime.now()
+        sandbox = sb_manager.get(sandbox_id)
+        status = getattr(sandbox, "sandbox_status")
+        progress = getattr(sandbox, "launching_progress")
+        prep_art_status = progress.get("preparing_artifacts").get("status")
+        deploy_app_status = progress.get("deploying_applications").get("status")
+        logger.debug("Waiting for sandbox (id={}) to be provisioned"
+                     " (before deleting temp branch)...".format(sandbox_id))
 
-    BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
-    BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
+        BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
+        BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
 
-    with yaspin(text="Starting", color="yellow") as spinner:
+        with yaspin(text="Starting...", color="yellow") as spinner:
+            while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
+                if status in FINAL_SB_STATUSES or \
+                        prep_art_status != "Pending" and not k8s_blueprint or \
+                        k8s_blueprint and deploy_app_status != "Pending":
+                    spinner.green.ok("✔")
+                    delete_temp_branch(repo, temp_branch)
+                    break
 
-        while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
-
-            if status in FINAL_SB_STATUSES or (status == "Launching" and prep_art_status != "Pending"):
-                delete_temp_branch(repo, temp_branch)
-                break
-            else:
                 time.sleep(10)
                 spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
                 sandbox = sb_manager.get(sandbox_id)
                 status = getattr(sandbox, "sandbox_status")
                 progress = getattr(sandbox, "launching_progress")
                 prep_art_status = progress.get("preparing_artifacts").get("status")
+                deploy_app_status = progress.get("deploying_applications").get("status")
+    except Exception as e:
+        logger.error(f"There was an issue with waiting for sandbox deployment -> {str(e)}")
+        delete_temp_branch(repo, temp_branch)
+
+
+def is_k8s_blueprint(blueprint_name, repo) -> bool:
+    k8s_sandbox_flag = False
+    yaml_obj = repo.get_blueprint_yaml(blueprint_name)
+    for cloud in yaml_obj['clouds']:
+        if "/" in cloud:
+            k8s_sandbox_flag = True
+    return k8s_sandbox_flag
 
 
 def checkout_remote_branch(repo: BlueprintRepo, active_branch: str):
