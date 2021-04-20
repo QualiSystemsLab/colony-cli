@@ -212,6 +212,7 @@ def wait_and_delete_temp_branch(
         progress = getattr(sandbox, "launching_progress")
         prep_art_status = progress.get("preparing_artifacts").get("status")
         deploy_app_status = progress.get("deploying_applications").get("status")
+        creating_infra_status = progress.get("creating_infrastructure").get("status")
         logger.debug(
             "Waiting for sandbox (id={}) to be provisioned (before deleting temp branch)...".format(sandbox_id)
         )
@@ -226,7 +227,9 @@ def wait_and_delete_temp_branch(
                     or prep_art_status != "Pending"
                     and not k8s_blueprint
                     or k8s_blueprint
-                    and deploy_app_status != "Pending"
+                    and creating_infra_status == "Done"
+                    and prep_art_status == "Done"
+                    and deploy_app_status == "Done"
                 ):
                     spinner.green.ok("✔")
                     delete_temp_branch(repo, temp_branch)
@@ -237,6 +240,7 @@ def wait_and_delete_temp_branch(
                 sandbox = sb_manager.get(sandbox_id)
                 status = getattr(sandbox, "sandbox_status")
                 progress = getattr(sandbox, "launching_progress")
+                creating_infra_status = progress.get("creating_infrastructure").get("status")
                 prep_art_status = progress.get("preparing_artifacts").get("status")
                 deploy_app_status = progress.get("deploying_applications").get("status")
     except Exception as e:
