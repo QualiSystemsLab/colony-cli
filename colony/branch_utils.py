@@ -222,11 +222,11 @@ def wait_and_delete_temp_branch(
         with yaspin(text="Starting...", color="yellow") as spinner:
             while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
                 if (
-                        status in FINAL_SB_STATUSES
-                        or prep_art_status != "Pending"
-                        and not k8s_blueprint
-                        or k8s_blueprint
-                        and deploy_app_status != "Pending"
+                    status in FINAL_SB_STATUSES
+                    or prep_art_status != "Pending"
+                    and not k8s_blueprint
+                    or k8s_blueprint
+                    and deploy_app_status != "Pending"
                 ):
                     spinner.green.ok("✔")
                     delete_temp_branch(repo, temp_branch)
