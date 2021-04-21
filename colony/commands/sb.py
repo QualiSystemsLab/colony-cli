@@ -242,6 +242,6 @@ class SandboxesCommand(BaseCommand):
             # timeout exceeded
             logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
             revert_wait_and_delete_temp_branch(
-                self.manager, blueprint_name, repo, sandbox_id, stashed_flag, temp_working_branch,working_branch
+                self.manager, blueprint_name, repo, sandbox_id, stashed_flag, temp_working_branch, working_branch
             )
             return self.die()

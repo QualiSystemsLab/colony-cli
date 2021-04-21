@@ -261,7 +261,7 @@ def revert_wait_and_delete_temp_branch(
     sandbox_id: str,
     stashed_flag: bool,
     temp_working_branch: str,
-    working_branch: str
+    working_branch: str,
 ) -> None:
     if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
         revert_from_temp_branch(repo, working_branch, stashed_flag)
