@@ -198,16 +198,14 @@ class SandboxesCommand(BaseCommand):
             logger.exception(e, exc_info=False)
             sandbox_id = None
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+                revert_from_temp_branch(repo, working_branch, stashed_flag)
                 delete_temp_branch(repo, temp_working_branch)
             return self.die()
-        finally:
-            logger.debug("Cleaning up")
-            if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                revert_from_temp_branch(repo, working_branch, stashed_flag)
 
         # todo: I think the below can be simplified and refactored
         if timeout is None:
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+                revert_from_temp_branch(repo, working_branch, stashed_flag)
                 wait_and_delete_temp_branch(self.manager, sandbox_id, repo, temp_working_branch, blueprint_name)
             return self.success("The Sandbox was created")
 
@@ -231,11 +229,13 @@ class SandboxesCommand(BaseCommand):
                 else:
                     blueprint_name = self.args.get("<name>")
                     if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+                        revert_from_temp_branch(repo, working_branch, stashed_flag)
                         wait_and_delete_temp_branch(self.manager, sandbox_id, repo, temp_working_branch, blueprint_name)
                     return self.die(f"The Sandbox {sandbox_id} has started. Current state is: {status}")
 
             # timeout exceeded
             logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+                revert_from_temp_branch(repo, working_branch, stashed_flag)
                 wait_and_delete_temp_branch(self.manager, sandbox_id, repo, temp_working_branch, blueprint_name)
             return self.die()
