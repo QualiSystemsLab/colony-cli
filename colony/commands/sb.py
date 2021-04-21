@@ -10,7 +10,7 @@ from colony.branch_utils import (
     delete_temp_branch,
     figure_out_branches,
     revert_from_temp_branch,
-    wait_and_delete_temp_branch,
+    revert_wait_and_delete_temp_branch,
 )
 from colony.commands.base import BaseCommand
 from colony.constants import UNCOMMITTED_BRANCH_NAME
@@ -204,9 +204,8 @@ class SandboxesCommand(BaseCommand):
 
         # todo: I think the below can be simplified and refactored
         if timeout is None:
-            if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                revert_from_temp_branch(repo, working_branch, stashed_flag)
-                wait_and_delete_temp_branch(self.manager, sandbox_id, repo, temp_working_branch, blueprint_name)
+            revert_wait_and_delete_temp_branch(self.manager, blueprint_name, repo, sandbox_id, stashed_flag,
+                                               temp_working_branch, working_branch)
             return self.success("The Sandbox was created")
 
         else:
@@ -228,14 +227,12 @@ class SandboxesCommand(BaseCommand):
 
                 else:
                     blueprint_name = self.args.get("<name>")
-                    if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                        revert_from_temp_branch(repo, working_branch, stashed_flag)
-                        wait_and_delete_temp_branch(self.manager, sandbox_id, repo, temp_working_branch, blueprint_name)
+                    revert_wait_and_delete_temp_branch(self.manager, blueprint_name, repo, sandbox_id, stashed_flag,
+                                                       temp_working_branch, working_branch)
                     return self.die(f"The Sandbox {sandbox_id} has started. Current state is: {status}")
 
             # timeout exceeded
             logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
-            if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                revert_from_temp_branch(repo, working_branch, stashed_flag)
-                wait_and_delete_temp_branch(self.manager, sandbox_id, repo, temp_working_branch, blueprint_name)
+            revert_wait_and_delete_temp_branch(self.manager, blueprint_name, repo, sandbox_id, stashed_flag,
+                                               temp_working_branch, working_branch)
             return self.die()

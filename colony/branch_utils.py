@@ -248,7 +248,7 @@ def wait_and_delete_temp_branch(
         delete_temp_branch(repo, temp_branch)
 
 
-def is_k8s_blueprint(blueprint_name, repo) -> bool:
+def is_k8s_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
     k8s_sandbox_flag = False
     yaml_obj = repo.get_blueprint_yaml(blueprint_name)
     for cloud in yaml_obj["clouds"]:
@@ -257,7 +257,7 @@ def is_k8s_blueprint(blueprint_name, repo) -> bool:
     return k8s_sandbox_flag
 
 
-def checkout_remote_branch(repo: BlueprintRepo, active_branch: str):
+def checkout_remote_branch(repo: BlueprintRepo, active_branch: str) -> None:
     logger.debug(f"[GIT] Checking out {active_branch}")
     repo.git.checkout(active_branch)
 
@@ -268,3 +268,17 @@ def revert_and_delete_temp_branch(
     if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
         revert_from_temp_branch(repo, working_branch, stashed_flag)
         delete_temp_branch(repo, temp_working_branch)
+
+
+def revert_wait_and_delete_temp_branch(
+        manager: SandboxesManager,
+        blueprint_name: str,
+        repo: BlueprintRepo,
+        sandbox_id: str,
+        stashed_flag: bool,
+        temp_working_branch: str,
+        working_branch: str
+) -> None:
+    if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
+        revert_from_temp_branch(repo, working_branch, stashed_flag)
+        wait_and_delete_temp_branch(manager, sandbox_id, repo, temp_working_branch, blueprint_name)
