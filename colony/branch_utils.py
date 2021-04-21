@@ -10,7 +10,7 @@ from yaspin import yaspin
 from colony.commands.base import BaseCommand
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
-from colony.sandboxes import SandboxesManager
+from colony.sandboxes import SandboxesManager, Sandbox
 from colony.utils import BlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
@@ -209,10 +209,7 @@ def wait_and_delete_temp_branch(
         start_time = datetime.datetime.now()
         sandbox = sb_manager.get(sandbox_id)
         status = getattr(sandbox, "sandbox_status")
-        progress = getattr(sandbox, "launching_progress")
-        prep_art_status = progress.get("preparing_artifacts").get("status")
-        deploy_app_status = progress.get("deploying_applications").get("status")
-        creating_infra_status = progress.get("creating_infrastructure").get("status")
+
         logger.debug(
             "Waiting for sandbox (id={}) to be provisioned (before deleting temp branch)...".format(sandbox_id)
         )
@@ -222,15 +219,7 @@ def wait_and_delete_temp_branch(
 
         with yaspin(text="Starting...", color="yellow") as spinner:
             while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
-                if (
-                    status in FINAL_SB_STATUSES
-                    or prep_art_status != "Pending"
-                    and not k8s_blueprint
-                    or k8s_blueprint
-                    and creating_infra_status == "Done"
-                    and prep_art_status == "Done"
-                    and deploy_app_status == "Done"
-                ):
+                if (status in FINAL_SB_STATUSES) or can_temp_branch_be_delete(sandbox,k8s_blueprint):
                     spinner.green.ok("✔")
                     delete_temp_branch(repo, temp_branch)
                     break
@@ -238,11 +227,6 @@ def wait_and_delete_temp_branch(
                 time.sleep(10)
                 spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
                 sandbox = sb_manager.get(sandbox_id)
-                status = getattr(sandbox, "sandbox_status")
-                progress = getattr(sandbox, "launching_progress")
-                creating_infra_status = progress.get("creating_infrastructure").get("status")
-                prep_art_status = progress.get("preparing_artifacts").get("status")
-                deploy_app_status = progress.get("deploying_applications").get("status")
     except Exception as e:
         logger.error(f"There was an issue with waiting for sandbox deployment -> {str(e)}")
         delete_temp_branch(repo, temp_branch)
@@ -282,3 +266,18 @@ def revert_wait_and_delete_temp_branch(
     if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
         revert_from_temp_branch(repo, working_branch, stashed_flag)
         wait_and_delete_temp_branch(manager, sandbox_id, repo, temp_working_branch, blueprint_name)
+
+
+def can_temp_branch_be_delete(sandbox: Sandbox, k8s_blueprint: bool) -> bool:
+    progress = getattr(sandbox, "launching_progress")
+    prep_artifacts_status = progress.get("preparing_artifacts").get("status")
+    deploy_app_status = progress.get("deploying_applications").get("status")
+    creating_infra_status = progress.get("creating_infrastructure").get("status")
+
+    not_k8s_sb_deployed = not k8s_blueprint and prep_artifacts_status != "Pending"
+    k8s_sb_done_statuses = creating_infra_status == "Done" and \
+                           prep_artifacts_status == "Done" and \
+                           deploy_app_status == "Done"
+    k8s_sb_deployed = k8s_blueprint and  k8s_sb_done_statuses
+
+    return not_k8s_sb_deployed or k8s_sb_deployed
