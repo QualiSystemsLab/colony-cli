@@ -10,7 +10,7 @@ from yaspin import yaspin
 from colony.commands.base import BaseCommand
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
-from colony.sandboxes import SandboxesManager, Sandbox
+from colony.sandboxes import Sandbox, SandboxesManager
 from colony.utils import BlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
@@ -83,7 +83,7 @@ def figure_out_branches(user_defined_branch: str, blueprint_name: str):
                 )
                 logger.debug(
                     f"Using temp branch: {temp_working_branch} "
-                    f"(This shall include any uncommitted changes but and/or untracked files)"
+                    f"(This shall include any uncommitted changes and/or untracked files)"
                 )
             except Exception as e:
                 logger.error(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
