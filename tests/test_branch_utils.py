@@ -92,10 +92,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         mock_blueprint = Mock()
         mock_repo.is_repo_detached = Mock(return_value=True)
 
-        # Act:
-        #self.examine(mock_repo,mock_blueprint)
-
-        # Assert:
+        # Act & Assert:
         self.assertRaises(BadBlueprintRepo, self.examine, mock_repo, mock_blueprint)
 
     def test_examine_blueprint_working_branch_attached(self):
@@ -105,7 +102,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         mock_repo.is_repo_detached = Mock(return_value=False)
 
         # Act:
-        self.examine(mock_repo,mock_blueprint)
+        self.examine(mock_repo, mock_blueprint)
 
         # Assert:
         mock_repo.is_dirty.assert_called_once()

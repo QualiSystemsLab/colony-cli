@@ -274,9 +274,9 @@ def can_temp_branch_be_deleted(sandbox: Sandbox, k8s_blueprint: bool) -> bool:
     creating_infra_status = progress.get("creating_infrastructure").get("status")
 
     k8s_sb_done_statuses = (
-        creating_infra_status == DONE_STATUS and
-        prep_artifacts_status == DONE_STATUS and
-        deploy_app_status == DONE_STATUS
+        creating_infra_status == DONE_STATUS
+        and prep_artifacts_status == DONE_STATUS
+        and deploy_app_status == DONE_STATUS
     )
 
     if k8s_blueprint:
