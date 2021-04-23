@@ -1,11 +1,11 @@
 import unittest
 from datetime import datetime
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
+from freezegun import freeze_time
 from colony import branch_utils
 from colony.constants import UNCOMMITTED_BRANCH_NAME, FINAL_SB_STATUSES
 from colony.exceptions import BadBlueprintRepo
-from freezegun import freeze_time
 
 
 class TestStashLogicFunctions(unittest.TestCase):
@@ -84,7 +84,6 @@ class TestStashLogicFunctions(unittest.TestCase):
             active_branch,
         )
         revert_from_uncommitted_code.assert_called_once_with(mock_repo)
-
 
     def test_examine_blueprint_working_branch_detached(self):
         # Arrange:

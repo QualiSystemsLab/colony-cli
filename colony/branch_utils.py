@@ -8,7 +8,7 @@ import time
 from yaspin import yaspin
 
 from colony.commands.base import BaseCommand
-from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME, DONE_STATUS
+from colony.constants import DONE_STATUS, FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import Sandbox, SandboxesManager
 from colony.utils import BlueprintRepo
@@ -230,6 +230,7 @@ def wait_and_delete_temp_branch(
 
     finally:
         delete_temp_branch(repo, temp_branch)
+
 
 def is_k8s_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
     k8s_sandbox_flag = False
