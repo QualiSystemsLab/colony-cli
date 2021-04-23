@@ -110,21 +110,24 @@ class TestStashLogicFunctions(unittest.TestCase):
         mock_repo.is_current_branch_synced()
 
     @freeze_time(datetime.now())
-    @patch.object(branch_utils, "is_k8s_blueprint")
-    @patch.object(branch_utils, "can_temp_branch_be_deleted")
-    @patch.object(branch_utils, "delete_temp_branch")
+    @patch("colony.branch_utils.is_k8s_blueprint")
+    @patch("colony.branch_utils.can_temp_branch_be_deleted")
+    @patch("colony.branch_utils.delete_temp_branch")
     def test_wait_and_delete_temp_branch_not_k8s(self, delete_temp_branch, can_temp, is_k8s_blueprint):
         # Arrange:
+        mock_repo = Mock()
         mock_sb_manager = Mock()
-        mock_sandbox_id = "mock_sandbox_id"
+        mock_sandbox = Mock()
+        mock_sb_manager.get.return_value = mock_sandbox
+        mock_sandbox_id = Mock()
         mock_temp_branch = "mock_temp_branch"
         mock_blueprint_name = "mock_blueprint_name"
 
-        is_k8s_blueprint = Mock(return_value=False)
-        can_temp = Mock(return_value=False)
+        is_k8s_blueprint.return_value = False
+        can_temp.return_value = False
 
         # Act & assert:
         for final_stage in FINAL_SB_STATUSES:
-            mock_repo = Mock(sandbox_status=final_stage)
+            mock_sandbox.sandbox_status = final_stage
             self.wait_and_delete(mock_sb_manager, mock_sandbox_id, mock_repo, mock_temp_branch, mock_blueprint_name)
             delete_temp_branch.assert_called_with(mock_repo, mock_temp_branch)
