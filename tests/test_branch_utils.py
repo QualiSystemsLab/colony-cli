@@ -1,3 +1,4 @@
+import string
 import unittest
 from unittest.mock import patch, Mock
 
@@ -28,7 +29,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         # Arrange:
         mock_repo = Mock()
         mock_repo.is_dirty = Mock(return_value=True)
-        defined_branch_in_file = Mock()
+        defined_branch_in_file = "abc"
         # Act:
         uncommitted_branch_name, flag = self.switch(mock_repo, defined_branch_in_file)
         # Assert:
@@ -56,7 +57,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         mock_repo = Mock()
         mock_repo.is_dirty = Mock(return_value=False)
         mock_repo.untracked_files = True
-        defined_branch_in_file = Mock()
+        defined_branch_in_file = "abc"
         # Act:
         uncommitted_branch_name, flag = self.switch(mock_repo, defined_branch_in_file)
         # Assert:
