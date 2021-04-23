@@ -3,8 +3,9 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 from freezegun import freeze_time
+
 from colony import branch_utils
-from colony.constants import UNCOMMITTED_BRANCH_NAME, FINAL_SB_STATUSES
+from colony.constants import FINAL_SB_STATUSES, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 
 
