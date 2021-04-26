@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 from colony import branch_utils
-from colony.constants import FINAL_SB_STATUSES, UNCOMMITTED_BRANCH_NAME, TIMEOUT
+from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 
 
@@ -118,7 +118,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.is_current_branch_exists_on_remote()
         self.repo.is_current_branch_synced()
 
-    @patch('time.sleep', return_value=None)
+    @patch("time.sleep", return_value=None)
     @patch("colony.branch_utils.is_k8s_blueprint")
     @patch("colony.branch_utils.can_temp_branch_be_deleted")
     @patch("colony.branch_utils.delete_temp_branch")
@@ -136,7 +136,7 @@ class TestStashLogicFunctions(unittest.TestCase):
             assert (datetime.now() - start_time).seconds < TIMEOUT * 60
             delete_temp_branch.assert_called_with(self.repo, self.temp_branch)
 
-    @patch('time.sleep', return_value=None)
+    @patch("time.sleep", return_value=None)
     @patch("colony.branch_utils.is_k8s_blueprint")
     @patch("colony.branch_utils.can_temp_branch_be_deleted")
     @patch("colony.branch_utils.delete_temp_branch")
