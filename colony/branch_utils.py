@@ -225,6 +225,8 @@ def wait_and_delete_temp_branch(
                 spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
                 sandbox = sb_manager.get(sandbox_id)
                 status = getattr(sandbox, "sandbox_status")
+            else:
+                logger.debug("Timeout Reached")
 
     except Exception as e:
         logger.error(f"There was an issue with waiting for sandbox deployment -> {str(e)}")
