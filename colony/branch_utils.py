@@ -9,7 +9,6 @@ from yaspin import yaspin
 
 from colony.commands.base import BaseCommand
 from colony.constants import DONE_STATUS, FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
-from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import Sandbox, SandboxesManager
 from colony.utils import BlueprintRepo
 
@@ -17,9 +16,11 @@ logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> None:
+def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> bool:
     if repo.is_repo_detached():
-        raise BadBlueprintRepo("Repo's HEAD is in detached state")
+        logger.error("Repo's HEAD is in detached state")
+        # raise BadBlueprintRepo("Repo's HEAD is in detached state")
+        return False
 
     if not repo.repo_has_blueprint(blueprint_name):
         logger.debug(f"Current repo does not contain a definition for the blueprint '{blueprint_name}'.")
@@ -38,7 +39,7 @@ def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -
 
     if not repo.is_current_branch_synced():
         logger.debug("Your local branch is not synced with remote")
-    return
+    return True
 
 
 def get_blueprint_working_branch(repo: BlueprintRepo) -> str:
@@ -48,48 +49,59 @@ def get_blueprint_working_branch(repo: BlueprintRepo) -> str:
     return branch
 
 
-def figure_out_branches(user_defined_branch: str, blueprint_name: str):
+def create_and_handle_temp_branch_if_required(blueprint_name: str, working_branch: str):
     temp_working_branch = ""
-    repo = None
     stashed_flag = False
-    success = True
-    if user_defined_branch:
-        working_branch = user_defined_branch
-    else:
-        # Try to detect branch from current git-enabled folder
-        logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
+    good_repo = get_and_check_folder_based_repo(blueprint_name)
+    if good_repo:
+        return create_temp_branch_and_stash_if_needed(good_repo,working_branch)
+    return temp_working_branch, stashed_flag
+
+
+def check_repo_and_return_working_branch(blueprint_name):
+    working_branch = None
+    good_repo = get_and_check_folder_based_repo(blueprint_name)
+    if good_repo:
+        working_branch = get_blueprint_working_branch(good_repo)
+        BaseCommand.fyi_info(f"Automatically detected current working branch: {working_branch}")
+    return working_branch
+
+
+def create_temp_branch_and_stash_if_needed(repo, working_branch):
+    temp_working_branch = ""
+    stashed_flag = False
+    # Checking if:
+    # 1) User has specified not use local (specified a branch) (This func is only called if not specified)
+    # 2) User is in an actual git dir (working_branch)
+    # 3) There is even a need to create a temp branch for out-of-sync reasons:
+    #   either repo.is_dirty() (changes have not been committed locally)
+    #   or not repo.is_current_branch_synced() (changes committed locally but not pushed to remote)
+
+    if working_branch and not repo.is_current_state_synced_with_remote():
         try:
-            repo = BlueprintRepo(os.getcwd())
-            examine_blueprint_working_branch(repo, blueprint_name=blueprint_name)
-            working_branch = get_blueprint_working_branch(repo)
-            BaseCommand.fyi_info(f"Automatically detected current working branch: {working_branch}")
-
+            temp_working_branch, stashed_flag = switch_to_temp_branch(repo, working_branch)
+            BaseCommand.info(
+                "Using your local blueprint changes (including uncommitted changes and/or untracked files)"
+            )
+            logger.debug(
+                f"Using temp branch: {temp_working_branch} "
+                f"(This shall include any uncommitted changes and/or untracked files)"
+            )
         except Exception as e:
-            working_branch = None
-            logger.error(f"Branch could not be identified/used from the working directory; reason: {e}.")
-            success = False
+            logger.error(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
+    return temp_working_branch, stashed_flag
 
-        # Checking if:
-        # 1) User has specified not use local (specified a branch)
-        # 2) User is in an actual git dir (working_branch)
-        # 3) There is even a need to create a temp branch for out-of-sync reasons:
-        #   either repo.is_dirty() (changes have not been committed locally)
-        #   or not repo.is_current_branch_synced() (changes committed locally but not pushed to remote)
-        if not user_defined_branch and working_branch and not repo.is_current_state_synced_with_remote():
-            try:
-                temp_working_branch, stashed_flag = switch_to_temp_branch(repo, working_branch)
-                BaseCommand.info(
-                    "Using your local blueprint changes (including uncommitted changes and/or untracked files)"
-                )
-                logger.debug(
-                    f"Using temp branch: {temp_working_branch} "
-                    f"(This shall include any uncommitted changes and/or untracked files)"
-                )
-            except Exception as e:
-                logger.error(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
-                success = False
 
-    return repo, working_branch, temp_working_branch, stashed_flag, success
+def get_and_check_folder_based_repo(blueprint_name: str) -> BlueprintRepo:
+    # Try to detect branch from current git-enabled folder
+    logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
+    try:
+        repo = BlueprintRepo(os.getcwd())
+        examine_blueprint_working_branch(repo, blueprint_name=blueprint_name)
+    except Exception as e:
+        logger.error(f"Branch could not be identified/used from the working directory; reason: {e}.")
+        raise e
+    return repo
 
 
 def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
