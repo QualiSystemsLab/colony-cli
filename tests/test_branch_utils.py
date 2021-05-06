@@ -43,7 +43,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.is_dirty = Mock(return_value=True)
         defined_branch_in_file = "defined_branch_in_file"
         # Act:
-        uncommitted_branch_name, flag = self.switch(self.repo, defined_branch_in_file)
+        uncommitted_branch_name = self.switch(self.repo, defined_branch_in_file)
         # Assert:
         create_remote_branch.assert_called_once_with(self.repo, uncommitted_branch_name)
         commit_to_local_temp_branch.assert_called_once_with(self.repo)
@@ -71,7 +71,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.untracked_files = True
         defined_branch_in_file = "defined_branch_in_file"
         # Act:
-        uncommitted_branch_name, flag = self.switch(self.repo, defined_branch_in_file)
+        uncommitted_branch_name = self.switch(self.repo, defined_branch_in_file)
         # Assert:
         create_remote_branch.assert_called_once_with(self.repo, uncommitted_branch_name)
         commit_to_local_temp_branch.assert_called_once_with(self.repo)
@@ -101,8 +101,10 @@ class TestStashLogicFunctions(unittest.TestCase):
         mock_blueprint = Mock()
         self.repo.is_repo_detached = Mock(return_value=True)
 
+        # Act
+        result = self.examine(self.repo, mock_blueprint)
         # Act & Assert:
-        self.assertRaises(BadBlueprintRepo, self.examine, self.repo, mock_blueprint)
+        self.assertTrue(not result)
 
     def test_examine_blueprint_working_branch_attached(self):
         # Arrange:
