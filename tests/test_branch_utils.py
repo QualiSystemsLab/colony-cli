@@ -4,7 +4,6 @@ from unittest.mock import Mock, patch
 
 from colony import branch_utils
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
-from colony.exceptions import BadBlueprintRepo
 
 
 class TestStashLogicFunctions(unittest.TestCase):
