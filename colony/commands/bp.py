@@ -1,3 +1,4 @@
+
 import logging
 from collections import OrderedDict
 
@@ -5,8 +6,13 @@ import tabulate
 from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
-from colony.branch_utils import create_and_handle_temp_branch_if_required, revert_and_delete_temp_branch, \
-    check_repo_and_return_working_branch, get_and_check_folder_based_repo, count_stashed_items
+from colony.branch_utils import (
+    check_repo_and_return_working_branch,
+    count_stashed_items,
+    create_and_handle_temp_branch_if_required,
+    get_and_check_folder_based_repo,
+    revert_and_delete_temp_branch,
+)
 from colony.commands.base import BaseCommand
 
 logger = logging.getLogger(__name__)

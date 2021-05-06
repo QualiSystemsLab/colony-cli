@@ -7,10 +7,12 @@ import tabulate
 from docopt import DocoptExit
 
 from colony.branch_utils import (
-    create_and_handle_temp_branch_if_required,
-    revert_wait_and_delete_temp_branch,
-    revert_and_delete_temp_branch, check_repo_and_return_working_branch, get_and_check_folder_based_repo,
+    check_repo_and_return_working_branch,
     count_stashed_items,
+    create_and_handle_temp_branch_if_required,
+    get_and_check_folder_based_repo,
+    revert_and_delete_temp_branch,
+    revert_wait_and_delete_temp_branch,
 )
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
