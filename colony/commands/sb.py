@@ -9,7 +9,8 @@ from docopt import DocoptExit
 from colony.branch_utils import (
     create_and_handle_temp_branch_if_required,
     revert_wait_and_delete_temp_branch,
-    revert_and_delete_temp_branch, check_repo_and_return_working_branch,
+    revert_and_delete_temp_branch, check_repo_and_return_working_branch, get_and_check_folder_based_repo,
+    count_stashed_items,
 )
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
@@ -132,16 +133,18 @@ class SandboxesCommand(BaseCommand):
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
+        repo = get_and_check_folder_based_repo(blueprint_name)
+        items_in_stash_before_temp_branch_check = count_stashed_items(repo)
         if branch:
             working_branch = branch
-            stashed_flag = False
             temp_working_branch = None
         else:
             working_branch = check_repo_and_return_working_branch(blueprint_name)
-            temp_working_branch, stashed_flag = create_and_handle_temp_branch_if_required(blueprint_name,working_branch)
+            temp_working_branch = create_and_handle_temp_branch_if_required(blueprint_name, working_branch)
             if not temp_working_branch:
                 self.error("Unable to start Sandbox")
                 return False
+        stashed_flag = items_in_stash_before_temp_branch_check < count_stashed_items(repo)
 
         repo = self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name, inputs)
 
@@ -220,7 +223,7 @@ class SandboxesCommand(BaseCommand):
             logger.debug(f"Unable to obtain default values. Details: {e}")
         return repo
 
-    def generate_temp_branch_name(self, blueprint_name, temp_working_branch, working_branch):
+    def generate_temp_branch_name(self, blueprint_name: str, temp_working_branch: str, working_branch: str) -> str:
         suffix = datetime.datetime.now().strftime("%b%d-%H:%M:%S")
         branch_name_or_type = ""
         if working_branch:
@@ -229,7 +232,7 @@ class SandboxesCommand(BaseCommand):
             branch_name_or_type = "localchanges-"
         return f"{blueprint_name}-{branch_name_or_type}{suffix}"
 
-    def duration_flag_validate(self, duration):
+    def duration_flag_validate(self, duration: str) -> int:
         try:
             duration = int(duration or 120)
             if duration <= 0:
@@ -239,7 +242,7 @@ class SandboxesCommand(BaseCommand):
             raise DocoptExit("Duration must be a number")
         return duration
 
-    def timeout_flag_validate(self, timeout):
+    def timeout_flag_validate(self, timeout: str) -> int:
         if timeout is not None:
             try:
                 timeout = int(timeout)

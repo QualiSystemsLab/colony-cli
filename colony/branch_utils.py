@@ -49,16 +49,15 @@ def get_blueprint_working_branch(repo: BlueprintRepo) -> str:
     return branch
 
 
-def create_and_handle_temp_branch_if_required(blueprint_name: str, working_branch: str):
+def create_and_handle_temp_branch_if_required(blueprint_name: str, working_branch: str) -> str:
     temp_working_branch = ""
-    stashed_flag = False
     good_repo = get_and_check_folder_based_repo(blueprint_name)
     if good_repo:
-        return create_temp_branch_and_stash_if_needed(good_repo,working_branch)
-    return temp_working_branch, stashed_flag
+        return create_temp_branch_and_stash_if_needed(good_repo, working_branch)
+    return temp_working_branch
 
 
-def check_repo_and_return_working_branch(blueprint_name):
+def check_repo_and_return_working_branch(blueprint_name: str) -> str:
     working_branch = None
     good_repo = get_and_check_folder_based_repo(blueprint_name)
     if good_repo:
@@ -67,9 +66,8 @@ def check_repo_and_return_working_branch(blueprint_name):
     return working_branch
 
 
-def create_temp_branch_and_stash_if_needed(repo, working_branch):
+def create_temp_branch_and_stash_if_needed(repo: BlueprintRepo, working_branch: str) -> str:
     temp_working_branch = ""
-    stashed_flag = False
     # Checking if:
     # 1) User has specified not use local (specified a branch) (This func is only called if not specified)
     # 2) User is in an actual git dir (working_branch)
@@ -79,7 +77,7 @@ def create_temp_branch_and_stash_if_needed(repo, working_branch):
 
     if working_branch and not repo.is_current_state_synced_with_remote():
         try:
-            temp_working_branch, stashed_flag = switch_to_temp_branch(repo, working_branch)
+            temp_working_branch = switch_to_temp_branch(repo, working_branch)
             BaseCommand.info(
                 "Using your local blueprint changes (including uncommitted changes and/or untracked files)"
             )
@@ -89,7 +87,7 @@ def create_temp_branch_and_stash_if_needed(repo, working_branch):
             )
         except Exception as e:
             logger.error(f"Was not able push your latest changes to temp branch for validation. Reason: {str(e)}")
-    return temp_working_branch, stashed_flag
+    return temp_working_branch
 
 
 def get_and_check_folder_based_repo(blueprint_name: str) -> BlueprintRepo:
@@ -131,7 +129,7 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
                 revert_from_temp_branch(repo, defined_branch_in_file, stashed_flag)
         raise
 
-    return uncommitted_branch_name, stashed_flag
+    return uncommitted_branch_name
 
 
 def create_gitkeep_in_branch() -> None:
@@ -166,6 +164,15 @@ def commit_to_local_temp_branch(repo: BlueprintRepo) -> None:
     repo.git.add(".")
     logger.debug("[GIT] Commit")
     repo.git.commit("-m", "Uncommitted temp branch - temp commit for validation")
+
+
+def count_stashed_items(repo: BlueprintRepo) -> int:
+    if repo:
+        logger.info("[GIT] Stash(list)")
+        stash_list = repo.git.stash("list")
+        return stash_list.count("stash@")
+    else:
+        return 0
 
 
 def stash_local_changes(repo: BlueprintRepo):

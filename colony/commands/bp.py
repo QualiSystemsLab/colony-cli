@@ -6,7 +6,7 @@ from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.branch_utils import create_and_handle_temp_branch_if_required, revert_and_delete_temp_branch, \
-    check_repo_and_return_working_branch, get_and_check_folder_based_repo
+    check_repo_and_return_working_branch, get_and_check_folder_based_repo, count_stashed_items
 from colony.commands.base import BaseCommand
 
 logger = logging.getLogger(__name__)
@@ -43,19 +43,17 @@ class BlueprintsCommand(BaseCommand):
             raise DocoptExit("Since a commit was specified, a branch parameter is also required")
 
         repo = get_and_check_folder_based_repo(blueprint_name)
+        items_in_stash_before_temp_branch_check = count_stashed_items(repo)
         if branch:
             working_branch = branch
-            stashed_flag = False
             temp_working_branch = None
         else:
             working_branch = check_repo_and_return_working_branch(blueprint_name)
-            temp_working_branch, stashed_flag = create_and_handle_temp_branch_if_required(
-                blueprint_name,
-                working_branch,
-            )
+            temp_working_branch = create_and_handle_temp_branch_if_required(blueprint_name, working_branch)
             if not temp_working_branch:
                 self.error("Unable to validate Blueprint")
                 return False
+        stashed_flag = count_stashed_items(repo) > items_in_stash_before_temp_branch_check
 
         validation_branch = temp_working_branch or working_branch
 
