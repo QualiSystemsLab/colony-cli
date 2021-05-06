@@ -9,8 +9,9 @@ from docopt import DocoptExit
 from colony.branch_utils import (
     delete_temp_branch,
     figure_out_branches,
+    revert_and_delete_temp_branch,
     revert_from_temp_branch,
-    revert_wait_and_delete_temp_branch, revert_and_delete_temp_branch,
+    revert_wait_and_delete_temp_branch,
 )
 from colony.commands.base import BaseCommand
 from colony.constants import UNCOMMITTED_BRANCH_NAME
