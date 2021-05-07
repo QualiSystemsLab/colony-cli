@@ -16,24 +16,19 @@ from colony.utils import BlueprintRepo
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
-#TODO break into two user_info_about_repo and is_repo_detached
-def debug_output_about_repo_examination(repo: BlueprintRepo, blueprint_name: str):
 
+def debug_output_about_repo_examination(repo: BlueprintRepo, blueprint_name: str):
     if not repo.repo_has_blueprint(blueprint_name):
         logger.debug(f"Current repo does not contain a definition for the blueprint '{blueprint_name}'.")
-
     if repo.is_dirty():
         logger.debug("You have uncommitted changes")
-
     if repo.untracked_files:
         logger.debug(
             "Untracked files detected - only staged or committed files will be used when testing local changes"
         )
-
     if not repo.current_branch_exists_on_remote():
         logger.debug("Your current local branch doesn't exist on remote")
         # raise BadBlueprintRepo("Your current local branch doesn't exist on remote")
-
     if not repo.is_current_branch_synced():
         logger.debug("Your local branch is not synced with remote")
 

@@ -1,23 +1,21 @@
 import datetime
 import logging
-import os
 import time
 
 import tabulate
 from docopt import DocoptExit
 
 from colony.branch_utils import (
-    check_repo_and_return_working_branch,
     count_stashed_items,
-    create_and_handle_temp_branch_if_required,
     get_and_check_folder_based_repo,
     revert_and_delete_temp_branch,
-    revert_wait_and_delete_temp_branch, check_repo_for_errors, get_blueprint_working_branch,
+    revert_wait_and_delete_temp_branch,
+    get_blueprint_working_branch,
     create_temp_branch_and_stash_if_needed,
 )
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo, parse_comma_separated_string
+from colony.utils import parse_comma_separated_string
 
 logger = logging.getLogger(__name__)
 

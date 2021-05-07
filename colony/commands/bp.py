@@ -7,9 +7,10 @@ from docopt import DocoptExit
 from colony.blueprints import BlueprintsManager
 from colony.branch_utils import (
     count_stashed_items,
-    create_and_handle_temp_branch_if_required,
+    create_temp_branch_and_stash_if_needed,
     get_and_check_folder_based_repo,
-    revert_and_delete_temp_branch, get_blueprint_working_branch, create_temp_branch_and_stash_if_needed,
+    get_blueprint_working_branch,
+    revert_and_delete_temp_branch,
 )
 from colony.commands.base import BaseCommand
 
