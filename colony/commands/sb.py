@@ -7,11 +7,11 @@ from docopt import DocoptExit
 
 from colony.branch_utils import (
     count_stashed_items,
+    create_temp_branch_and_stash_if_needed,
     get_and_check_folder_based_repo,
+    get_blueprint_working_branch,
     revert_and_delete_temp_branch,
     revert_wait_and_delete_temp_branch,
-    get_blueprint_working_branch,
-    create_temp_branch_and_stash_if_needed,
 )
 from colony.commands.base import BaseCommand
 from colony.sandboxes import SandboxesManager
