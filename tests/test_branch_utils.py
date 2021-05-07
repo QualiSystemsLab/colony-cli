@@ -4,14 +4,16 @@ from unittest.mock import Mock, patch
 
 from colony import branch_utils
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
+from colony.exceptions import BadBlueprintRepo
 
 
 class TestStashLogicFunctions(unittest.TestCase):
     def setUp(self):
         self.switch = branch_utils.switch_to_temp_branch
         self.revert = branch_utils.revert_from_temp_branch
-        self.examine = branch_utils.examine_blueprint_working_branch
+        self.check_repo_for_errors = branch_utils.check_repo_for_errors
         self.wait_and_delete = branch_utils.wait_and_delete_temp_branch
+        self.debug_output_about_repo_examination = branch_utils.debug_output_about_repo_examination
 
         self.initialize_mock_vars()
 
@@ -94,25 +96,22 @@ class TestStashLogicFunctions(unittest.TestCase):
         )
         revert_from_uncommitted_code.assert_called_once_with(self.repo)
 
-    def test_examine_blueprint_working_branch_detached(self):
+    def test_check_repo_for_errors(self):
         # Arrange:
         self.repo = Mock()
-        mock_blueprint = Mock()
         self.repo.is_repo_detached = Mock(return_value=True)
 
-        # Act
-        result = self.examine(self.repo, mock_blueprint)
         # Act & Assert:
-        self.assertTrue(not result)
+        self.assertRaises(BadBlueprintRepo, self.check_repo_for_errors, self.repo)
 
-    def test_examine_blueprint_working_branch_attached(self):
+    def test_debug_output_about_repo_examination(self):
         # Arrange:
         self.repo = Mock()
         mock_blueprint = Mock()
         self.repo.is_repo_detached = Mock(return_value=False)
 
         # Act:
-        self.examine(self.repo, mock_blueprint)
+        self.debug_output_about_repo_examination(self.repo, mock_blueprint)
 
         # Assert:
         self.repo.is_dirty.assert_called_once()

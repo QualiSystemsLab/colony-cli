@@ -6,11 +6,10 @@ from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.branch_utils import (
-    check_repo_and_return_working_branch,
     count_stashed_items,
     create_and_handle_temp_branch_if_required,
     get_and_check_folder_based_repo,
-    revert_and_delete_temp_branch,
+    revert_and_delete_temp_branch, get_blueprint_working_branch, create_temp_branch_and_stash_if_needed,
 )
 from colony.commands.base import BaseCommand
 
@@ -48,17 +47,17 @@ class BlueprintsCommand(BaseCommand):
             raise DocoptExit("Since a commit was specified, a branch parameter is also required")
 
         repo = get_and_check_folder_based_repo(blueprint_name)
-        items_in_stash_before_temp_branch_check = count_stashed_items(repo)
+        items_in_stack_before_temp_branch_check = count_stashed_items(repo)
         if branch:
             working_branch = branch
             temp_working_branch = None
         else:
-            working_branch = check_repo_and_return_working_branch(blueprint_name)
-            temp_working_branch = create_and_handle_temp_branch_if_required(blueprint_name, working_branch)
+            working_branch = get_blueprint_working_branch(repo)
+            temp_working_branch = create_temp_branch_and_stash_if_needed(repo, working_branch)
             if not temp_working_branch:
-                self.error("Unable to validate Blueprint")
-                return False
-        stashed_flag = count_stashed_items(repo) > items_in_stash_before_temp_branch_check
+                return self.error("Unable to Validate BP")
+
+        stashed_flag = items_in_stack_before_temp_branch_check < count_stashed_items(repo)
 
         validation_branch = temp_working_branch or working_branch
 

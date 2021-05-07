@@ -9,18 +9,15 @@ from yaspin import yaspin
 
 from colony.commands.base import BaseCommand
 from colony.constants import DONE_STATUS, FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
+from colony.exceptions import BadBlueprintRepo
 from colony.sandboxes import Sandbox, SandboxesManager
 from colony.utils import BlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
-
-def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -> bool:
-    if repo.is_repo_detached():
-        logger.error("Repo's HEAD is in detached state")
-        # raise BadBlueprintRepo("Repo's HEAD is in detached state")
-        return False
+#TODO break into two user_info_about_repo and is_repo_detached
+def debug_output_about_repo_examination(repo: BlueprintRepo, blueprint_name: str):
 
     if not repo.repo_has_blueprint(blueprint_name):
         logger.debug(f"Current repo does not contain a definition for the blueprint '{blueprint_name}'.")
@@ -39,30 +36,19 @@ def examine_blueprint_working_branch(repo: BlueprintRepo, blueprint_name: str) -
 
     if not repo.is_current_branch_synced():
         logger.debug("Your local branch is not synced with remote")
-    return True
+
+
+def check_repo_for_errors(repo: BlueprintRepo) -> None:
+    if repo.is_repo_detached():
+        logger.error("Repo's HEAD is in detached state")
+        raise BadBlueprintRepo("Repo's HEAD is in detached state")
 
 
 def get_blueprint_working_branch(repo: BlueprintRepo) -> str:
-    branch = repo.active_branch.name
-    logger.debug(f"Current working branch is '{branch}'")
+    working_branch = repo.active_branch.name
+    BaseCommand.fyi_info(f"Automatically detected current working branch: {working_branch}")
+    logger.debug(f"Current working branch is '{working_branch}'")
 
-    return branch
-
-
-def create_and_handle_temp_branch_if_required(blueprint_name: str, working_branch: str) -> str:
-    temp_working_branch = ""
-    good_repo = get_and_check_folder_based_repo(blueprint_name)
-    if good_repo:
-        return create_temp_branch_and_stash_if_needed(good_repo, working_branch)
-    return temp_working_branch
-
-
-def check_repo_and_return_working_branch(blueprint_name: str) -> str:
-    working_branch = None
-    good_repo = get_and_check_folder_based_repo(blueprint_name)
-    if good_repo:
-        working_branch = get_blueprint_working_branch(good_repo)
-        BaseCommand.fyi_info(f"Automatically detected current working branch: {working_branch}")
     return working_branch
 
 
@@ -95,10 +81,11 @@ def get_and_check_folder_based_repo(blueprint_name: str) -> BlueprintRepo:
     logger.debug("Branch hasn't been specified. Trying to identify branch from current working directory")
     try:
         repo = BlueprintRepo(os.getcwd())
-        examine_blueprint_working_branch(repo, blueprint_name=blueprint_name)
+        check_repo_for_errors(repo)
+        debug_output_about_repo_examination(repo, blueprint_name)
     except Exception as e:
         logger.error(f"Branch could not be identified/used from the working directory; reason: {e}.")
-        raise e
+        raise
     return repo
 
 
