@@ -8,18 +8,16 @@ from yaspin import yaspin
 
 from colony.branch.branch_context import ContextBranch
 from colony.branch.branch_utils import (
+    can_temp_branch_be_deleted,
     get_and_check_folder_based_repo,
     is_k8s_blueprint,
-    sandbox_start_wait_output,
-    can_temp_branch_be_deleted,
     logger,
+    sandbox_start_wait_output,
 )
 from colony.commands.base import BaseCommand
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT
 from colony.sandboxes import SandboxesManager
-from colony.utils import parse_comma_separated_string, BlueprintRepo
-
-logger = logging.getLogger(__name__)
+from colony.utils import BlueprintRepo, parse_comma_separated_string
 
 
 class SandboxesCommand(BaseCommand):
@@ -241,13 +239,13 @@ class SandboxesCommand(BaseCommand):
 
 
 def wait_for_sandbox_to_launch(
-        sb_manager: SandboxesManager,
-        sandbox_id: str,
-        repo: BlueprintRepo,
-        blueprint_name: str,
-        timeout: int,
-        context_branch: ContextBranch,
-        wait_launch_end: str
+    sb_manager: SandboxesManager,
+    sandbox_id: str,
+    repo: BlueprintRepo,
+    blueprint_name: str,
+    timeout: int,
+    context_branch: ContextBranch,
+    wait_launch_end: str
 ) -> bool:
     try:
         if context_branch.temp_branch_exists:

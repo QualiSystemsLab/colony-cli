@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch
 from git import Repo
 
 from colony import shell
-from colony.branch import branch_utils, branch_context
+from colony.branch import branch_context, branch_utils
 from colony.constants import UNCOMMITTED_BRANCH_NAME
 from tests.helpers.repo_utils import (
     achieve_dirty_and_untracked_repo,

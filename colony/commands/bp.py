@@ -7,7 +7,6 @@ from docopt import DocoptExit
 from colony.blueprints import BlueprintsManager
 from colony.branch.branch_context import ContextBranch
 from colony.branch.branch_utils import get_and_check_folder_based_repo
-
 from colony.commands.base import BaseCommand
 
 logger = logging.getLogger(__name__)

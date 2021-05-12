@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 
 import colony.commands.sb
 from colony.branch import branch_utils
+from colony.branch.branch_context import ContextBranch
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 
@@ -120,43 +121,61 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.is_current_branch_synced()
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch.branch_utils.is_k8s_blueprint")
+    @patch("colony.commands.sb.is_k8s_blueprint")
     @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
-    def test_wait_and_delete_temp_branch_final_stage(self, can_temp, is_k8s, time_sleep):
+    def test_wait_for_sandbox_to_launch_final_stage(self, can_temp, is_k8s, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         can_temp.return_value = False
         is_k8s.return_value = False
+        context_branch = Mock()
 
         # Act & assert:
+
         for final_stage in FINAL_SB_STATUSES:
             self.sandbox.sandbox_status = final_stage
             start_time = datetime.now()
-            self.wait_before_delete(self.sb_manager, self.sandbox_id, self.repo, self.blueprint_name, 0)
-            assert (datetime.now() - start_time).seconds < TIMEOUT * 60
+            self.wait_before_delete(
+                self.sb_manager,
+                self.sandbox_id,
+                self.repo,
+                self.blueprint_name,
+                TIMEOUT,
+                context_branch,
+                "",
+            )
+            assert (datetime.now() - start_time).seconds < 1
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
-    def test_wait_and_delete_temp_branch_can_be_deleted(self, can_temp, is_k8s, time_sleep):
+    @patch("colony.commands.sb.is_k8s_blueprint")
+    @patch("colony.commands.sb.can_temp_branch_be_deleted")
+    def test_wait_for_sandbox_to_launch_can_be_deleted(self, can_temp, is_k8s, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
         can_temp.return_value = True
         is_k8s.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
-        start_time = datetime.now()
+        context_branch = Mock()
 
         # Act:
-        self.wait_before_delete(self.sb_manager, self.sandbox_id, self.repo, self.blueprint_name, 0)
+        timeout_reached = self.wait_before_delete(
+            self.sb_manager,
+            self.sandbox_id,
+            self.repo,
+            self.blueprint_name,
+            1,
+            context_branch,
+            "",
+        )
 
         # Assert:
-        assert (datetime.now() - start_time).seconds < TIMEOUT * 60
+        self.assertFalse(timeout_reached)
 
-    @patch("colony.branch.branch_utils.TIMEOUT", 0)
+    @patch("colony.commands.sb.TIMEOUT", 0.01)
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
+    @patch("colony.commands.sb.is_k8s_blueprint")
+    @patch("colony.commands.sb.can_temp_branch_be_deleted")
     def test_wait_before_temp_branch_delete_cannot_be_deleted(
         self,
         can_temp,
@@ -170,9 +189,18 @@ class TestStashLogicFunctions(unittest.TestCase):
         is_k8s.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
         start_time = datetime.now()
+        context_branch = Mock()
 
         # Act:
-        self.wait_before_delete(self.sb_manager, self.sandbox_id, self.repo, self.blueprint_name, 0)
+        timeout_reached = self.wait_before_delete(
+            self.sb_manager,
+            self.sandbox_id,
+            self.repo,
+            self.blueprint_name,
+            None,
+            context_branch,
+            "",
+        )
 
         # Assert:
-        assert (datetime.now() - start_time).microseconds > 0
+        self.assertTrue(timeout_reached)
