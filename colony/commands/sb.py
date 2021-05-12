@@ -4,18 +4,20 @@ import time
 
 import tabulate
 from docopt import DocoptExit
+from yaspin import yaspin
 
-from colony.branch_utils import (
-    count_stashed_items,
-    create_temp_branch_and_stash_if_needed,
+from colony.branch.branch_context import ContextBranch
+from colony.branch.branch_utils import (
     get_and_check_folder_based_repo,
-    get_blueprint_working_branch,
-    revert_and_delete_temp_branch,
-    revert_wait_and_delete_temp_branch,
+    is_k8s_blueprint,
+    sandbox_start_wait_output,
+    can_temp_branch_be_deleted,
+    logger,
 )
 from colony.commands.base import BaseCommand
+from colony.constants import FINAL_SB_STATUSES, TIMEOUT
 from colony.sandboxes import SandboxesManager
-from colony.utils import parse_comma_separated_string
+from colony.utils import parse_comma_separated_string, BlueprintRepo
 
 logger = logging.getLogger(__name__)
 
@@ -55,9 +57,12 @@ class SandboxesCommand(BaseCommand):
                                         specific Blueprint historic version. If this parameter is used, the
                                         Branch parameter must also be specified.
 
-       -w, --wait <timeout>             Set the timeout in minutes to wait for the sandbox to become active. If not set,
+       -t, --timeout <timeout>          Set the timeout in minutes to wait for the sandbox to become active. If not set,
                                         the CLI will wait for a default timeout of 30 minutes until the sandbox is
                                         ready.
+
+       -w, --wait                       Wait for sandbox to finish launching process.
+
 
     """
 
@@ -78,7 +83,6 @@ class SandboxesCommand(BaseCommand):
             sandbox_list = self.manager.list(filter_opt=list_filter, count=count)
         except Exception as e:
             logger.exception(e, exc_info=False)
-            sandbox_list = None
             return self.die()
 
         result_table = []
@@ -104,7 +108,6 @@ class SandboxesCommand(BaseCommand):
             sandbox = self.manager.get(sandbox_id)
         except Exception as e:
             logger.exception(e, exc_info=False)
-            sandbox = None
             return self.die()
 
         status = getattr(sandbox, "sandbox_status")
@@ -121,85 +124,69 @@ class SandboxesCommand(BaseCommand):
         return self.success("End request has been sent")
 
     def do_start(self):
-        branch = self.args.get("--branch")
-        commit = self.args.get("--commit")
-        if commit and branch is None:
+        branch_input = self.args.get("--branch")
+        commit_input = self.args.get("--commit")
+        if commit_input and branch_input is None:
             raise DocoptExit("Since commit is specified, branch is required")
 
-        blueprint_name = self.args["<blueprint_name>"]
-        name = self.args["--name"]
-        timeout = self.timeout_flag_validate(self.args["--wait"])
-        duration = self.duration_flag_validate(self.args["--duration"])
+        blueprint_name_input = self.args["<blueprint_name>"]
+        sandbox_name_input = self.args["--name"]
+        wait_input = self.args["--wait"]
+
+        timeout_input = self.timeout_flag_validate(self.args["--timeout"])
+        duration_input = self.duration_flag_validate(self.args["--duration"])
 
         inputs = parse_comma_separated_string(self.args["--inputs"])
         artifacts = parse_comma_separated_string(self.args["--artifacts"])
 
-        repo = get_and_check_folder_based_repo(blueprint_name)
-        items_in_stack_before_temp_branch_check = count_stashed_items(repo)
-        if branch:
-            working_branch = branch
-            temp_working_branch = None
-        else:
-            working_branch = get_blueprint_working_branch(repo)
-            temp_working_branch = create_temp_branch_and_stash_if_needed(repo, working_branch)
-            if not temp_working_branch:
+        repo = get_and_check_folder_based_repo(blueprint_name_input)
+
+        self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name_input, inputs, repo)
+
+        with ContextBranch(repo, branch_input) as context_branch:
+            # TODO move error handling to exception catch
+            if not context_branch:
                 return self.error("Unable to start Sandbox")
 
-        stashed_flag = items_in_stack_before_temp_branch_check < count_stashed_items(repo)
+            if sandbox_name_input is None:
+                sandbox_name_input = self.generate_sandbox_name(
+                    blueprint_name_input,
+                    context_branch.temp_working_branch,
+                    context_branch.working_branch,
+                )
 
-        self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name, inputs, repo)
+            try:
+                sandbox_id = self.manager.start(
+                    sandbox_name_input,
+                    blueprint_name_input,
+                    duration_input,
+                    context_branch.validation_branch,
+                    commit_input,
+                    artifacts,
+                    inputs,
+                )
+                BaseCommand.action_announcement("Starting sandbox")
+                BaseCommand.important_value("Id: ", sandbox_id)
+                BaseCommand.url(prefix_message="URL: ", message=self.manager.get_sandbox_ui_link(sandbox_id))
 
-        validation_branch = temp_working_branch or working_branch
+            except Exception as e:
+                logger.exception(e, exc_info=False)
+                return self.die()
 
-        if name is None:
-            name = self.generate_temp_branch_name(blueprint_name, temp_working_branch, working_branch)
-
-        try:
-            sandbox_id = self.manager.start(
-                name, blueprint_name, duration, validation_branch, commit, artifacts, inputs
+            wait_timeout_reached = wait_for_sandbox_to_launch(
+                self.manager,
+                sandbox_id,
+                repo,
+                blueprint_name_input,
+                timeout_input,
+                context_branch,
+                wait_input,
             )
-            BaseCommand.action_announcement("Starting sandbox")
-            BaseCommand.important_value("Id: ", sandbox_id)
-            BaseCommand.url(prefix_message="URL: ", message=self.manager.get_sandbox_ui_link(sandbox_id))
 
-        except Exception as e:
-            logger.exception(e, exc_info=False)
-            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
-            return self.die()
-
-        # todo: I think the below can be simplified and refactored
-        if timeout is None:
-            revert_wait_and_delete_temp_branch(
-                self.manager, blueprint_name, repo, sandbox_id, stashed_flag, temp_working_branch, working_branch
-            )
-            return self.success("The Sandbox was created")
-
-        else:
-            start_time = datetime.datetime.now()
-
-            logger.debug(f"Waiting for the Sandbox {sandbox_id} to start...")
-            # Waiting loop
-            while (datetime.datetime.now() - start_time).seconds < timeout * 60:
-                sandbox = self.manager.get(sandbox_id)
-                status = getattr(sandbox, "sandbox_status")
-                if status == "Active":
-                    revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
-                    return self.success(sandbox_id)
-
-                elif status == "Launching":
-                    progress = getattr(sandbox, "launching_progress")
-                    for check_points, properties in progress.items():
-                        logger.debug(f"{check_points}: {properties['status']}")
-                    time.sleep(30)
-
-                else:
-                    revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
-                    return self.die(f"The Sandbox {sandbox_id} has started. Current state is: {status}")
-
-            # timeout exceeded
-            logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
-            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
-            return self.die()
+            if wait_timeout_reached:
+                return self.die()
+            else:
+                return self.success(sandbox_id)
 
     def _update_missing_artifacts_and_inputs_with_default_values(self, artifacts, blueprint_name, inputs, repo):
         # TODO(ddovbii): This obtaining default values magic must be refactored
@@ -222,7 +209,7 @@ class SandboxesCommand(BaseCommand):
             logger.debug(f"Unable to obtain default values. Details: {e}")
         return repo
 
-    def generate_temp_branch_name(self, blueprint_name: str, temp_working_branch: str, working_branch: str) -> str:
+    def generate_sandbox_name(self, blueprint_name: str, temp_working_branch: str, working_branch: str) -> str:
         suffix = datetime.datetime.now().strftime("%b%d-%H:%M:%S")
         branch_name_or_type = ""
         if working_branch:
@@ -251,3 +238,50 @@ class SandboxesCommand(BaseCommand):
             if timeout < 0:
                 raise DocoptExit("Timeout must be positive")
         return timeout
+
+
+def wait_for_sandbox_to_launch(
+        sb_manager: SandboxesManager,
+        sandbox_id: str,
+        repo: BlueprintRepo,
+        blueprint_name: str,
+        timeout: int,
+        context_branch: ContextBranch,
+        wait_launch_end: str
+) -> bool:
+    try:
+        if context_branch.temp_branch_exists:
+            context_branch.revert_from_local_temp_branch()
+
+        if not timeout:
+            timeout = TIMEOUT
+
+        start_time = datetime.datetime.now()
+        sandbox = sb_manager.get(sandbox_id)
+        status = getattr(sandbox, "sandbox_status")
+        k8s_blueprint = is_k8s_blueprint(blueprint_name, repo)
+
+        sandbox_start_wait_output(sandbox_id, context_branch.temp_branch_exists)
+
+        with yaspin(text="Starting...", color="yellow") as spinner:
+            while (datetime.datetime.now() - start_time).seconds < timeout * 60:
+                if status in FINAL_SB_STATUSES:
+                    spinner.green.ok("✔")
+                    break
+                if context_branch.temp_branch_exists and can_temp_branch_be_deleted(sandbox, k8s_blueprint):
+                    context_branch.delete_temp_branch()
+                    if not wait_launch_end:
+                        spinner.green.ok("✔")
+                        break
+
+                time.sleep(10)
+                spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
+                sandbox = sb_manager.get(sandbox_id)
+                status = getattr(sandbox, "sandbox_status")
+            else:
+                logger.error(f"Timeout Reached - Sandbox {sandbox_id} was not active after {timeout} minutes")
+                return True
+        return False
+
+    except Exception as e:
+        logger.error(f"There was an issue with waiting for sandbox deployment -> {str(e)}")

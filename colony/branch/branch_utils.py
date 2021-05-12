@@ -1,16 +1,12 @@
-import datetime
 import logging
 import os
 import random
 import string
-import time
-
-from yaspin import yaspin
 
 from colony.commands.base import BaseCommand
-from colony.constants import DONE_STATUS, FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
+from colony.constants import DONE_STATUS, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
-from colony.sandboxes import Sandbox, SandboxesManager
+from colony.sandboxes import Sandbox
 from colony.utils import BlueprintRepo
 
 logging.getLogger("git").setLevel(logging.WARNING)
@@ -105,10 +101,10 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
     except Exception as e:
         logger.debug(f"An issue while creating temp branch: {str(e)}")
         if created_local_temp_branch:
-            if created_remote_flag:
-                revert_and_delete_temp_branch(repo, defined_branch_in_file, uncommitted_branch_name, stashed_flag)
-            else:
-                revert_from_temp_branch(repo, defined_branch_in_file, stashed_flag)
+            revert_from_local_temp_branch(repo, defined_branch_in_file, stashed_flag)
+            delete_temp_local_branch(repo, defined_branch_in_file)
+        if created_remote_flag:
+            delete_temp_remote_branch(repo, defined_branch_in_file)
         raise
 
     return uncommitted_branch_name
@@ -167,7 +163,7 @@ def preserve_uncommitted_code(repo: BlueprintRepo) -> None:
     repo.git.stash("apply")
 
 
-def revert_from_temp_branch(repo: BlueprintRepo, active_branch: str, stashed_flag: bool) -> None:
+def revert_from_local_temp_branch(repo: BlueprintRepo, active_branch: str, stashed_flag: bool) -> None:
     try:
         checkout_remote_branch(repo, active_branch)
         if stashed_flag:
@@ -182,14 +178,6 @@ def revert_from_uncommitted_code(repo: BlueprintRepo) -> None:
     remove_gitkeep_in_branch()
 
 
-def delete_temp_branch(repo: BlueprintRepo, temp_branch: str) -> None:
-    try:
-        delete_temp_local_branch(repo, temp_branch)
-        delete_temp_remote_branch(repo, temp_branch)
-    except Exception as e:
-        raise e
-
-
 def delete_temp_local_branch(repo: BlueprintRepo, temp_branch: str) -> None:
     logger.debug(f"[GIT] Deleting local branch {temp_branch}")
     repo.delete_head("-D", temp_branch)
@@ -200,40 +188,14 @@ def delete_temp_remote_branch(repo: BlueprintRepo, temp_branch: str) -> None:
     repo.git.push("origin", "--delete", temp_branch)
 
 
-def wait_and_delete_temp_branch(
-    sb_manager: SandboxesManager, sandbox_id: str, repo: BlueprintRepo, temp_branch: str, blueprint_name: str
-) -> None:
-    try:
-        k8s_blueprint = is_k8s_blueprint(blueprint_name, repo)
-        start_time = datetime.datetime.now()
-        sandbox = sb_manager.get(sandbox_id)
-        status = getattr(sandbox, "sandbox_status")
-
-        logger.debug(
-            "Waiting for sandbox (id={}) to be provisioned (before deleting temp branch)...".format(sandbox_id)
-        )
-
+def sandbox_start_wait_output(sandbox_id, temp_branch_exists):
+    if temp_branch_exists:
+        logger.debug(f"Waiting for sandbox (id={sandbox_id}) to finish launching (before deleting temp branch)...")
         BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
-        BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
-
-        with yaspin(text="Starting...", color="yellow") as spinner:
-            while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
-                if (status in FINAL_SB_STATUSES) or can_temp_branch_be_deleted(sandbox, k8s_blueprint):
-                    spinner.green.ok("✔")
-                    break
-
-                time.sleep(10)
-                spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
-                sandbox = sb_manager.get(sandbox_id)
-                status = getattr(sandbox, "sandbox_status")
-            else:
-                logger.debug("Timeout Reached")
-
-    except Exception as e:
-        logger.error(f"There was an issue with waiting for sandbox deployment -> {str(e)}")
-
-    finally:
-        delete_temp_branch(repo, temp_branch)
+    else:
+        logger.debug(f"Waiting for the Sandbox {sandbox_id} to finish launching...")
+        BaseCommand.info("Waiting for the Sandbox to start. This may take some time.")
+    BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
 
 
 def is_k8s_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
@@ -250,28 +212,6 @@ def checkout_remote_branch(repo: BlueprintRepo, active_branch: str) -> None:
     repo.git.checkout(active_branch)
 
 
-def revert_and_delete_temp_branch(
-    repo: BlueprintRepo, working_branch: str, temp_working_branch: str, stashed_flag: bool
-) -> None:
-    if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-        revert_from_temp_branch(repo, working_branch, stashed_flag)
-        delete_temp_branch(repo, temp_working_branch)
-
-
-def revert_wait_and_delete_temp_branch(
-    manager: SandboxesManager,
-    blueprint_name: str,
-    repo: BlueprintRepo,
-    sandbox_id: str,
-    stashed_flag: bool,
-    temp_working_branch: str,
-    working_branch: str,
-) -> None:
-    if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-        revert_from_temp_branch(repo, working_branch, stashed_flag)
-        wait_and_delete_temp_branch(manager, sandbox_id, repo, temp_working_branch, blueprint_name)
-
-
 def can_temp_branch_be_deleted(sandbox: Sandbox, k8s_blueprint: bool) -> bool:
     progress = getattr(sandbox, "launching_progress")
     prep_artifacts_status = progress.get("preparing_artifacts").get("status")
@@ -279,9 +219,9 @@ def can_temp_branch_be_deleted(sandbox: Sandbox, k8s_blueprint: bool) -> bool:
     creating_infra_status = progress.get("creating_infrastructure").get("status")
 
     k8s_sb_done_statuses = (
-        creating_infra_status == DONE_STATUS
-        and prep_artifacts_status == DONE_STATUS
-        and deploy_app_status == DONE_STATUS
+            creating_infra_status == DONE_STATUS
+            and prep_artifacts_status == DONE_STATUS
+            and deploy_app_status == DONE_STATUS
     )
 
     if k8s_blueprint:

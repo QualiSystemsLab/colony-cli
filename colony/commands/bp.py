@@ -5,13 +5,9 @@ import tabulate
 from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
-from colony.branch_utils import (
-    count_stashed_items,
-    create_temp_branch_and_stash_if_needed,
-    get_and_check_folder_based_repo,
-    get_blueprint_working_branch,
-    revert_and_delete_temp_branch,
-)
+from colony.branch.branch_context import ContextBranch
+from colony.branch.branch_utils import get_and_check_folder_based_repo
+
 from colony.commands.base import BaseCommand
 
 logger = logging.getLogger(__name__)
@@ -40,37 +36,22 @@ class BlueprintsCommand(BaseCommand):
         return {"validate": self.do_validate}
 
     def do_validate(self) -> bool:
-        blueprint_name = self.args.get("<name>")
-        branch = self.args.get("--branch")
-        commit = self.args.get("--commit")
+        blueprint_name_input = self.args.get("<name>")
+        branch_input = self.args.get("--branch")
+        commit_input = self.args.get("--commit")
 
-        if commit and branch is None:
+        if commit_input and branch_input is None:
             raise DocoptExit("Since a commit was specified, a branch parameter is also required")
 
-        repo = get_and_check_folder_based_repo(blueprint_name)
-        items_in_stack_before_temp_branch_check = count_stashed_items(repo)
-        if branch:
-            working_branch = branch
-            temp_working_branch = None
-        else:
-            working_branch = get_blueprint_working_branch(repo)
-            temp_working_branch = create_temp_branch_and_stash_if_needed(repo, working_branch)
-            if not temp_working_branch:
+        repo = get_and_check_folder_based_repo(blueprint_name_input)
+        with ContextBranch(repo, branch_input) as context_branch:
+            if not context_branch:
                 return self.error("Unable to Validate BP")
-
-        stashed_flag = items_in_stack_before_temp_branch_check < count_stashed_items(repo)
-
-        validation_branch = temp_working_branch or working_branch
-
-        try:
-            bp = self.manager.validate(blueprint=blueprint_name, branch=validation_branch, commit=commit)
-
-        except Exception as e:
-            logger.exception(e, exc_info=False)
-            bp = None
-            return self.die()
-        finally:
-            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
+            try:
+                bp = self.manager.validate(blueprint_name_input, context_branch.validation_branch, commit_input)
+            except Exception as e:
+                logger.exception(e, exc_info=False)
+                return self.die()
 
         errors = getattr(bp, "errors")
 

@@ -8,7 +8,8 @@ from unittest.mock import Mock, patch
 
 from git import Repo
 
-from colony import branch_utils, shell
+from colony import shell
+from colony.branch import branch_utils, branch_context
 from colony.constants import UNCOMMITTED_BRANCH_NAME
 from tests.helpers.repo_utils import (
     achieve_dirty_and_untracked_repo,
@@ -45,10 +46,10 @@ class GitMagicTests(unittest.TestCase):
     @patch("colony.utils.BlueprintRepo.is_current_branch_synced")
     @patch.object(branch_utils, "create_remote_branch")
     @patch("colony.blueprints.BlueprintsManager.validate")
-    @patch.object(branch_utils, "delete_temp_remote_branch")
+    @patch.object(branch_context, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.BootstrapHelper.get_connection_params")
-    @patch("colony.branch_utils.debug_output_about_repo_examination")
+    @patch("colony.branch.branch_utils.debug_output_about_repo_examination")
     @patch("colony.shell.exit")
     def test_blueprint_validate_uncommitted_untracked(self, exit, ex, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
@@ -74,10 +75,10 @@ class GitMagicTests(unittest.TestCase):
     @patch("colony.utils.BlueprintRepo.is_current_branch_synced")
     @patch.object(branch_utils, "create_remote_branch")
     @patch("colony.blueprints.BlueprintsManager.validate")
-    @patch.object(branch_utils, "delete_temp_remote_branch")
+    @patch.object(branch_context, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.BootstrapHelper.get_connection_params")
-    @patch("colony.branch_utils.debug_output_about_repo_examination")
+    @patch("colony.branch.branch_utils.debug_output_about_repo_examination")
     @patch("colony.shell.exit")
     def test_blueprint_validate_uncommitted(self, exit, examination, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
@@ -103,10 +104,10 @@ class GitMagicTests(unittest.TestCase):
     @patch("colony.utils.BlueprintRepo.is_current_branch_synced")
     @patch.object(branch_utils, "create_remote_branch")
     @patch("colony.blueprints.BlueprintsManager.validate")
-    @patch.object(branch_utils, "delete_temp_remote_branch")
+    @patch.object(branch_context, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.BootstrapHelper.get_connection_params")
-    @patch("colony.branch_utils.debug_output_about_repo_examination")
+    @patch("colony.branch.branch_utils.debug_output_about_repo_examination")
     @patch("colony.shell.exit")
     def test_blueprint_validate_committed_untracked(self, exit, exam, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange
@@ -132,10 +133,10 @@ class GitMagicTests(unittest.TestCase):
     @patch("colony.utils.BlueprintRepo.is_current_branch_synced")
     @patch.object(branch_utils, "create_remote_branch")
     @patch("colony.blueprints.BlueprintsManager.validate")
-    @patch.object(branch_utils, "delete_temp_remote_branch")
+    @patch.object(branch_context, "delete_temp_remote_branch")
     @patch("pkg_resources.get_distribution")
     @patch("colony.shell.BootstrapHelper.get_connection_params")
-    @patch("colony.branch_utils.debug_output_about_repo_examination")
+    @patch("colony.branch.branch_utils.debug_output_about_repo_examination")
     @patch("colony.shell.exit")
     def test_blueprint_validate_committed(self, exit, exam, get_c, get_d, del_t, bp_validate, create_r, is_c):
         # Arrange

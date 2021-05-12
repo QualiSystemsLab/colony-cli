@@ -2,7 +2,8 @@ import unittest
 from datetime import datetime
 from unittest.mock import Mock, patch
 
-from colony import branch_utils
+import colony.commands.sb
+from colony.branch import branch_utils
 from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 
@@ -10,9 +11,9 @@ from colony.exceptions import BadBlueprintRepo
 class TestStashLogicFunctions(unittest.TestCase):
     def setUp(self):
         self.switch = branch_utils.switch_to_temp_branch
-        self.revert = branch_utils.revert_from_temp_branch
+        self.revert = branch_utils.revert_from_local_temp_branch
         self.check_repo_for_errors = branch_utils.check_repo_for_errors
-        self.wait_and_delete = branch_utils.wait_and_delete_temp_branch
+        self.wait_before_delete = colony.commands.sb.wait_for_sandbox_to_launch
         self.debug_output_about_repo_examination = branch_utils.debug_output_about_repo_examination
 
         self.initialize_mock_vars()
@@ -119,10 +120,9 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.is_current_branch_synced()
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
-    @patch("colony.branch_utils.delete_temp_branch")
-    def test_wait_and_delete_temp_branch_final_stage(self, delete_temp_branch, can_temp, is_k8s, time_sleep):
+    @patch("colony.branch.branch_utils.is_k8s_blueprint")
+    @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
+    def test_wait_and_delete_temp_branch_final_stage(self, can_temp, is_k8s, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         can_temp.return_value = False
@@ -132,15 +132,13 @@ class TestStashLogicFunctions(unittest.TestCase):
         for final_stage in FINAL_SB_STATUSES:
             self.sandbox.sandbox_status = final_stage
             start_time = datetime.now()
-            self.wait_and_delete(self.sb_manager, self.sandbox_id, self.repo, self.temp_branch, self.blueprint_name)
+            self.wait_before_delete(self.sb_manager, self.sandbox_id, self.repo, self.blueprint_name, 0)
             assert (datetime.now() - start_time).seconds < TIMEOUT * 60
-            delete_temp_branch.assert_called_with(self.repo, self.temp_branch)
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
-    @patch("colony.branch_utils.delete_temp_branch")
-    def test_wait_and_delete_temp_branch_can_be_deleted(self, delete_temp_branch, can_temp, is_k8s, time_sleep):
+    @patch("colony.branch.branch_utils.is_k8s_blueprint")
+    @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
+    def test_wait_and_delete_temp_branch_can_be_deleted(self, can_temp, is_k8s, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
@@ -150,20 +148,17 @@ class TestStashLogicFunctions(unittest.TestCase):
         start_time = datetime.now()
 
         # Act:
-        self.wait_and_delete(self.sb_manager, self.sandbox_id, self.repo, self.temp_branch, self.blueprint_name)
+        self.wait_before_delete(self.sb_manager, self.sandbox_id, self.repo, self.blueprint_name, 0)
 
         # Assert:
         assert (datetime.now() - start_time).seconds < TIMEOUT * 60
-        delete_temp_branch.assert_called_with(self.repo, self.temp_branch)
 
-    @patch("colony.branch_utils.TIMEOUT", 0)
+    @patch("colony.branch.branch_utils.TIMEOUT", 0)
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
-    @patch("colony.branch_utils.delete_temp_branch")
-    def test_wait_and_delete_temp_branch_cannot_be_deleted(
+    @patch("colony.branch.branch_utils.is_k8s_blueprint")
+    @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
+    def test_wait_before_temp_branch_delete_cannot_be_deleted(
         self,
-        delete_temp_branch,
         can_temp,
         is_k8s,
         time_sleep,
@@ -177,8 +172,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         start_time = datetime.now()
 
         # Act:
-        self.wait_and_delete(self.sb_manager, self.sandbox_id, self.repo, self.temp_branch, self.blueprint_name)
+        self.wait_before_delete(self.sb_manager, self.sandbox_id, self.repo, self.blueprint_name, 0)
 
         # Assert:
         assert (datetime.now() - start_time).microseconds > 0
-        delete_temp_branch.assert_called_with(self.repo, self.temp_branch)
