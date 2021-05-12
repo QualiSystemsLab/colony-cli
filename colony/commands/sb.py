@@ -1,5 +1,4 @@
 import datetime
-import logging
 import time
 
 import tabulate
@@ -245,7 +244,7 @@ def wait_for_sandbox_to_launch(
     blueprint_name: str,
     timeout: int,
     context_branch: ContextBranch,
-    wait_launch_end: str
+    wait_launch_end: str,
 ) -> bool:
     try:
         if context_branch.temp_branch_exists:
