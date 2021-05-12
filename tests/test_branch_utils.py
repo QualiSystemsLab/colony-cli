@@ -187,7 +187,6 @@ class TestStashLogicFunctions(unittest.TestCase):
         can_temp.return_value = False
         is_k8s.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
-        start_time = datetime.now()
         context_branch = Mock()
 
         # Act:
