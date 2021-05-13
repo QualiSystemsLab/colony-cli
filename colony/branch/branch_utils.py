@@ -190,7 +190,7 @@ def delete_temp_remote_branch(repo: BlueprintRepo, temp_branch: str) -> None:
 
 def sandbox_start_wait_output(sandbox_id, temp_branch_exists):
     if temp_branch_exists:
-        logger.debug(f"Waiting for sandbox (id={sandbox_id}) to finish launching (before deleting temp branch)...")
+        logger.debug(f"Waiting before deleting temp branch that was created for this sandbox (id={sandbox_id})")
         BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
     else:
         logger.debug(f"Waiting for the Sandbox {sandbox_id} to finish launching...")

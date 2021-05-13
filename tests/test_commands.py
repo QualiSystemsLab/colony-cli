@@ -86,7 +86,7 @@ class TestSandboxCommand(unittest.TestCase):
         self.assertRaises(DocoptExit, getattr(command, func))
 
     def test_start_negative_timeout(self):
-        line = "sb start test --wait -10"
+        line = "sb start test --timeout -10"
         func = "do_start"
         self.validate_command_input(line, func)
 
@@ -101,7 +101,7 @@ class TestSandboxCommand(unittest.TestCase):
         self.validate_command_input(line, func)
 
     def test_start_not_number_timeout(self):
-        line = "sb start test --wait abc"
+        line = "sb start test --timeout abc"
         func = "do_start"
         self.validate_command_input(line, func)
 

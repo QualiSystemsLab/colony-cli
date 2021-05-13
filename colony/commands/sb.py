@@ -246,6 +246,8 @@ def wait_for_sandbox_to_launch(
     context_branch: ContextBranch,
     wait_launch_end: str,
 ) -> bool:
+    if not wait_launch_end and not context_branch.temp_branch_exists:
+        return False
     try:
         if context_branch.temp_branch_exists:
             context_branch.revert_from_local_temp_branch()
