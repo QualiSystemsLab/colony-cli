@@ -120,7 +120,7 @@ class TestStashLogicFunctions(unittest.TestCase):
 
     @patch("time.sleep", return_value=None)
     @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
+    @patch("colony.branch_utils.can_nonk8s_temp_branch_be_deleted")
     @patch("colony.branch_utils.delete_temp_branch")
     def test_wait_and_delete_temp_branch_final_stage(self, delete_temp_branch, can_temp, is_k8s, time_sleep):
         # Arrange:
@@ -138,7 +138,7 @@ class TestStashLogicFunctions(unittest.TestCase):
 
     @patch("time.sleep", return_value=None)
     @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
+    @patch("colony.branch_utils.can_nonk8s_temp_branch_be_deleted")
     @patch("colony.branch_utils.delete_temp_branch")
     def test_wait_and_delete_temp_branch_can_be_deleted(self, delete_temp_branch, can_temp, is_k8s, time_sleep):
         # Arrange:
@@ -159,7 +159,7 @@ class TestStashLogicFunctions(unittest.TestCase):
     @patch("colony.branch_utils.TIMEOUT", 0)
     @patch("time.sleep", return_value=None)
     @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
+    @patch("colony.branch_utils.can_nonk8s_temp_branch_be_deleted")
     @patch("colony.branch_utils.delete_temp_branch")
     def test_wait_and_delete_temp_branch_cannot_be_deleted(
         self,
