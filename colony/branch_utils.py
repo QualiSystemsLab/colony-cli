@@ -217,7 +217,7 @@ def wait_and_delete_temp_branch(
 
         with yaspin(text="Starting...", color="yellow") as spinner:
             while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
-                if (status in FINAL_SB_STATUSES) or can_temp_branch_be_deleted(sandbox, k8s_blueprint):
+                if (status in FINAL_SB_STATUSES) or (not k8s_blueprint and can_nonk8s_temp_branch_be_deleted(sandbox)):
                     spinner.green.ok("✔")
                     break
 
@@ -271,19 +271,8 @@ def revert_wait_and_delete_temp_branch(
         wait_and_delete_temp_branch(manager, sandbox_id, repo, temp_working_branch, blueprint_name)
 
 
-def can_temp_branch_be_deleted(sandbox: Sandbox, k8s_blueprint: bool) -> bool:
+def can_nonk8s_temp_branch_be_deleted(sandbox: Sandbox) -> bool:
     progress = getattr(sandbox, "launching_progress")
     prep_artifacts_status = progress.get("preparing_artifacts").get("status")
-    deploy_app_status = progress.get("deploying_applications").get("status")
-    creating_infra_status = progress.get("creating_infrastructure").get("status")
 
-    k8s_sb_done_statuses = (
-        creating_infra_status == DONE_STATUS
-        and prep_artifacts_status == DONE_STATUS
-        and deploy_app_status == DONE_STATUS
-    )
-
-    if k8s_blueprint:
-        return k8s_sb_done_statuses
-    else:
-        return prep_artifacts_status == DONE_STATUS
+    return prep_artifacts_status == DONE_STATUS
