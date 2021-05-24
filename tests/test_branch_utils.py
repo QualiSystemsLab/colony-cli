@@ -119,14 +119,14 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.is_current_branch_synced()
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_nonk8s_temp_branch_be_deleted")
+    @patch("colony.branch_utils.is_tf_blueprint")
+    @patch("colony.branch_utils.can_nontf_temp_branch_be_deleted")
     @patch("colony.branch_utils.delete_temp_branch")
-    def test_wait_and_delete_temp_branch_final_stage(self, delete_temp_branch, can_temp, is_k8s, time_sleep):
+    def test_wait_and_delete_temp_branch_final_stage(self, delete_temp_branch, can_temp, is_tf, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         can_temp.return_value = False
-        is_k8s.return_value = False
+        is_tf.return_value = False
 
         # Act & assert:
         for final_stage in FINAL_SB_STATUSES:
@@ -137,15 +137,15 @@ class TestStashLogicFunctions(unittest.TestCase):
             delete_temp_branch.assert_called_with(self.repo, self.temp_branch)
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_nonk8s_temp_branch_be_deleted")
+    @patch("colony.branch_utils.is_tf_blueprint")
+    @patch("colony.branch_utils.can_nontf_temp_branch_be_deleted")
     @patch("colony.branch_utils.delete_temp_branch")
-    def test_wait_and_delete_temp_branch_can_be_deleted(self, delete_temp_branch, can_temp, is_k8s, time_sleep):
+    def test_wait_and_delete_temp_branch_can_be_deleted(self, delete_temp_branch, can_temp, is_tf, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
         can_temp.return_value = True
-        is_k8s.return_value = False
+        is_tf.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
         start_time = datetime.now()
 
@@ -158,21 +158,21 @@ class TestStashLogicFunctions(unittest.TestCase):
 
     @patch("colony.branch_utils.TIMEOUT", 0)
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_nonk8s_temp_branch_be_deleted")
+    @patch("colony.branch_utils.is_tf_blueprint")
+    @patch("colony.branch_utils.can_nontf_temp_branch_be_deleted")
     @patch("colony.branch_utils.delete_temp_branch")
     def test_wait_and_delete_temp_branch_cannot_be_deleted(
         self,
         delete_temp_branch,
         can_temp,
-        is_k8s,
+        is_tf,
         time_sleep,
     ):
         # Arrange:
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
         can_temp.return_value = False
-        is_k8s.return_value = False
+        is_tf.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
         start_time = datetime.now()
 

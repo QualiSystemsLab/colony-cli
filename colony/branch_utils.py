@@ -203,7 +203,7 @@ def wait_and_delete_temp_branch(
     sb_manager: SandboxesManager, sandbox_id: str, repo: BlueprintRepo, temp_branch: str, blueprint_name: str
 ) -> None:
     try:
-        k8s_blueprint = is_k8s_blueprint(blueprint_name, repo)
+        tf_blueprint = is_tf_blueprint(blueprint_name, repo)
         start_time = datetime.datetime.now()
         sandbox = sb_manager.get(sandbox_id)
         status = getattr(sandbox, "sandbox_status")
@@ -217,7 +217,7 @@ def wait_and_delete_temp_branch(
 
         with yaspin(text="Starting...", color="yellow") as spinner:
             while (datetime.datetime.now() - start_time).seconds < TIMEOUT * 60:
-                if (status in FINAL_SB_STATUSES) or (not k8s_blueprint and can_nonk8s_temp_branch_be_deleted(sandbox)):
+                if (status in FINAL_SB_STATUSES) or (not tf_blueprint and can_nontf_temp_branch_be_deleted(sandbox)):
                     spinner.green.ok("✔")
                     break
 
@@ -242,6 +242,11 @@ def is_k8s_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
         if "/" in cloud:
             k8s_sandbox_flag = True
     return k8s_sandbox_flag
+
+
+def is_tf_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
+    yaml_obj = repo.get_blueprint_yaml(blueprint_name)
+    return bool(len(yaml_obj["services"]))
 
 
 def checkout_remote_branch(repo: BlueprintRepo, active_branch: str) -> None:
@@ -271,7 +276,7 @@ def revert_wait_and_delete_temp_branch(
         wait_and_delete_temp_branch(manager, sandbox_id, repo, temp_working_branch, blueprint_name)
 
 
-def can_nonk8s_temp_branch_be_deleted(sandbox: Sandbox) -> bool:
+def can_nontf_temp_branch_be_deleted(sandbox: Sandbox) -> bool:
     progress = getattr(sandbox, "launching_progress")
     prep_artifacts_status = progress.get("preparing_artifacts").get("status")
 
