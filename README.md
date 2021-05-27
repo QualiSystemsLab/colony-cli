@@ -50,29 +50,27 @@ The *Token*, *Space* and *Account* parameters can be provided via special comman
 and *--account* respectively) but can be conveniently placed in a config file relative to your user folder,
 so they don't need to be provided each time.
 
-Use credentials file, with profiles. Create an INI formatted file like this:
+The config file can be easily created and managed using the interactive ```colony configure``` command.
+The CLI supports multiple profiles and we recommend setting up a default profile for ease of use. To use a non-default profile the _--profile_ command line flag needs to be used to specify the profile name.
 
-```bash
-[default]
-token = xxxyyyzzz
-space = DemoSpace
-# This is optional
-account = MYACCOUNT
+To add a new profile or update an existing one run ```colony configure set``` and follow the on-screen directions. First you will be able to choose the profile name. Hit enter to add/update the default profile or enter a custom profile name. If the profile exists it will be update and if it doesn't exist then a new profile will be configured.
 
-[user]
-token = aaabbbccc
-space = TestSpace
-# This is optional
-account = MYACCOUNT
+To see all profiles run ```colony configure list``` and the command will output a table of all the profiles that are currently configured. Example output:
+```
+Profile Name    Colony Account    Space Name           Token
+--------------  ----------------  -------------------  -------------
+default         colony-demo       promotions-manager   *********jhtU
+custom-profile  my-colony         my-space             *********igEw
 ```
 
-Save the file relative to your home user directory ('~/.colony/config' on Mac and Linux or in '%UserProfile%\\.colony\\config' on Windows).
-If you wish to place credentials file in a different location, you can specify that location via an environment
-variable:
+If a profile is no longer needed it can be easily removed by running ```colony configure remove [profile-name]```
+
+The ```colony configure``` command will save the config file relative to your home user directory ('~/.colony/config' on Mac and Linux or in '%UserProfile%\\.colony\\config' on Windows).
+If you wish to place the config file in a different location, you can specify that location via an environment variable:
 
 `$ export COLONY_CONFIG_PATH=/path/to/file`
 
-The different parameters may also be provided as environment variables:
+The different parameters may also be provided as environment variables instead of using the config file:
 
 ```bash
 export COLONY_TOKEN = xxxzzzyyy
