@@ -5,7 +5,7 @@ from docopt import DocoptExit
 from colony.constants import ColonyConfigKeys
 from colony.exceptions import ConfigError
 from colony.models.connection import ColonyConnection
-from colony.parsers.input_parser import GlobalInputParser
+from colony.parsers.global_input_parser import GlobalInputParser
 from colony.services.config import ColonyConfigProvider
 
 logger = logging.getLogger(__name__)

@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 from docopt import DocoptExit, docopt
 
 from colony import shell
-from colony.parsers.input_parser import GlobalInputParser
+from colony.parsers.global_input_parser import GlobalInputParser
 from colony.shell import BootstrapHelper
 
 

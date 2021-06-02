@@ -6,7 +6,7 @@ from docopt import DocoptExit
 from colony.commands.base import BaseCommand
 from colony.constants import ColonyConfigKeys
 from colony.exceptions import ConfigFileMissingError
-from colony.parsers.input_parser import GlobalInputParser
+from colony.parsers.global_input_parser import GlobalInputParser
 from colony.sandboxes import SandboxesManager
 from colony.services.config import ColonyConfigProvider
 from colony.view.configure_list_view import ConfigureListView

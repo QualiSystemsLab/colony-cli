@@ -27,7 +27,7 @@ from docopt import DocoptExit, docopt
 
 from colony.commands import bp, configure, sb
 from colony.models.connection import ColonyConnection
-from colony.parsers.input_parser import GlobalInputParser
+from colony.parsers.global_input_parser import GlobalInputParser
 from colony.services.connection import ColonyConnectionProvider
 from colony.services.version import VersionCheckService
 

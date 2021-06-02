@@ -3,7 +3,7 @@ import unittest
 from unittest import mock
 from unittest.mock import Mock
 
-from colony.parsers.input_parser import GlobalInputParser
+from colony.parsers.global_input_parser import GlobalInputParser
 
 
 class TestGlobalInputParser(unittest.TestCase):
