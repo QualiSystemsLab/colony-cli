@@ -171,7 +171,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         # Assert:
         self.assertFalse(timeout_reached)
 
-    @patch("colony.commands.sb.TIMEOUT", 0.01)
+    @patch("colony.commands.sb.DEFAULT_TIMEOUT", 0.01)
     @patch("time.sleep", return_value=None)
     @patch("colony.commands.sb.is_k8s_blueprint")
     @patch("colony.commands.sb.can_temp_branch_be_deleted")
