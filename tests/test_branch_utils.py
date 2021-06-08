@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 import colony.commands.sb
 from colony.branch import branch_utils
-from colony.constants import FINAL_SB_STATUSES, DEFAULT_TIMEOUT, UNCOMMITTED_BRANCH_NAME
+from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 
 

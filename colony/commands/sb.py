@@ -13,7 +13,7 @@ from colony.branch.branch_utils import (
     logger,
 )
 from colony.commands.base import BaseCommand
-from colony.constants import FINAL_SB_STATUSES, DEFAULT_TIMEOUT
+from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo, parse_comma_separated_string
 
