@@ -86,8 +86,8 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
     created_local_temp_branch = False
     random_suffix = "".join(random.choice(string.ascii_lowercase) for i in range(10))
     uncommitted_branch_name = UNCOMMITTED_BRANCH_NAME + defined_branch_in_file + "-" + random_suffix
+    stashed_items_before = count_stashed_items(repo)
     try:
-        # todo return id and use it for revert_from_temp_branch
         if repo.is_dirty() or repo.untracked_files:
             create_gitkeep_in_branch()
             stash_local_changes(repo)
@@ -100,6 +100,8 @@ def switch_to_temp_branch(repo: BlueprintRepo, defined_branch_in_file: str):
         created_remote_flag = True
     except Exception as e:
         logger.debug(f"An issue while creating temp branch: {str(e)}")
+        if not stashed_flag and (count_stashed_items(repo) > stashed_items_before):
+            revert_from_uncommitted_code(repo)
         if created_local_temp_branch:
             revert_from_local_temp_branch(repo, defined_branch_in_file, stashed_flag)
             delete_temp_local_branch(repo, defined_branch_in_file)
@@ -186,16 +188,6 @@ def delete_temp_local_branch(repo: BlueprintRepo, temp_branch: str) -> None:
 def delete_temp_remote_branch(repo: BlueprintRepo, temp_branch: str) -> None:
     logger.debug(f"[GIT] Deleting remote branch {temp_branch}")
     repo.git.push("origin", "--delete", temp_branch)
-
-
-def sandbox_start_wait_output(sandbox_id, temp_branch_exists):
-    if temp_branch_exists:
-        logger.debug(f"Waiting before deleting temp branch that was created for this sandbox (id={sandbox_id})")
-        BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
-    else:
-        logger.debug(f"Waiting for the Sandbox {sandbox_id} to finish launching...")
-        BaseCommand.info("Waiting for the Sandbox to start. This may take some time.")
-    BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
 
 
 def is_k8s_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:

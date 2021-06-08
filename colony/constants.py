@@ -1,5 +1,5 @@
 UNCOMMITTED_BRANCH_NAME = "tmp-colony-"
-TIMEOUT = 30
+DEFAULT_TIMEOUT = 30
 FINAL_SB_STATUSES = ["Active", "ActiveWithError", "Ended", "EndedWithError", "Ending"]
 
 DONE_STATUS = "Done"

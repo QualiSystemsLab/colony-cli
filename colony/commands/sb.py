@@ -11,10 +11,9 @@ from colony.branch.branch_utils import (
     get_and_check_folder_based_repo,
     is_k8s_blueprint,
     logger,
-    sandbox_start_wait_output,
 )
 from colony.commands.base import BaseCommand
-from colony.constants import FINAL_SB_STATUSES, TIMEOUT
+from colony.constants import FINAL_SB_STATUSES, DEFAULT_TIMEOUT
 from colony.sandboxes import SandboxesManager
 from colony.utils import BlueprintRepo, parse_comma_separated_string
 
@@ -141,7 +140,7 @@ class SandboxesCommand(BaseCommand):
         self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name_input, inputs, repo)
 
         with ContextBranch(repo, branch_input) as context_branch:
-            # TODO move error handling to exception catch
+            # TODO move error handling to exception catch (investigate best practices of error handling)
             if not context_branch:
                 return self.error("Unable to start Sandbox")
 
@@ -253,7 +252,7 @@ def wait_for_sandbox_to_launch(
             context_branch.revert_from_local_temp_branch()
 
         if not timeout:
-            timeout = TIMEOUT
+            timeout = DEFAULT_TIMEOUT
 
         start_time = datetime.datetime.now()
         sandbox = sb_manager.get(sandbox_id)
@@ -284,3 +283,13 @@ def wait_for_sandbox_to_launch(
 
     except Exception as e:
         logger.error(f"There was an issue with waiting for sandbox deployment -> {str(e)}")
+
+
+def sandbox_start_wait_output(sandbox_id, temp_branch_exists):
+    if temp_branch_exists:
+        logger.debug(f"Waiting before deleting temp branch that was created for this sandbox (id={sandbox_id})")
+        BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
+        BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
+    else:
+        logger.debug(f"Waiting for the Sandbox {sandbox_id} to finish launching...")
+        BaseCommand.info("Waiting for the Sandbox to start. This may take some time.")
