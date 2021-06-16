@@ -49,7 +49,7 @@ class ConfigureCommand(BaseCommand):
         return self.success()
 
     def do_remove(self):
-        profile_to_remove = self.args["<profile>"]
+        profile_to_remove = self.input_parser.configure_remove.profile
         if not profile_to_remove:
             raise DocoptExit("Please provide a profile name to remove")
 
