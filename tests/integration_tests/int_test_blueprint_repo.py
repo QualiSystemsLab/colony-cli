@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import unittest
 
-from git import Repo, Actor
+from git import Actor, Repo
 
 from colony.exceptions import BadBlueprintRepo
 from colony.utils import BlueprintRepo
