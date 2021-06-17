@@ -37,6 +37,7 @@ class ConfigureCommand(BaseCommand):
         try:
             config_file = GlobalInputParser.get_config_path()
             config = ColonyConfigProvider(config_file).load_all()
+            result_table = ConfigureListView(config).render()
 
         except ConfigFileMissingError:
             raise DocoptExit("Config file doesn't exist. Use 'colony configure set' to configure Colony CLI.")
@@ -44,7 +45,6 @@ class ConfigureCommand(BaseCommand):
             logger.exception(e, exc_info=False)
             return self.die()
 
-        result_table = ConfigureListView(config).render()
         self.message(result_table)
         return self.success()
 
@@ -53,9 +53,13 @@ class ConfigureCommand(BaseCommand):
         if not profile_to_remove:
             raise DocoptExit("Please provide a profile name to remove")
 
-        config_file = GlobalInputParser.get_config_path()
-        config_provider = ColonyConfigProvider(config_file)
-        config_provider.remove_profile(profile_to_remove)
+        try:
+            config_file = GlobalInputParser.get_config_path()
+            config_provider = ColonyConfigProvider(config_file)
+            config_provider.remove_profile(profile_to_remove)
+        except Exception as e:
+            logger.exception(e, exc_info=False)
+            return self.die()
 
         return self.success()
 
