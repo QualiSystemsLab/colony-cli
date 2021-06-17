@@ -6,7 +6,7 @@ from docopt import DocoptExit, docopt
 from colony.base import ResourceManager
 from colony.client import ColonyClient
 from colony.models.connection import ColonyConnection
-from colony.parsers.command_input_parsers import CommandInputParser, InputParserBase
+from colony.parsers.command_input_parsers import CommandInputParser
 
 
 class BaseCommand(object):

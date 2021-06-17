@@ -4,7 +4,6 @@ import os
 import time
 
 import tabulate
-from docopt import DocoptExit
 
 from colony.branch_utils import (
     delete_temp_branch,
@@ -14,10 +13,9 @@ from colony.branch_utils import (
 )
 from colony.commands.base import BaseCommand
 from colony.constants import UNCOMMITTED_BRANCH_NAME
-from colony.parsers.command_input_parsers import SandboxStatusInputParser, SandboxStartInputParser
-from colony.parsers.command_input_validators import SandboxStartInputValidator, CommandInputValidator
+from colony.parsers.command_input_validators import CommandInputValidator
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo, parse_comma_separated_string
+from colony.utils import BlueprintRepo
 
 logger = logging.getLogger(__name__)
 

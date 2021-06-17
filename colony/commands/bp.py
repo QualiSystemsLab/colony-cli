@@ -2,7 +2,6 @@ import logging
 from collections import OrderedDict
 
 import tabulate
-from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.branch_utils import figure_out_branches, revert_and_delete_temp_branch
