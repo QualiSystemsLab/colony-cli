@@ -4,7 +4,6 @@ import os
 import time
 
 import tabulate
-from docopt import DocoptExit
 
 from colony.branch_utils import (
     delete_temp_branch,
@@ -15,8 +14,9 @@ from colony.branch_utils import (
 )
 from colony.commands.base import BaseCommand
 from colony.constants import UNCOMMITTED_BRANCH_NAME
+from colony.parsers.command_input_validators import CommandInputValidator
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo, parse_comma_separated_string
+from colony.utils import BlueprintRepo
 
 logger = logging.getLogger(__name__)
 
@@ -68,18 +68,14 @@ class SandboxesCommand(BaseCommand):
         return {"status": self.do_status, "start": self.do_start, "end": self.do_end, "list": self.do_list}
 
     def do_list(self):
-        list_filter = self.args["--filter"] or "my"
-        if list_filter not in ["my", "all", "auto"]:
-            raise DocoptExit("--filter value must be in [my, all, auto]")
-
-        show_ended = self.args["--show-ended"]
-        count = self.args.get("--count", 25)
+        list_filter = self.input_parser.sandbox_list.filter
+        show_ended = self.input_parser.sandbox_list.show_ended
+        count = self.input_parser.sandbox_list.count
 
         try:
             sandbox_list = self.manager.list(filter_opt=list_filter, count=count)
         except Exception as e:
             logger.exception(e, exc_info=False)
-            sandbox_list = None
             return self.die()
 
         result_table = []
@@ -100,21 +96,18 @@ class SandboxesCommand(BaseCommand):
         self.message(tabulate.tabulate(result_table, headers="keys"))
 
     def do_status(self):
-        sandbox_id = self.args["<sandbox_id>"]
         try:
-            sandbox = self.manager.get(sandbox_id)
+            sandbox = self.manager.get(self.input_parser.sandbox_status.sandbox_id)
         except Exception as e:
             logger.exception(e, exc_info=False)
-            sandbox = None
             return self.die()
 
         status = getattr(sandbox, "sandbox_status")
         return self.success(status)
 
     def do_end(self):
-        sandbox_id = self.args["<sandbox_id>"]
         try:
-            self.manager.end(sandbox_id)
+            self.manager.end(self.input_parser.sandbox_status.sandbox_id)
         except Exception as e:
             logger.exception(e, exc_info=False)
             return self.die()
@@ -122,34 +115,17 @@ class SandboxesCommand(BaseCommand):
         return self.success("End request has been sent")
 
     def do_start(self):
-        blueprint_name = self.args["<blueprint_name>"]
-        branch = self.args.get("--branch")
-        commit = self.args.get("--commit")
-        name = self.args["--name"]
-        timeout = self.args["--wait"]
+        # get commands inputs
+        blueprint_name = self.input_parser.sandbox_start.blueprint_name
+        branch = self.input_parser.sandbox_start.branch
+        commit = self.input_parser.sandbox_start.commit
+        name = self.input_parser.sandbox_start.sandbox_name
+        timeout = self.input_parser.sandbox_start.timeout
+        duration = self.input_parser.sandbox_start.duration
+        inputs = self.input_parser.sandbox_start.inputs
+        artifacts = self.input_parser.sandbox_start.artifacts
 
-        if timeout is not None:
-            try:
-                timeout = int(timeout)
-            except ValueError:
-                raise DocoptExit("Timeout must be a number")
-
-            if timeout < 0:
-                raise DocoptExit("Timeout must be positive")
-
-        try:
-            duration = int(self.args["--duration"] or 120)
-            if duration <= 0:
-                raise DocoptExit("Duration must be positive")
-
-        except ValueError:
-            raise DocoptExit("Duration must be a number")
-
-        if commit and branch is None:
-            raise DocoptExit("Since commit is specified, branch is required")
-
-        inputs = parse_comma_separated_string(self.args["--inputs"])
-        artifacts = parse_comma_separated_string(self.args["--artifacts"])
+        CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
 
         repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
 
@@ -197,7 +173,6 @@ class SandboxesCommand(BaseCommand):
 
         except Exception as e:
             logger.exception(e, exc_info=False)
-            sandbox_id = None
             if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
                 revert_from_temp_branch(repo, working_branch, stashed_flag)
                 delete_temp_branch(repo, temp_working_branch)

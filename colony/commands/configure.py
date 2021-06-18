@@ -6,7 +6,7 @@ from docopt import DocoptExit
 from colony.commands.base import BaseCommand
 from colony.constants import ColonyConfigKeys
 from colony.exceptions import ConfigFileMissingError
-from colony.parsers.input_parser import GlobalInputParser
+from colony.parsers.global_input_parser import GlobalInputParser
 from colony.sandboxes import SandboxesManager
 from colony.services.config import ColonyConfigProvider
 from colony.view.configure_list_view import ConfigureListView
@@ -37,6 +37,7 @@ class ConfigureCommand(BaseCommand):
         try:
             config_file = GlobalInputParser.get_config_path()
             config = ColonyConfigProvider(config_file).load_all()
+            result_table = ConfigureListView(config).render()
 
         except ConfigFileMissingError:
             raise DocoptExit("Config file doesn't exist. Use 'colony configure set' to configure Colony CLI.")
@@ -44,18 +45,21 @@ class ConfigureCommand(BaseCommand):
             logger.exception(e, exc_info=False)
             return self.die()
 
-        result_table = ConfigureListView(config).render()
         self.message(result_table)
         return self.success()
 
     def do_remove(self):
-        profile_to_remove = self.args["<profile>"]
+        profile_to_remove = self.input_parser.configure_remove.profile
         if not profile_to_remove:
             raise DocoptExit("Please provide a profile name to remove")
 
-        config_file = GlobalInputParser.get_config_path()
-        config_provider = ColonyConfigProvider(config_file)
-        config_provider.remove_profile(profile_to_remove)
+        try:
+            config_file = GlobalInputParser.get_config_path()
+            config_provider = ColonyConfigProvider(config_file)
+            config_provider.remove_profile(profile_to_remove)
+        except Exception as e:
+            logger.exception(e, exc_info=False)
+            return self.die()
 
         return self.success()
 

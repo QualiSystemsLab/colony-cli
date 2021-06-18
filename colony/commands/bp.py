@@ -2,11 +2,11 @@ import logging
 from collections import OrderedDict
 
 import tabulate
-from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.branch_utils import figure_out_branches, revert_and_delete_temp_branch
 from colony.commands.base import BaseCommand
+from colony.parsers.command_input_validators import CommandInputValidator
 
 logger = logging.getLogger(__name__)
 
@@ -34,12 +34,11 @@ class BlueprintsCommand(BaseCommand):
         return {"validate": self.do_validate}
 
     def do_validate(self) -> bool:
-        blueprint_name = self.args.get("<name>")
-        branch = self.args.get("--branch")
-        commit = self.args.get("--commit")
+        blueprint_name = self.input_parser.blueprint_validate.blueprint_name
+        branch = self.input_parser.blueprint_validate.branch
+        commit = self.input_parser.blueprint_validate.commit
 
-        if commit and branch is None:
-            raise DocoptExit("Since a commit was specified, a branch parameter is also required")
+        CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
 
         repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
 
