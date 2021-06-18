@@ -133,8 +133,8 @@ class TestConfigureCommand(unittest.TestCase):
         for action in command.get_actions_table():
             self.assertIn(action, expected_actions)
 
-    @patch('colony.commands.configure.ColonyConfigProvider')
-    @patch('colony.commands.configure.GlobalInputParser')
+    @patch("colony.commands.configure.ColonyConfigProvider")
+    @patch("colony.commands.configure.GlobalInputParser")
     def test_configure_list(self, global_input_parser, config_provider):
         # arrange
         args = "configure list".split()
@@ -148,8 +148,8 @@ class TestConfigureCommand(unittest.TestCase):
         self.assertTrue(result)
         command.message.assert_called_once()
 
-    @patch('colony.commands.configure.ColonyConfigProvider')
-    @patch('colony.commands.configure.GlobalInputParser')
+    @patch("colony.commands.configure.ColonyConfigProvider")
+    @patch("colony.commands.configure.GlobalInputParser")
     def test_configure_list_missing_config(self, global_input_parser, config_provider):
         # arrange
         config_provider.return_value.load_all.side_effect = ConfigFileMissingError()
@@ -160,15 +160,14 @@ class TestConfigureCommand(unittest.TestCase):
         with self.assertRaises(DocoptExit):
             command.do_list()
 
-
-    @patch('colony.commands.configure.ConfigureListView')
-    @patch('colony.commands.configure.ColonyConfigProvider')
-    @patch('colony.commands.configure.GlobalInputParser')
+    @patch("colony.commands.configure.ConfigureListView")
+    @patch("colony.commands.configure.ColonyConfigProvider")
+    @patch("colony.commands.configure.GlobalInputParser")
     def test_configure_list_return_false_on_unexpected_error(self, global_input_parser, config_provider, list_view):
         # arrange
         args = "configure list".split()
         command = ConfigureCommand(args)
-        list_view.return_value.render.side_effect = Exception('some error')
+        list_view.return_value.render.side_effect = Exception("some error")
 
         # act
         result = command.do_list()
@@ -176,8 +175,8 @@ class TestConfigureCommand(unittest.TestCase):
         # assert
         self.assertFalse(result)
 
-    @patch('colony.commands.configure.ColonyConfigProvider')
-    @patch('colony.commands.configure.GlobalInputParser')
+    @patch("colony.commands.configure.ColonyConfigProvider")
+    @patch("colony.commands.configure.GlobalInputParser")
     def test_configure_test(self, global_input_parser, config_provider):
         # arrange
         args = "configure remove profile_name".split()
@@ -190,8 +189,8 @@ class TestConfigureCommand(unittest.TestCase):
         self.assertTrue(result)
         config_provider.return_value.remove_profile.assert_called_once_with("profile_name")
 
-    @patch('colony.commands.configure.ColonyConfigProvider')
-    @patch('colony.commands.configure.GlobalInputParser')
+    @patch("colony.commands.configure.ColonyConfigProvider")
+    @patch("colony.commands.configure.GlobalInputParser")
     def test_configure_test_returns_false_delete_error(self, global_input_parser, config_provider):
         # arrange
         args = "configure remove profile_name".split()
