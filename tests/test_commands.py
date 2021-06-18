@@ -1,6 +1,6 @@
 import unittest
 from unittest import mock
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 from docopt import DocoptExit
 
