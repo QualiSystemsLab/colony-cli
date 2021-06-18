@@ -8,6 +8,7 @@ import tabulate
 from colony.branch_utils import (
     delete_temp_branch,
     figure_out_branches,
+    revert_and_delete_temp_branch,
     revert_from_temp_branch,
     revert_wait_and_delete_temp_branch,
 )
@@ -129,7 +130,7 @@ class SandboxesCommand(BaseCommand):
         repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
 
         if not success:
-            self.error("Unable to start Sandbox")
+            return self.error("Unable to start Sandbox")
 
         # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
@@ -193,6 +194,7 @@ class SandboxesCommand(BaseCommand):
                 sandbox = self.manager.get(sandbox_id)
                 status = getattr(sandbox, "sandbox_status")
                 if status == "Active":
+                    revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
                     return self.success(sandbox_id)
 
                 elif status == "Launching":
@@ -202,21 +204,10 @@ class SandboxesCommand(BaseCommand):
                     time.sleep(30)
 
                 else:
-                    blueprint_name = self.args.get("<name>")
-                    revert_wait_and_delete_temp_branch(
-                        self.manager,
-                        blueprint_name,
-                        repo,
-                        sandbox_id,
-                        stashed_flag,
-                        temp_working_branch,
-                        working_branch,
-                    )
+                    revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
                     return self.die(f"The Sandbox {sandbox_id} has started. Current state is: {status}")
 
             # timeout exceeded
             logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
-            revert_wait_and_delete_temp_branch(
-                self.manager, blueprint_name, repo, sandbox_id, stashed_flag, temp_working_branch, working_branch
-            )
+            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
             return self.die()
