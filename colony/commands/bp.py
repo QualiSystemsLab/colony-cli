@@ -47,7 +47,11 @@ class BlueprintsCommand(BaseCommand):
             if not context_branch:
                 return self.error("Unable to Validate BP")
             try:
-                bp = self.manager.validate(blueprint_name_input, context_branch.validation_branch, commit_input)
+                bp = self.manager.validate(
+                    blueprint=blueprint_name_input,
+                    branch=context_branch.validation_branch,
+                    commit=commit_input
+                )
             except Exception as e:
                 logger.exception(e, exc_info=False)
                 return self.die()
