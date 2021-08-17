@@ -10,7 +10,7 @@ from colony.branch.branch_utils import (
     can_temp_branch_be_deleted,
     get_and_check_folder_based_repo,
     is_k8s_blueprint,
-    logger,
+    logger, is_tf_blueprint,
 )
 from colony.commands.base import BaseCommand
 from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES
@@ -258,6 +258,7 @@ def wait_for_sandbox_to_launch(
         sandbox = sb_manager.get(sandbox_id)
         status = getattr(sandbox, "sandbox_status")
         k8s_blueprint = is_k8s_blueprint(blueprint_name, repo)
+        tf_blueprint = is_tf_blueprint(blueprint_name, repo)
 
         sandbox_start_wait_output(sandbox_id, context_branch.temp_branch_exists)
 
@@ -266,7 +267,7 @@ def wait_for_sandbox_to_launch(
                 if status in FINAL_SB_STATUSES:
                     spinner.green.ok("✔")
                     break
-                if context_branch.temp_branch_exists and can_temp_branch_be_deleted(sandbox, k8s_blueprint):
+                if context_branch.temp_branch_exists and can_temp_branch_be_deleted(sandbox, tf_blueprint):
                     context_branch.delete_temp_branch()
                     if not wait_launch_end:
                         spinner.green.ok("✔")

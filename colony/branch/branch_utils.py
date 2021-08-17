@@ -199,24 +199,35 @@ def is_k8s_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
     return k8s_sandbox_flag
 
 
+def is_tf_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
+    tf_sandbox_flag = False
+    yaml_obj = repo.get_blueprint_yaml(blueprint_name)
+    if 'services' in yaml_obj.keys():
+        if len(yaml_obj['services']):
+            tf_sandbox_flag = True
+    return tf_sandbox_flag
+
+
 def checkout_remote_branch(repo: BlueprintRepo, active_branch: str) -> None:
     logger.debug(f"[GIT] Checking out {active_branch}")
     repo.git.checkout(active_branch)
 
 
-def can_temp_branch_be_deleted(sandbox: Sandbox, k8s_blueprint: bool) -> bool:
+def can_temp_branch_be_deleted(sandbox: Sandbox, tf_blueprint: bool) -> bool:
     progress = getattr(sandbox, "launching_progress")
     prep_artifacts_status = progress.get("preparing_artifacts").get("status")
     deploy_app_status = progress.get("deploying_applications").get("status")
     creating_infra_status = progress.get("creating_infrastructure").get("status")
+    verifying_environment_status = progress.get("verifying_environment").get("status")
 
-    k8s_sb_done_statuses = (
+    tf_sb_done_statuses = (
         creating_infra_status == DONE_STATUS
         and prep_artifacts_status == DONE_STATUS
         and deploy_app_status == DONE_STATUS
+        and verifying_environment_status == DONE_STATUS
     )
 
-    if k8s_blueprint:
-        return k8s_sb_done_statuses
+    if tf_blueprint:
+        return tf_sb_done_statuses
     else:
         return prep_artifacts_status == DONE_STATUS

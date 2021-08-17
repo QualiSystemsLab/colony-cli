@@ -133,7 +133,7 @@ You can get additional help information for a particular command by specifying *
                                         automatically using the source branch (or local changes) and current time.
 
        -i, --inputs <input_params>      The Blueprints inputs can be provided as a comma-separated list of key=value
-                                        pairs. For example: key1=value1, key2=value2.
+                                        pairs. For example: key1=value1,key2=value2.
                                         By default Colony CLI will try to take the default values for these inputs
                                         from the Blueprint definition yaml file.
 
