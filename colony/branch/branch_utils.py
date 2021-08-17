@@ -202,8 +202,8 @@ def is_k8s_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
 def is_tf_blueprint(blueprint_name: str, repo: BlueprintRepo) -> bool:
     tf_sandbox_flag = False
     yaml_obj = repo.get_blueprint_yaml(blueprint_name)
-    if 'services' in yaml_obj.keys():
-        if len(yaml_obj['services']):
+    if "services" in yaml_obj.keys():
+        if len(yaml_obj["services"]):
             tf_sandbox_flag = True
     return tf_sandbox_flag
 

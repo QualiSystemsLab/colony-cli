@@ -48,9 +48,7 @@ class BlueprintsCommand(BaseCommand):
                 return self.error("Unable to Validate BP")
             try:
                 bp = self.manager.validate(
-                    blueprint=blueprint_name_input,
-                    branch=context_branch.validation_branch,
-                    commit=commit_input
+                    blueprint=blueprint_name_input, branch=context_branch.validation_branch, commit=commit_input
                 )
             except Exception as e:
                 logger.exception(e, exc_info=False)
