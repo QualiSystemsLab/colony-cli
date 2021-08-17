@@ -120,13 +120,13 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.is_current_branch_synced()
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.commands.sb.is_k8s_blueprint")
+    @patch("colony.commands.sb.is_tf_blueprint")
     @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
-    def test_wait_for_sandbox_to_launch_final_stage(self, can_temp, is_k8s, time_sleep):
+    def test_wait_for_sandbox_to_launch_final_stage(self, can_temp, is_tf, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         can_temp.return_value = False
-        is_k8s.return_value = False
+        is_tf.return_value = False
         context_branch = Mock()
 
         # Act & assert:
@@ -146,14 +146,14 @@ class TestStashLogicFunctions(unittest.TestCase):
             assert (datetime.now() - start_time).seconds < 1
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.commands.sb.is_k8s_blueprint")
+    @patch("colony.commands.sb.is_tf_blueprint")
     @patch("colony.commands.sb.can_temp_branch_be_deleted")
-    def test_wait_for_sandbox_to_launch_can_be_deleted(self, can_temp, is_k8s, time_sleep):
+    def test_wait_for_sandbox_to_launch_can_be_deleted(self, can_temp, is_tf, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
         can_temp.return_value = True
-        is_k8s.return_value = False
+        is_tf.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
         context_branch = Mock()
 
@@ -173,19 +173,19 @@ class TestStashLogicFunctions(unittest.TestCase):
 
     @patch("colony.commands.sb.DEFAULT_TIMEOUT", 0.01)
     @patch("time.sleep", return_value=None)
-    @patch("colony.commands.sb.is_k8s_blueprint")
+    @patch("colony.commands.sb.is_tf_blueprint")
     @patch("colony.commands.sb.can_temp_branch_be_deleted")
     def test_wait_before_temp_branch_delete_cannot_be_deleted(
         self,
         can_temp,
-        is_k8s,
+        is_tf,
         time_sleep,
     ):
         # Arrange:
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
         can_temp.return_value = False
-        is_k8s.return_value = False
+        is_tf.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
         context_branch = Mock()
 
