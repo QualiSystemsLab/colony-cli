@@ -2,17 +2,18 @@ import logging
 import os
 from configparser import ConfigParser, ParsingError
 
+from colony.services.branding import Branding
+
 from colony.constants import ColonyConfigKeys
 from colony.exceptions import ConfigError, ConfigFileMissingError
-
-DEFAULT_CONFIG_PATH = "~/.colony/config"
 
 logger = logging.getLogger(__name__)
 
 
 class ColonyConfigProvider(object):
     def __init__(self, filename: str = ""):
-        self.filename = filename or DEFAULT_CONFIG_PATH
+        default_config_path = f"~/.{Branding.command_name()}/config"
+        self.filename = filename or default_config_path
         path = os.path.expandvars(self.filename)
         path = os.path.expanduser(path)
         self.config_path = path

@@ -10,12 +10,12 @@ class TestConfigureListView(unittest.TestCase):
         render_result = ConfigureListView(None).render()
 
         # arrange
-        self.assertEqual(render_result, "Config file is empty. Use 'colony configure set' to configure Colony CLI.")
+        self.assertEqual(render_result, "Config file is empty. Use 'torque configure set' to configure Torque CLI.")
 
     def test_render_single_profile_with_account(self):
         # arrange
         config = ConfigBuilder().with_profile("default", "space1", "token1", "account1").build()
-        expected_result = """Profile Name    Colony Account    Space Name    Token
+        expected_result = """Profile Name    Torque Account    Space Name    Token
 --------------  ----------------  ------------  -------------
 default         account1          space1        *********ken1"""
 
@@ -28,7 +28,7 @@ default         account1          space1        *********ken1"""
     def test_render_single_profile_no_account(self):
         # arrange
         config = ConfigBuilder().with_profile("default", "space1", "token1").build()
-        expected_result = """Profile Name    Colony Account    Space Name    Token
+        expected_result = """Profile Name    Torque Account    Space Name    Token
 --------------  ----------------  ------------  -------------
 default                           space1        *********ken1"""
 
@@ -58,7 +58,7 @@ default                           space1        *********ken1"""
             .build()
         )
 
-        expected_result = """Profile Name    Colony Account    Space Name    Token
+        expected_result = """Profile Name    Torque Account    Space Name    Token
 --------------  ----------------  ------------  -------------
 default                           space1        *********ken1
 customer2       account2          space2        *********ken2"""

@@ -1,6 +1,8 @@
 import os
 from typing import Dict, List
 
+from colony.services.branding import Branding
+
 
 class GlobalInputParser:
     def __init__(self, command_args: Dict):
@@ -12,15 +14,15 @@ class GlobalInputParser:
 
     @property
     def token(self) -> str:
-        return self._args.get("--token", None) or os.environ.get("COLONY_TOKEN", None)
+        return self._args.get("--token", None) or os.environ.get(f"{Branding.env_var_prefix()}_TOKEN", None)
 
     @property
     def space(self) -> str:
-        return self._args.get("--space", None) or os.environ.get("COLONY_SPACE", None)
+        return self._args.get("--space", None) or os.environ.get(f"{Branding.env_var_prefix()}_SPACE", None)
 
     @property
     def account(self) -> str:
-        return self._args.get("--account", None) or os.environ.get("COLONY_ACCOUNT", None)
+        return self._args.get("--account", None) or os.environ.get(f"{Branding.env_var_prefix()}_ACCOUNT", None)
 
     @property
     def profile(self) -> str:
@@ -40,4 +42,4 @@ class GlobalInputParser:
 
     @staticmethod
     def get_config_path() -> str:
-        return os.environ.get("COLONY_CONFIG_PATH", None)
+        return os.environ.get(f"{Branding.env_var_prefix()}_CONFIG_PATH", None)

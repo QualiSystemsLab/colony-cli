@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 class BlueprintsCommand(BaseCommand):
     """
     usage:
-        colony (bp | blueprint) validate <name> [options]
-        colony (bp | blueprint) [--help]
+        {command_name} (bp | blueprint) validate <name> [options]
+        {command_name} (bp | blueprint) [--help]
 
     options:
        -b --branch <branch>     Specify the name of the remote git branch. If not provided, the CLI will attempt to

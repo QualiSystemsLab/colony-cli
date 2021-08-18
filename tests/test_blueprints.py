@@ -2,11 +2,14 @@ import json
 import unittest
 from unittest import mock
 
+from colony.services.branding import Branding, Brand
+
 from colony.blueprints import Blueprint
 
 
 class TestBlueprintJsonLoad(unittest.TestCase):
     def setUp(self) -> None:
+        Branding.Brand = Brand.Torque
         manager = mock.Mock()
         bp_json_file = "tests/fixtures/test_bp.json"
         with open(bp_json_file) as f:

@@ -1,22 +1,22 @@
 """
-Usage: colony [--space=<space>] [--token=<token>] [--account=<account>] [--profile=<profile>] [--help] [--debug]
+Usage: {command_name} [--space=<space>] [--token=<token>] [--account=<account>] [--profile=<profile>] [--help] [--debug]
               <command> [<args>...]
 
 Options:
   -h --help             Show this screen.
   --version             Show current version
-  --space=<space>       Use a specific Colony Space, this will override any default set in the config file
+  --space=<space>       Use a specific {product_name} Space, this will override any default set in the config file
   --token=<token>       Use a specific token for authentication, this will override any default set in the
                         config file
-  --account=<account>   [Optional] Your Colony account name. The account name is equal to your subdomain in
-                        the Colony URL. e.g. https://YOURACCOUNT.cloudshellcolony.com/
+  --account=<account>   [Optional] Your {product_name} account name. The account name is equal to your subdomain in
+                        the {product_name} URL. e.g. https://YOURACCOUNT.{api_host}/
   --profile=<profile>   Use a specific Profile section in the config file
                         You still can override config with --token/--space options.
 
 Commands:
-    bp, blueprint       validate colony blueprints
+    bp, blueprint       validate {product_name} blueprints
     sb, sandbox         start sandbox, end sandbox and get its status
-    configure           set, list and remove connection profiles to colony
+    configure           set, list and remove connection profiles to {product_name}
 """
 import logging
 import sys
@@ -28,6 +28,7 @@ from docopt import DocoptExit, docopt
 from colony.commands import bp, configure, sb
 from colony.models.connection import ColonyConnection
 from colony.parsers.global_input_parser import GlobalInputParser
+from colony.services.branding import Branding, Brand
 from colony.services.connection import ColonyConnectionProvider
 from colony.services.version import VersionCheckService
 
@@ -66,7 +67,8 @@ class BootstrapHelper:
     @staticmethod
     def validate_command(command_name: str) -> None:
         if command_name not in commands_table:
-            raise DocoptExit("Invalid or unknown command. See usage instruction by running 'colony -h'")
+            raise DocoptExit(f"Invalid or unknown command. "
+                             f"See usage instruction by running '{Branding.command_name()} -h'")
 
     @staticmethod
     def is_config_mode(input_parser: GlobalInputParser) -> bool:
@@ -79,11 +81,23 @@ class BootstrapHelper:
         )
 
 
+def main_torque():
+    Branding.Brand = Brand.Torque
+    main()
+
+
+def main_colony():
+    Branding.Brand = Brand.Colony
+    main()
+
+
 def main():
     # Colorama init for colored output
     init()
-    version = pkg_resources.get_distribution("colony-cli").version
-    args = docopt(__doc__, options_first=True, version=version)
+    version = pkg_resources.get_distribution(Branding.package_name()).version
+    args = docopt(__doc__.format(command_name=Branding.command_name(),
+                                 product_name=Branding.product_name(),
+                                 api_host=Branding.api_host()), options_first=True, version=version)
     input_parser = GlobalInputParser(args)
 
     # Check for new version

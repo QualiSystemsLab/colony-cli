@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
 
+from colony.services.branding import Brand, Branding
 from docopt import DocoptExit
 
 from colony.constants import ColonyConfigKeys
@@ -10,6 +11,7 @@ from colony.services.connection import ColonyConnectionProvider
 
 class TestColonyConnectionProvider(unittest.TestCase):
     def setUp(self) -> None:
+        Branding.Brand = Brand.Torque
         self.input_parser_mock = Mock()
         self.connection_provider = ColonyConnectionProvider(self.input_parser_mock)
 

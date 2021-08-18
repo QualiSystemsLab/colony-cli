@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 from unittest.mock import Mock, patch
 
+from colony.services.branding import Branding, Brand
 from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
@@ -14,6 +15,7 @@ from colony.exceptions import ConfigFileMissingError
 class TestBaseCommand(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        Branding.Brand = Brand.Torque
         cls.connection = mock.Mock()
         cls.connection.space = "test_space"
         cls.connection.token = "test_token"
@@ -40,8 +42,8 @@ class TestBaseCommand(unittest.TestCase):
 class TestBlueprintCommand(unittest.TestCase):
     def test_base_help_usage_line(self):
         expected_usage = """usage:
-        colony (bp | blueprint) validate <name> [options]
-        colony (bp | blueprint) [--help]"""
+        torque (bp | blueprint) validate <name> [options]
+        torque (bp | blueprint) [--help]"""
 
         with self.assertRaises(DocoptExit) as ctx:
             _ = BlueprintsCommand(command_args=[])
@@ -64,11 +66,11 @@ class TestBlueprintCommand(unittest.TestCase):
 class TestSandboxCommand(unittest.TestCase):
     def test_base_help_usage_line(self):
         expected_usage = """usage:
-        colony (sb | sandbox) start <blueprint_name> [options]
-        colony (sb | sandbox) status <sandbox_id>
-        colony (sb | sandbox) end <sandbox_id>
-        colony (sb | sandbox) list [--filter={all|my|auto}] [--show-ended] [--count=<N>]
-        colony (sb | sandbox) [--help]"""
+        torque (sb | sandbox) start <blueprint_name> [options]
+        torque (sb | sandbox) status <sandbox_id>
+        torque (sb | sandbox) end <sandbox_id>
+        torque (sb | sandbox) list [--filter={all|my|auto}] [--show-ended] [--count=<N>]
+        torque (sb | sandbox) [--help]"""
 
         with self.assertRaises(DocoptExit) as ctx:
             _ = SandboxesCommand(command_args=[])
@@ -116,10 +118,10 @@ class TestSandboxCommand(unittest.TestCase):
 class TestConfigureCommand(unittest.TestCase):
     def test_base_help_usage_line(self):
         expected_usage = """usage:
-        colony configure set
-        colony configure list
-        colony configure remove <profile>
-        colony configure [--help|-h]"""
+        torque configure set
+        torque configure list
+        torque configure remove <profile>
+        torque configure [--help|-h]"""
 
         with self.assertRaises(DocoptExit) as ctx:
             _ = ConfigureCommand(command_args=[])

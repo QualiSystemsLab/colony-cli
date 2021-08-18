@@ -1,6 +1,7 @@
 import getpass
 import logging
 
+from colony.services.branding import Branding
 from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
@@ -18,10 +19,10 @@ logger = logging.getLogger(__name__)
 class ConfigureCommand(BaseCommand):
     """
     usage:
-        colony configure set
-        colony configure list
-        colony configure remove <profile>
-        colony configure [--help|-h]
+        {command_name} configure set
+        {command_name} configure list
+        {command_name} configure remove <profile>
+        {command_name} configure [--help|-h]
 
     options:
         -h --help                   Show this message
@@ -40,7 +41,9 @@ class ConfigureCommand(BaseCommand):
             result_table = ConfigureListView(config).render()
 
         except ConfigFileMissingError:
-            raise DocoptExit("Config file doesn't exist. Use 'colony configure set' to configure Colony CLI.")
+            raise DocoptExit("Config file doesn't exist. Use '{command_name} configure set' "
+                             "to configure {product_name} CLI.".format(command_name=Branding.command_name(),
+                                                                       product_name=Branding.product_name()))
         except Exception as e:
             logger.exception(e, exc_info=False)
             return self.die()
@@ -82,17 +85,17 @@ class ConfigureCommand(BaseCommand):
         current_token = config.get(profile, {}).get(ColonyConfigKeys.TOKEN, "")
 
         # read account
-        account = input(f"Colony Account (optional) [{current_account}]: ")
+        account = input(f"{Branding.product_name()} Account (optional) [{current_account}]: ")
         account = account or current_account
 
         # read space name
-        space = input(f"Colony Space [{current_space}]: ")
+        space = input(f"{Branding.product_name()} Space [{current_space}]: ")
         space = space or current_space
         if not space:
             return self.die("Space cannot be empty")
 
         # read token
-        token = getpass.getpass(f"Colony Token [{mask_token(current_token)}]: ")
+        token = getpass.getpass(f"{Branding.product_name()} Token [{mask_token(current_token)}]: ")
         token = token or current_token
         if not token:
             return self.die("Token cannot be empty")

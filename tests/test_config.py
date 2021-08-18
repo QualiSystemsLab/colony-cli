@@ -3,17 +3,20 @@ import unittest
 from configparser import ConfigParser
 from unittest.mock import Mock, mock_open, patch
 
+from colony.services.branding import Branding, Brand
+
 from colony.exceptions import ConfigError, ConfigFileMissingError
 from colony.services.config import ColonyConfigProvider
 
 
 class TestConfigProvider(unittest.TestCase):
     def setUp(self) -> None:
+        Branding.Brand = Brand.Torque
         test_config_file = os.path.abspath(os.path.expanduser(os.path.expandvars("tests/fixtures/test_config")))
         self.provider = ColonyConfigProvider(filename=test_config_file)
 
     def test_correct_default_path(self):
-        self.assertEqual(ColonyConfigProvider().filename, "~/.colony/config")
+        self.assertEqual(ColonyConfigProvider().filename, "~/.torque/config")
 
     def test_filename_not_exist(self):
         wrong_file_name = "tests/fixtures/test_config_wrong"

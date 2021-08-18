@@ -1,6 +1,7 @@
 import logging
 from urllib.parse import urljoin
 
+from colony.services.branding import Branding
 from requests import Response, Session
 
 from .exceptions import Unauthorized
@@ -17,7 +18,7 @@ class ColonyClient(object):
     def __init__(
         self,
         colony_host_prefix: str = "https://",
-        colony_host: str = "cloudshellcolony.com",
+        colony_host: str = None,
         space: str = None,
         token: str = None,
         account: str = None,
@@ -25,6 +26,8 @@ class ColonyClient(object):
         password: str = None,
         session: ColonySession = ColonySession(),
     ):
+        if colony_host is None:
+            colony_host = Branding.api_host()
 
         if account:
             self.base_url = urljoin(f"{colony_host_prefix}{account}.{colony_host}", self.API_URL)
@@ -58,8 +61,10 @@ class ColonyClient(object):
         email: str,
         password: str,
         session: Session = ColonySession(),
-        endpoint: str = "https://cloudshellcolony.com/api",
+        endpoint: str = None,
     ):
+        if endpoint is None:
+            endpoint = f"https://{Branding.api_host()}/api"
         path = urljoin(endpoint, f"accounts/{account}/login")
         payload = {"email": email, "password": password}
         resp = session.post(url=path, json=payload)

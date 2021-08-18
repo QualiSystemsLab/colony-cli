@@ -3,7 +3,7 @@ from requests import Session
 
 class ColonySession(Session):
     def __init__(self):
-        """Creates new Colony Session"""
+        """Creates new ColonySession"""
         super(ColonySession, self).__init__()
 
         self.headers.update({"Accept": "application/json", "Accept-Charset": "utf-8"})

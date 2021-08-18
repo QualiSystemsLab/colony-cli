@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 class SandboxesCommand(BaseCommand):
     """
     usage:
-        colony (sb | sandbox) start <blueprint_name> [options]
-        colony (sb | sandbox) status <sandbox_id>
-        colony (sb | sandbox) end <sandbox_id>
-        colony (sb | sandbox) list [--filter={all|my|auto}] [--show-ended] [--count=<N>]
-        colony (sb | sandbox) [--help]
+        {command_name} (sb | sandbox) start <blueprint_name> [options]
+        {command_name} (sb | sandbox) status <sandbox_id>
+        {command_name} (sb | sandbox) end <sandbox_id>
+        {command_name} (sb | sandbox) list [--filter={{all|my|auto}}] [--show-ended] [--count=<N>]
+        {command_name} (sb | sandbox) [--help]
 
     options:
        -h --help                        Show this message
@@ -38,13 +38,13 @@ class SandboxesCommand(BaseCommand):
 
        -i, --inputs <input_params>      The Blueprints inputs can be provided as a comma-separated list of key=value
                                         pairs. For example: key1=value1, key2=value2.
-                                        By default Colony CLI will try to take the default values for these inputs
+                                        By default {product_name} CLI will try to take the default values for these inputs
                                         from the Blueprint definition yaml file.
 
        -a, --artifacts <artifacts>      A comma-separated list of artifacts per application. These are relative to the
-                                        artifact repository root defined in Colony.
+                                        artifact repository root defined in {product_name}.
                                         Example: appName1=path1, appName2=path2.
-                                        By default Colony CLI will try to take artifacts from blueprint definition yaml
+                                        By default {product_name} CLI will try to take artifacts from blueprint definition yaml
                                         file.
 
        -b, --branch <branch>            Run the Blueprint version from a remote Git branch. If not provided,

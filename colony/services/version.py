@@ -4,6 +4,7 @@ from typing import Dict, List
 
 import requests
 import semantic_version
+from colony.services.branding import Branding
 
 from colony.commands.base import BaseCommand
 
@@ -17,7 +18,7 @@ class VersionCheckService:
     def check_for_new_version_safely(self):
         try:
             # get latest version from pypi
-            response = requests.get("https://pypi.org/pypi/colony-cli/json")
+            response = requests.get(f"https://pypi.org/pypi/{Branding.package_name()}/json")
             pypi_project_info = response.json()
             latest_release_info = pypi_project_info["info"]
             latest_version = latest_release_info["version"]
@@ -67,7 +68,7 @@ class VersionCheckService:
         # todo - add color to the this message
         message = f"""================================================================
 New version available: {latest_version}
-Run 'pip install --upgrade colony-cli' to get the latest version
+Run 'pip install --upgrade {Branding.package_name()}' to get the latest version
 ================================================================
 """
         BaseCommand.message(message)
