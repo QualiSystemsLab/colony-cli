@@ -1,4 +1,5 @@
 import logging
+import os
 from urllib.parse import urljoin
 
 from requests import Response, Session
@@ -26,6 +27,13 @@ class ColonyClient(object):
         session: ColonySession = ColonySession(),
     ):
 
+        if os.environ.get("COLONY_HOSTNAME"):
+            colony_host = os.environ["COLONY_HOSTNAME"]
+        elif os.environ.get("CLI_CLIENT_QTORQUE"):
+            colony_host = "qtorque.io"
+        elif os.environ.get("CLI_CLIENT_ICOLONY"):
+            colony_host = "icolony.io"
+
         if account:
             self.base_url = urljoin(f"{colony_host_prefix}{account}.{colony_host}", self.API_URL)
         else:
@@ -42,6 +50,9 @@ class ColonyClient(object):
             self.token = ColonyClient.login(account, email, password, self.session, self.base_url)
 
         self.session.init_bearer_auth(token)
+
+    def __get_hostname(self):
+        return "cloudshellcolony.com"
 
     def __del__(self):
         if self.session:

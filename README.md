@@ -79,6 +79,24 @@ export COLONY_SPACE = demo_space
 export COLONY_ACCOUNT = MYACCOUNT
 ```
 
+###Additional environment variable
+
+It is possible to switch the client to different Colony instance
+
+```bash
+export CLI_CLIENT_QTORQUE = 1
+```
+or
+```bash
+export CLI_CLIENT_ICOLONY = 1
+```
+
+or set the custom host name
+
+```bash
+export COLONY_HOSTNAME = "qtorque.io"
+```
+
 
 ## Basic Usage
 
