@@ -228,9 +228,8 @@ def wait_for_sandbox_to_launch(
                     break
                 if context_branch.temp_branch_exists and can_temp_branch_be_deleted(sandbox):
                     context_branch.delete_temp_branch()
-                    if not timeout:
-                        spinner.green.ok("✔")
-                        break
+                    spinner.green.ok("✔")
+                    break
 
                 time.sleep(10)
                 spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
