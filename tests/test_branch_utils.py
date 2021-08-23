@@ -193,7 +193,7 @@ class TestStashLogicFunctions(unittest.TestCase):
             self.sandbox_id,
             self.repo,
             self.blueprint_name,
-            None,
+            0,
             context_branch,
         )
 
