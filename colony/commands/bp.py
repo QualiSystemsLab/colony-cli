@@ -41,13 +41,13 @@ class BlueprintsCommand(BaseCommand):
 
         CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
 
-        repo = get_and_check_folder_based_repo(blueprint_name_input)
-        with ContextBranch(repo, branch_input) as context_branch:
+        repo = get_and_check_folder_based_repo(blueprint_name)
+        with ContextBranch(repo, branch) as context_branch:
             if not context_branch:
                 return self.error("Unable to Validate BP")
             try:
                 bp = self.manager.validate(
-                    blueprint=blueprint_name_input, branch=context_branch.validation_branch, commit=commit_input
+                    blueprint=blueprint_name, branch=context_branch.validation_branch, commit=commit
                 )
             except Exception as e:
                 logger.exception(e, exc_info=False)

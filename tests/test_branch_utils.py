@@ -141,7 +141,6 @@ class TestStashLogicFunctions(unittest.TestCase):
                 self.blueprint_name,
                 DEFAULT_TIMEOUT,
                 context_branch,
-                "",
             )
             assert (datetime.now() - start_time).seconds < 1
 
@@ -165,7 +164,6 @@ class TestStashLogicFunctions(unittest.TestCase):
             self.blueprint_name,
             1,
             context_branch,
-            "",
         )
 
         # Assert:
@@ -197,7 +195,6 @@ class TestStashLogicFunctions(unittest.TestCase):
             self.blueprint_name,
             None,
             context_branch,
-            "",
         )
 
         # Assert:

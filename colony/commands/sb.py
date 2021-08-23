@@ -8,8 +8,7 @@ from colony.branch.branch_context import ContextBranch
 from colony.branch.branch_utils import (
     can_temp_branch_be_deleted,
     get_and_check_folder_based_repo,
-    is_tf_blueprint,
-    logger, is_k8s_blueprint,
+    logger,
 )
 from colony.commands.base import BaseCommand
 from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES
