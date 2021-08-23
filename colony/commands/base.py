@@ -6,6 +6,7 @@ from docopt import DocoptExit, docopt
 from colony.base import ResourceManager
 from colony.client import ColonyClient
 from colony.models.connection import ColonyConnection
+from colony.parsers.command_input_parsers import CommandInputParser
 
 
 class BaseCommand(object):
@@ -24,16 +25,15 @@ class BaseCommand(object):
             self.manager = None
 
         self.args = docopt(self.__doc__, argv=command_args)
+        self.input_parser = CommandInputParser(self.args)
 
     def execute(self) -> bool:
         """Finds a subcommand passed to with command in
         object actions table and executes mapped method"""
 
-        args = self.args
-
         actions_table = self.get_actions_table()
         for action in actions_table:
-            if args.get(action, False):
+            if self.args.get(action, False):
                 # call action
                 return actions_table[action]()
 

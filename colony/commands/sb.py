@@ -2,7 +2,6 @@ import datetime
 import time
 
 import tabulate
-from docopt import DocoptExit
 from yaspin import yaspin
 
 from colony.branch.branch_context import ContextBranch
@@ -10,12 +9,13 @@ from colony.branch.branch_utils import (
     can_temp_branch_be_deleted,
     get_and_check_folder_based_repo,
     is_tf_blueprint,
-    logger,
+    logger, is_k8s_blueprint,
 )
 from colony.commands.base import BaseCommand
 from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES
+from colony.parsers.command_input_validators import CommandInputValidator
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo, parse_comma_separated_string
+from colony.utils import BlueprintRepo
 
 
 class SandboxesCommand(BaseCommand):
@@ -68,12 +68,9 @@ class SandboxesCommand(BaseCommand):
         return {"status": self.do_status, "start": self.do_start, "end": self.do_end, "list": self.do_list}
 
     def do_list(self):
-        list_filter = self.args["--filter"] or "my"
-        if list_filter not in ["my", "all", "auto"]:
-            raise DocoptExit("--filter value must be in [my, all, auto]")
-
-        show_ended = self.args["--show-ended"]
-        count = self.args.get("--count", 25)
+        list_filter = self.input_parser.sandbox_list.filter
+        show_ended = self.input_parser.sandbox_list.show_ended
+        count = self.input_parser.sandbox_list.count
 
         try:
             sandbox_list = self.manager.list(filter_opt=list_filter, count=count)
@@ -99,9 +96,8 @@ class SandboxesCommand(BaseCommand):
         self.message(tabulate.tabulate(result_table, headers="keys"))
 
     def do_status(self):
-        sandbox_id = self.args["<sandbox_id>"]
         try:
-            sandbox = self.manager.get(sandbox_id)
+            sandbox = self.manager.get(self.input_parser.sandbox_status.sandbox_id)
         except Exception as e:
             logger.exception(e, exc_info=False)
             return self.die()
@@ -110,9 +106,8 @@ class SandboxesCommand(BaseCommand):
         return self.success(status)
 
     def do_end(self):
-        sandbox_id = self.args["<sandbox_id>"]
         try:
-            self.manager.end(sandbox_id)
+            self.manager.end(self.input_parser.sandbox_status.sandbox_id)
         except Exception as e:
             logger.exception(e, exc_info=False)
             return self.die()
@@ -120,33 +115,27 @@ class SandboxesCommand(BaseCommand):
         return self.success("End request has been sent")
 
     def do_start(self):
-        branch_input = self.args.get("--branch")
-        commit_input = self.args.get("--commit")
-        if commit_input and branch_input is None:
-            raise DocoptExit("Since commit is specified, branch is required")
+        # get commands inputs
+        blueprint_name = self.input_parser.sandbox_start.blueprint_name
+        branch = self.input_parser.sandbox_start.branch
+        commit = self.input_parser.sandbox_start.commit
+        sandbox_name = self.input_parser.sandbox_start.sandbox_name
+        timeout = self.input_parser.sandbox_start.timeout
+        duration = self.input_parser.sandbox_start.duration
+        inputs = self.input_parser.sandbox_start.inputs
+        artifacts = self.input_parser.sandbox_start.artifacts
+        repo = get_and_check_folder_based_repo(blueprint_name)
+        self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name, inputs, repo)
 
-        blueprint_name_input = self.args["<blueprint_name>"]
-        sandbox_name_input = self.args["--name"]
-        wait_input = self.args["--wait"]
-
-        timeout_input = self.timeout_flag_validate(self.args["--timeout"])
-        duration_input = self.duration_flag_validate(self.args["--duration"])
-
-        inputs = parse_comma_separated_string(self.args["--inputs"])
-        artifacts = parse_comma_separated_string(self.args["--artifacts"])
-
-        repo = get_and_check_folder_based_repo(blueprint_name_input)
-
-        self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name_input, inputs, repo)
-
-        with ContextBranch(repo, branch_input) as context_branch:
+        CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
+        with ContextBranch(repo, branch) as context_branch:
             # TODO move error handling to exception catch (investigate best practices of error handling)
             if not context_branch:
                 return self.error("Unable to start Sandbox")
 
-            if sandbox_name_input is None:
+            if sandbox_name is None:
                 sandbox_name_input = self.generate_sandbox_name(
-                    blueprint_name_input,
+                    blueprint_name,
                     context_branch.temp_working_branch,
                     context_branch.working_branch,
                 )
@@ -154,10 +143,10 @@ class SandboxesCommand(BaseCommand):
             try:
                 sandbox_id = self.manager.start(
                     sandbox_name_input,
-                    blueprint_name_input,
-                    duration_input,
+                    blueprint_name,
+                    duration,
                     context_branch.validation_branch,
-                    commit_input,
+                    commit,
                     artifacts,
                     inputs,
                 )
@@ -173,10 +162,9 @@ class SandboxesCommand(BaseCommand):
                 self.manager,
                 sandbox_id,
                 repo,
-                blueprint_name_input,
-                timeout_input,
+                blueprint_name,
+                timeout,
                 context_branch,
-                wait_input,
             )
 
             if wait_timeout_reached:
@@ -214,27 +202,6 @@ class SandboxesCommand(BaseCommand):
             branch_name_or_type = "localchanges-"
         return f"{blueprint_name}-{branch_name_or_type}{suffix}"
 
-    def duration_flag_validate(self, duration: str) -> int:
-        try:
-            duration = int(duration or 120)
-            if duration <= 0:
-                raise DocoptExit("Duration must be positive")
-
-        except ValueError:
-            raise DocoptExit("Duration must be a number")
-        return duration
-
-    def timeout_flag_validate(self, timeout: str) -> int:
-        if timeout is not None:
-            try:
-                timeout = int(timeout)
-            except ValueError:
-                raise DocoptExit("Timeout must be a number")
-
-            if timeout < 0:
-                raise DocoptExit("Timeout must be positive")
-        return timeout
-
 
 def wait_for_sandbox_to_launch(
     sb_manager: SandboxesManager,
@@ -243,9 +210,8 @@ def wait_for_sandbox_to_launch(
     blueprint_name: str,
     timeout: int,
     context_branch: ContextBranch,
-    wait_launch_end: str,
 ) -> bool:
-    if not wait_launch_end and not context_branch.temp_branch_exists:
+    if not timeout and not context_branch.temp_branch_exists:
         return False
     try:
         if context_branch.temp_branch_exists:
@@ -257,7 +223,6 @@ def wait_for_sandbox_to_launch(
         start_time = datetime.datetime.now()
         sandbox = sb_manager.get(sandbox_id)
         status = getattr(sandbox, "sandbox_status")
-        tf_blueprint = is_tf_blueprint(blueprint_name, repo)
 
         sandbox_start_wait_output(sandbox_id, context_branch.temp_branch_exists)
 
@@ -266,9 +231,9 @@ def wait_for_sandbox_to_launch(
                 if status in FINAL_SB_STATUSES:
                     spinner.green.ok("✔")
                     break
-                if context_branch.temp_branch_exists and can_temp_branch_be_deleted(sandbox, tf_blueprint):
+                if context_branch.temp_branch_exists and can_temp_branch_be_deleted(sandbox):
                     context_branch.delete_temp_branch()
-                    if not wait_launch_end:
+                    if not timeout:
                         spinner.green.ok("✔")
                         break
 

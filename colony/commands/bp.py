@@ -2,12 +2,12 @@ import logging
 from collections import OrderedDict
 
 import tabulate
-from docopt import DocoptExit
 
 from colony.blueprints import BlueprintsManager
 from colony.branch.branch_context import ContextBranch
 from colony.branch.branch_utils import get_and_check_folder_based_repo
 from colony.commands.base import BaseCommand
+from colony.parsers.command_input_validators import CommandInputValidator
 
 logger = logging.getLogger(__name__)
 
@@ -35,12 +35,11 @@ class BlueprintsCommand(BaseCommand):
         return {"validate": self.do_validate}
 
     def do_validate(self) -> bool:
-        blueprint_name_input = self.args.get("<name>")
-        branch_input = self.args.get("--branch")
-        commit_input = self.args.get("--commit")
+        blueprint_name = self.input_parser.blueprint_validate.blueprint_name
+        branch = self.input_parser.blueprint_validate.branch
+        commit = self.input_parser.blueprint_validate.commit
 
-        if commit_input and branch_input is None:
-            raise DocoptExit("Since a commit was specified, a branch parameter is also required")
+        CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
 
         repo = get_and_check_folder_based_repo(blueprint_name_input)
         with ContextBranch(repo, branch_input) as context_branch:
