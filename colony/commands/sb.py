@@ -48,7 +48,7 @@ class SandboxesCommand(BaseCommand):
                                         specific Blueprint historic version. If this parameter is used, the
                                         Branch parameter must also be specified.
 
-       -t, --timeout <timeout>          Set the timeout in minutes to wait for the sandbox to become active. If not set,
+       -t, --timeout  <timeout>         Set the timeout in minutes to wait for the sandbox to become active. If not set,
                                         the CLI will wait for a default timeout of 30 minutes until the sandbox is
                                         ready.
 
@@ -116,6 +116,7 @@ class SandboxesCommand(BaseCommand):
         commit = self.input_parser.sandbox_start.commit
         sandbox_name = self.input_parser.sandbox_start.sandbox_name
         timeout = self.input_parser.sandbox_start.timeout
+        wait = self.input_parser.sandbox_start.wait
         duration = self.input_parser.sandbox_start.duration
         inputs = self.input_parser.sandbox_start.inputs
         artifacts = self.input_parser.sandbox_start.artifacts
@@ -156,10 +157,9 @@ class SandboxesCommand(BaseCommand):
             wait_timeout_reached = wait_for_sandbox_to_launch(
                 self.manager,
                 sandbox_id,
-                repo,
-                blueprint_name,
                 timeout,
                 context_branch,
+                wait
             )
 
             if wait_timeout_reached:
@@ -201,12 +201,12 @@ class SandboxesCommand(BaseCommand):
 def wait_for_sandbox_to_launch(
     sb_manager: SandboxesManager,
     sandbox_id: str,
-    repo: BlueprintRepo,
-    blueprint_name: str,
     timeout: int,
     context_branch: ContextBranch,
+    wait: bool,
 ) -> bool:
-    if not timeout and not context_branch.temp_branch_exists:
+
+    if not wait and not context_branch.temp_branch_exists:
         return False
     try:
         if context_branch.temp_branch_exists:
@@ -228,8 +228,9 @@ def wait_for_sandbox_to_launch(
                     break
                 if context_branch.temp_branch_exists and can_temp_branch_be_deleted(sandbox):
                     context_branch.delete_temp_branch()
-                    spinner.green.ok("✔")
-                    break
+                    if not wait:
+                        spinner.green.ok("✔")
+                        break
 
                 time.sleep(10)
                 spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"

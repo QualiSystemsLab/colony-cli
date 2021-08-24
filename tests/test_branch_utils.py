@@ -135,10 +135,9 @@ class TestStashLogicFunctions(unittest.TestCase):
             self.wait_before_delete(
                 self.sb_manager,
                 self.sandbox_id,
-                self.repo,
-                self.blueprint_name,
                 DEFAULT_TIMEOUT,
                 context_branch,
+                False,
             )
             assert (datetime.now() - start_time).seconds < 1
 
@@ -156,10 +155,9 @@ class TestStashLogicFunctions(unittest.TestCase):
         timeout_reached = self.wait_before_delete(
             self.sb_manager,
             self.sandbox_id,
-            self.repo,
-            self.blueprint_name,
             1,
             context_branch,
+            False,
         )
 
         # Assert:
@@ -184,10 +182,9 @@ class TestStashLogicFunctions(unittest.TestCase):
         timeout_reached = self.wait_before_delete(
             self.sb_manager,
             self.sandbox_id,
-            self.repo,
-            self.blueprint_name,
             0,
             context_branch,
+            False,
         )
 
         # Assert:

@@ -94,9 +94,13 @@ class SandboxStartInputParser(InputParserBase):
         return self._args["--name"]
 
     @property
+    def wait(self) -> str:
+        return self._args["--wait"]
+
+    @property
     def timeout(self) -> int:
-        timeout = self._args["--wait"]
-        SandboxStartInputValidator.validate_wait(timeout)
+        timeout = self._args["--timeout"]
+        SandboxStartInputValidator.validate_timeout(timeout)
         return int(timeout) if timeout is not None else timeout
 
     @property
