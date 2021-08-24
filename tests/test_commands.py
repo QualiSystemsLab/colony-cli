@@ -86,21 +86,11 @@ class TestSandboxCommand(unittest.TestCase):
         args = input_line.split()
         try:
             command = SandboxesCommand(command_args=args)
-        except DocoptExit as de:
+        except DocoptExit:
             return
         except Exception as ex:
             print(ex)
-
         self.assertRaises(DocoptExit, getattr(command, func))
-
-
-        # with self.assertRaises(DocoptExit) as ex:
-        #     command = None
-        #     command = SandboxesCommand(command_args=args)
-        #     if not command:
-        #         getattr(command, func)
-        #     #self.assertRaises(DocoptExit, getattr(command, func))
-        # print("")
 
     def test_start_negative_wait(self):
         line = "sb start test --wait -10"

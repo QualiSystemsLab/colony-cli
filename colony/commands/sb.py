@@ -10,7 +10,6 @@ from colony.commands.base import BaseCommand
 from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES
 from colony.parsers.command_input_validators import CommandInputValidator
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo
 
 
 class SandboxesCommand(BaseCommand):
@@ -154,13 +153,7 @@ class SandboxesCommand(BaseCommand):
                 logger.exception(e, exc_info=False)
                 return self.die()
 
-            wait_timeout_reached = wait_for_sandbox_to_launch(
-                self.manager,
-                sandbox_id,
-                timeout,
-                context_branch,
-                wait
-            )
+            wait_timeout_reached = wait_for_sandbox_to_launch(self.manager, sandbox_id, timeout, context_branch, wait)
 
             if wait_timeout_reached:
                 return self.die()
