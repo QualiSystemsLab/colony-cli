@@ -125,7 +125,6 @@ class SandboxesCommand(BaseCommand):
         repo = get_and_check_folder_based_repo(blueprint_name)
         self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name, inputs, repo)
 
-
         with ContextBranch(repo, branch) as context_branch:
             # TODO move error handling to exception catch (investigate best practices of error handling)
             if not context_branch:
