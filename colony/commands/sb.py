@@ -111,8 +111,11 @@ class SandboxesCommand(BaseCommand):
     def do_start(self):
         # get commands inputs
         blueprint_name = self.input_parser.sandbox_start.blueprint_name
+
         branch = self.input_parser.sandbox_start.branch
         commit = self.input_parser.sandbox_start.commit
+        CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
+
         sandbox_name = self.input_parser.sandbox_start.sandbox_name
         timeout = self.input_parser.sandbox_start.timeout
         wait = self.input_parser.sandbox_start.wait
@@ -122,7 +125,7 @@ class SandboxesCommand(BaseCommand):
         repo = get_and_check_folder_based_repo(blueprint_name)
         self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name, inputs, repo)
 
-        CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
+
         with ContextBranch(repo, branch) as context_branch:
             # TODO move error handling to exception catch (investigate best practices of error handling)
             if not context_branch:
