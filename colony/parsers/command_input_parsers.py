@@ -94,7 +94,7 @@ class SandboxStartInputParser(InputParserBase):
         return self._args["--name"]
 
     @property
-    def wait(self) -> str:
+    def wait(self) -> bool:
         return self._args["--wait"]
 
     @property

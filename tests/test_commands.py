@@ -90,6 +90,7 @@ class TestSandboxCommand(unittest.TestCase):
             return
         except Exception as ex:
             print(ex)
+
         self.assertRaises(DocoptExit, getattr(command, func))
 
     def test_start_negative_wait(self):
