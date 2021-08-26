@@ -47,11 +47,20 @@ class SandboxesCommand(BaseCommand):
                                         specific Blueprint historic version. If this parameter is used, the
                                         Branch parameter must also be specified.
 
-       -t, --timeout  <timeout>         Set the timeout in minutes to wait for the sandbox to become active. If not set,
-                                        the CLI will wait for a default timeout of 30 minutes until the sandbox is
-                                        ready.
+       -t, --timeout  <timeout>         Set how long(default is 30 (minutes)) will the CLI-tool wait before releasing
+                                        the control back to shell prompt. The CLI-tool will release the control back in
+                                        the following situation as follows:
+                                        "wait_active" is not set:
+                                           * Remote and local are synced and no local uncommitted changes:
+                                            => Immediately once Sandbox creation has started
+                                           * Remote and local are not synced OR there are local uncommitted changes:
+                                            => Once sandbox status will safely allow to exit Or once timeout is reached
+                                        "wait_active" is set:
+                                            => Once sandbox is in an active status or once timeout was reached
+                                            * Remote and local are not synced OR there are local uncommitted changes:
+                                                - Temp branch cleanup will happen once its safe.
 
-       -w, --wait                       Wait for sandbox to finish launching process.
+       -w, --wait_active                Wait for sandbox to finish launching process and a timeout did not occur.
 
 
     """
