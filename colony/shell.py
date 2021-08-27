@@ -96,9 +96,13 @@ def main():
     # Colorama init for colored output
     init()
     version = pkg_resources.get_distribution(Branding.package_name()).version
-    args = docopt(__doc__.format(command_name=Branding.command_name(),
-                                 product_name=Branding.product_name(),
-                                 api_host=Branding.api_host()), options_first=True, version=version)
+    args = docopt(
+        __doc__.format(
+            command_name=Branding.command_name(), product_name=Branding.product_name(), api_host=Branding.api_host()
+        ),
+        options_first=True,
+        version=version,
+    )
     input_parser = GlobalInputParser(args)
 
     # Check for new version
