@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 from requests import Response, Session
 
 from colony.services.branding import Branding
+
 from .exceptions import Unauthorized
 from .session import ColonySession
 
