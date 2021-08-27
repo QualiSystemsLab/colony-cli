@@ -13,8 +13,8 @@ class MainShellTest(unittest.TestCase):
     def setUp(self) -> None:
         Branding.Brand = Brand.Torque
         self.main_doc = shell.__doc__
-        self.base_usage = """Usage: {command_name} [--space=<space>] [--token=<token>] [--account=<account>] 
-              [--profile=<profile>] [--help] [--debug]
+        self.base_usage = """Usage: {command_name} [--space=<space>] [--token=<token>] [--account=<account>] """ \
+                          """[--profile=<profile>] [--help] [--debug]
               <command> [<args>...]"""
 
     def test_show_base_usage_line(self):
@@ -56,7 +56,7 @@ class MainShellTest(unittest.TestCase):
     @patch("colony.shell.ColonyConnectionProvider")
     @patch("colony.shell.BootstrapHelper.should_get_connection_params")
     def test_get_connection_params_returns_connection(
-        self, should_get_connection_params_mock, connection_provider_class_mock
+            self, should_get_connection_params_mock, connection_provider_class_mock
     ):
         # arrange
         input_parser = Mock()
