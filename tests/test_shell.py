@@ -16,7 +16,7 @@ class MainShellTest(unittest.TestCase):
         self.base_usage = (
             """Usage: {command_name} [--space=<space>] [--token=<token>] [--account=<account>] """
             """[--profile=<profile>] [--help] [--debug]
-               <command> [<args>...]"""
+              <command> [<args>...]"""
         )
 
     def test_show_base_usage_line(self):
