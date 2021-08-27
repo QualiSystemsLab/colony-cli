@@ -14,11 +14,8 @@ with open(os.path.join("../colony-cli/README.md"), encoding="utf-8") as f:
 setup(
     name="colony-cli",
     version=version_from_file,
-    packages=find_packages(where="..",
-                           exclude=["*.tests", "*.tests.*", "tests.*", "tests", "torque-cli"]),
-    package_dir={
-        '': ".."
-    },
+    packages=find_packages(where="..", exclude=["*.tests", "*.tests.*", "tests.*", "tests", "torque-cli"]),
+    package_dir={"": ".."},
     url="https://www.quali.com/",
     license="Apache Software License",
     author="Quali",

@@ -2,9 +2,8 @@ import json
 import unittest
 from unittest import mock
 
-from colony.services.branding import Branding, Brand
-
 from colony.blueprints import Blueprint
+from colony.services.branding import Brand, Branding
 
 
 class TestBlueprintJsonLoad(unittest.TestCase):

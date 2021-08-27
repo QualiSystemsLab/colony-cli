@@ -1,6 +1,5 @@
 import sys
 
-from colony.services.branding import Branding
 from colorama import Fore, Style
 from docopt import DocoptExit, docopt
 
@@ -8,6 +7,7 @@ from colony.base import ResourceManager
 from colony.client import ColonyClient
 from colony.models.connection import ColonyConnection
 from colony.parsers.command_input_parsers import CommandInputParser
+from colony.services.branding import Branding
 
 
 class BaseCommand(object):
@@ -25,9 +25,12 @@ class BaseCommand(object):
             self.client = None
             self.manager = None
 
-        self.args = docopt(self.__doc__.format(command_name=Branding.command_name(),
-                                               product_name=Branding.product_name(),
-                                               api_host=Branding.api_host()), argv=command_args)
+        self.args = docopt(
+            self.__doc__.format(
+                command_name=Branding.command_name(), product_name=Branding.product_name(), api_host=Branding.api_host()
+            ),
+            argv=command_args,
+        )
         self.input_parser = CommandInputParser(self.args)
 
     def execute(self) -> bool:

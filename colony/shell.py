@@ -28,7 +28,7 @@ from docopt import DocoptExit, docopt
 from colony.commands import bp, configure, sb
 from colony.models.connection import ColonyConnection
 from colony.parsers.global_input_parser import GlobalInputParser
-from colony.services.branding import Branding, Brand
+from colony.services.branding import Brand, Branding
 from colony.services.connection import ColonyConnectionProvider
 from colony.services.version import VersionCheckService
 
@@ -67,8 +67,9 @@ class BootstrapHelper:
     @staticmethod
     def validate_command(command_name: str) -> None:
         if command_name not in commands_table:
-            raise DocoptExit(f"Invalid or unknown command. "
-                             f"See usage instruction by running '{Branding.command_name()} -h'")
+            raise DocoptExit(
+                f"Invalid or unknown command. " f"See usage instruction by running '{Branding.command_name()} -h'"
+            )
 
     @staticmethod
     def is_config_mode(input_parser: GlobalInputParser) -> bool:

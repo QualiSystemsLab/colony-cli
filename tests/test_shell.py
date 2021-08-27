@@ -1,11 +1,11 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from colony.services.branding import Branding, Brand
 from docopt import DocoptExit, docopt
 
 from colony import shell
 from colony.parsers.global_input_parser import GlobalInputParser
+from colony.services.branding import Brand, Branding
 from colony.shell import BootstrapHelper
 
 
@@ -13,7 +13,8 @@ class MainShellTest(unittest.TestCase):
     def setUp(self) -> None:
         Branding.Brand = Brand.Torque
         self.main_doc = shell.__doc__
-        self.base_usage = """Usage: {command_name} [--space=<space>] [--token=<token>] [--account=<account>] [--profile=<profile>] [--help] [--debug]
+        self.base_usage = """Usage: {command_name} [--space=<space>] [--token=<token>] [--account=<account>] 
+              [--profile=<profile>] [--help] [--debug]
               <command> [<args>...]"""
 
     def test_show_base_usage_line(self):

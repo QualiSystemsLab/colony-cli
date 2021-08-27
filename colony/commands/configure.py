@@ -1,7 +1,6 @@
 import getpass
 import logging
 
-from colony.services.branding import Branding
 from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
@@ -9,6 +8,7 @@ from colony.constants import ColonyConfigKeys
 from colony.exceptions import ConfigFileMissingError
 from colony.parsers.global_input_parser import GlobalInputParser
 from colony.sandboxes import SandboxesManager
+from colony.services.branding import Branding
 from colony.services.config import ColonyConfigProvider
 from colony.view.configure_list_view import ConfigureListView
 from colony.view.view_helper import mask_token
@@ -41,9 +41,12 @@ class ConfigureCommand(BaseCommand):
             result_table = ConfigureListView(config).render()
 
         except ConfigFileMissingError:
-            raise DocoptExit("Config file doesn't exist. Use '{command_name} configure set' "
-                             "to configure {product_name} CLI.".format(command_name=Branding.command_name(),
-                                                                       product_name=Branding.product_name()))
+            raise DocoptExit(
+                "Config file doesn't exist. Use '{command_name} configure set' "
+                "to configure {product_name} CLI.".format(
+                    command_name=Branding.command_name(), product_name=Branding.product_name()
+                )
+            )
         except Exception as e:
             logger.exception(e, exc_info=False)
             return self.die()

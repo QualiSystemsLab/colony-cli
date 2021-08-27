@@ -1,9 +1,9 @@
 import logging
 from urllib.parse import urljoin
 
-from colony.services.branding import Branding
 from requests import Response, Session
 
+from colony.services.branding import Branding
 from .exceptions import Unauthorized
 from .session import ColonySession
 

@@ -46,7 +46,6 @@ class Branding:
         elif Branding.Brand == Brand.Colony:
             return "cloudshellcolony.com"
 
-
     @staticmethod
     def env_var_prefix():
         Branding.__check_if_set()
@@ -54,5 +53,3 @@ class Branding:
             return "COLONY"
         elif Branding.Brand == Brand.Colony:
             return "TORQUE"
-
-

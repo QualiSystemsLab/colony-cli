@@ -3,9 +3,8 @@ import unittest
 from configparser import ConfigParser
 from unittest.mock import Mock, mock_open, patch
 
-from colony.services.branding import Branding, Brand
-
 from colony.exceptions import ConfigError, ConfigFileMissingError
+from colony.services.branding import Brand, Branding
 from colony.services.config import ColonyConfigProvider
 
 

@@ -1,9 +1,9 @@
 from collections import OrderedDict
 
 import tabulate
-from colony.services.branding import Branding
 
 from colony.constants import ColonyConfigKeys
+from colony.services.branding import Branding
 from colony.view.view_helper import mask_token
 
 
@@ -13,8 +13,10 @@ class ConfigureListView:
 
     def render(self):
         if not self.config:
-            return f"Config file is empty. Use '{Branding.command_name()} configure set' " \
-                   f"to configure {Branding.product_name()} CLI."
+            return (
+                f"Config file is empty. Use '{Branding.command_name()} configure set' "
+                f"to configure {Branding.product_name()} CLI."
+            )
 
         result_table = []
         for profile in self.config.keys():

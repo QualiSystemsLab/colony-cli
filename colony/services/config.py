@@ -2,10 +2,9 @@ import logging
 import os
 from configparser import ConfigParser, ParsingError
 
-from colony.services.branding import Branding
-
 from colony.constants import ColonyConfigKeys
 from colony.exceptions import ConfigError, ConfigFileMissingError
+from colony.services.branding import Branding
 
 logger = logging.getLogger(__name__)
 

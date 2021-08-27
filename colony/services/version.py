@@ -4,9 +4,9 @@ from typing import Dict, List
 
 import requests
 import semantic_version
-from colony.services.branding import Branding
 
 from colony.commands.base import BaseCommand
+from colony.services.branding import Branding
 
 logger = logging.getLogger(__name__)
 

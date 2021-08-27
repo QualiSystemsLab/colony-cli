@@ -2,7 +2,6 @@ import unittest
 from unittest import mock
 from unittest.mock import Mock, patch
 
-from colony.services.branding import Branding, Brand
 from docopt import DocoptExit
 
 from colony.commands.base import BaseCommand
@@ -10,6 +9,7 @@ from colony.commands.bp import BlueprintsCommand
 from colony.commands.configure import ConfigureCommand
 from colony.commands.sb import SandboxesCommand
 from colony.exceptions import ConfigFileMissingError
+from colony.services.branding import Brand, Branding
 
 
 class TestBaseCommand(unittest.TestCase):

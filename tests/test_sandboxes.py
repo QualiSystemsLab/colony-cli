@@ -1,9 +1,8 @@
 import unittest
 
-from colony.services.branding import Branding, Brand
-
 from colony.client import ColonyClient
 from colony.sandboxes import SandboxesManager
+from colony.services.branding import Brand, Branding
 
 
 class TestSandboxes(unittest.TestCase):

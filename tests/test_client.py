@@ -1,8 +1,7 @@
 import unittest
 
-from colony.services.branding import Branding, Brand
-
 from colony.client import ColonyClient
+from colony.services.branding import Brand, Branding
 
 
 class TestClient(unittest.TestCase):

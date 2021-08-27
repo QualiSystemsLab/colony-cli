@@ -38,14 +38,14 @@ class SandboxesCommand(BaseCommand):
 
        -i, --inputs <input_params>      The Blueprints inputs can be provided as a comma-separated list of key=value
                                         pairs. For example: key1=value1, key2=value2.
-                                        By default {product_name} CLI will try to take the default values for these inputs
-                                        from the Blueprint definition yaml file.
+                                        By default {product_name} CLI will try to take the default values for these
+                                        inputs from the Blueprint definition yaml file.
 
        -a, --artifacts <artifacts>      A comma-separated list of artifacts per application. These are relative to the
                                         artifact repository root defined in {product_name}.
                                         Example: appName1=path1, appName2=path2.
-                                        By default {product_name} CLI will try to take artifacts from blueprint definition yaml
-                                        file.
+                                        By default {product_name} CLI will try to take artifacts from blueprint
+                                        definition yaml file.
 
        -b, --branch <branch>            Run the Blueprint version from a remote Git branch. If not provided,
                                         the CLI will attempt to automatically detect the current working branch.

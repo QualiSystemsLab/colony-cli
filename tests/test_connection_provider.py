@@ -1,11 +1,11 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from colony.services.branding import Brand, Branding
 from docopt import DocoptExit
 
 from colony.constants import ColonyConfigKeys
 from colony.exceptions import ConfigError
+from colony.services.branding import Brand, Branding
 from colony.services.connection import ColonyConnectionProvider
 
 
