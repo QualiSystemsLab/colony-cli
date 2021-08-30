@@ -64,7 +64,7 @@ class GitMagicTests(unittest.TestCase):
 
             # Act
             sys.argv[1:] = ["--debug", "bp", "validate", "test2"]
-            shell.main()
+            shell.main_torque()
 
             # Assert
             self._assert_untracked_reverted_with_untracked(1)
@@ -93,7 +93,7 @@ class GitMagicTests(unittest.TestCase):
 
             # Act
             sys.argv[1:] = ["--debug", "bp", "validate", "test2"]
-            shell.main()
+            shell.main_torque()
 
             # Assert
             self._assert_untracked_reverted_without_untracked()
@@ -122,7 +122,7 @@ class GitMagicTests(unittest.TestCase):
 
             # Act
             sys.argv[1:] = ["--debug", "bp", "validate", "test2"]
-            shell.main()
+            shell.main_torque()
 
             # Assert
             self._assert_untracked_reverted_with_untracked(1)
@@ -149,7 +149,7 @@ class GitMagicTests(unittest.TestCase):
 
             # Act
             sys.argv[1:] = ["--debug", "bp", "validate", "test2"]
-            shell.main()
+            shell.main_torque()
 
             # Assert
             self._assert_untracked_reverted_without_untracked()

@@ -84,15 +84,15 @@ class BootstrapHelper:
 
 def main_torque():
     Branding.Brand = Brand.Torque
-    main()
+    __main()
 
 
 def main_colony():
     Branding.Brand = Brand.Colony
-    main()
+    __main()
 
 
-def main():
+def __main():
     # Colorama init for colored output
     init()
     version = pkg_resources.get_distribution(Branding.package_name()).version
@@ -134,4 +134,4 @@ def exit(run_result) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    __main()
