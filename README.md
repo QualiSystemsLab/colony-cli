@@ -126,7 +126,7 @@ You can get additional help information for a particular command by specifying *
 
     options:
        -h --help                        Show this message
-       -d, --duration <minutes>         The Sandbox will automatically de-provision at the end of the provided durationI
+       -d, --duration <minutes>         The Sandbox will automatically de-provision at the end of the provided duration
        -n, --name <sandbox_name>        Provide a name for the Sandbox. If not set, the name will be generated
                                         automatically using the source branch (or local changes) and current time.
 
