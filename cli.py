@@ -1,4 +1,4 @@
-from colony.shell import main
+from colony.shell import main_torque
 
 if __name__ == "__main__":
-    main()
+    main_torque()
