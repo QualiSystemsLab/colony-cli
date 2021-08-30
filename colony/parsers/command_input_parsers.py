@@ -95,7 +95,7 @@ class SandboxStartInputParser(InputParserBase):
 
     @property
     def wait(self) -> bool:
-        return self._args["--wait"]
+        return self._args["--wait_active"]
 
     @property
     def timeout(self) -> int:
