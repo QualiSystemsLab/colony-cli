@@ -1,24 +1,12 @@
-import datetime
-import logging
-import os
-import time
-
 import tabulate
 
-from colony.branch_utils import (
-    delete_temp_branch,
-    figure_out_branches,
-    revert_and_delete_temp_branch,
-    revert_from_temp_branch,
-    revert_wait_and_delete_temp_branch,
-)
+from colony.branch.branch_context import ContextBranch
+from colony.branch.branch_utils import get_and_check_folder_based_repo, logger
 from colony.commands.base import BaseCommand
-from colony.constants import UNCOMMITTED_BRANCH_NAME
 from colony.parsers.command_input_validators import CommandInputValidator
 from colony.sandboxes import SandboxesManager
-from colony.utils import BlueprintRepo
-
-logger = logging.getLogger(__name__)
+from colony.services.sb_naming import generate_sandbox_name
+from colony.services.waiter import Waiter
 
 
 class SandboxesCommand(BaseCommand):
@@ -56,9 +44,19 @@ class SandboxesCommand(BaseCommand):
                                         specific Blueprint historic version. If this parameter is used, the
                                         Branch parameter must also be specified.
 
-       -w, --wait <timeout>             Set the timeout in minutes to wait for the sandbox to become active. If not set,
-                                        the CLI will wait for a default timeout of 30 minutes until the sandbox is
-                                        ready.
+       -t, --timeout <minutes>          Set how long (default timeout is 30 minutes) to block and wait before releasing
+                                        control back to shell prompt. If timeout is reached before the desired status
+                                        the wait loop will be interrupted.
+                                        If "wait_active" flag is not set and a temp branch is created for local changes,
+                                        the CLI will block and wait until the sandbox Infrastructure and Artifacts are
+                                        ready. Then the temp branch can be safely deleted and the wait loop will end.
+                                        If "wait_active" flag is set, the CLI will block and wait until the sandbox is
+                                        Active regardless if temp branch is created or not.
+
+       -w, --wait_active                Block shell prompt and wait for the sandbox to be Active (or deployment ended
+                                        with an error) while the timeout is not reached. Default timeout is 30 minutes.
+                                        The default timeout can be changed using the "timeout" flag.
+
 
     """
 
@@ -117,25 +115,62 @@ class SandboxesCommand(BaseCommand):
     def do_start(self):
         # get commands inputs
         blueprint_name = self.input_parser.sandbox_start.blueprint_name
+
         branch = self.input_parser.sandbox_start.branch
         commit = self.input_parser.sandbox_start.commit
-        name = self.input_parser.sandbox_start.sandbox_name
+        CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
+
+        sandbox_name = self.input_parser.sandbox_start.sandbox_name
         timeout = self.input_parser.sandbox_start.timeout
+        wait = self.input_parser.sandbox_start.wait
         duration = self.input_parser.sandbox_start.duration
         inputs = self.input_parser.sandbox_start.inputs
         artifacts = self.input_parser.sandbox_start.artifacts
 
-        CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
+        repo = get_and_check_folder_based_repo(blueprint_name)
+        self._update_missing_artifacts_and_inputs_with_default_values(artifacts, blueprint_name, inputs, repo)
 
-        repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
+        with ContextBranch(repo, branch) as context_branch:
+            # TODO move error handling to exception catch (investigate best practices of error handling)
 
-        if not success:
-            return self.error("Unable to start Sandbox")
+            if sandbox_name is None:
+                sandbox_name_input = generate_sandbox_name(
+                    blueprint_name,
+                    context_branch.temp_working_branch,
+                    context_branch.working_branch,
+                )
 
+            try:
+                sandbox_id = self.manager.start(
+                    sandbox_name_input,
+                    blueprint_name,
+                    duration,
+                    context_branch.validation_branch,
+                    commit,
+                    artifacts,
+                    inputs,
+                )
+                BaseCommand.action_announcement("Starting sandbox")
+                BaseCommand.important_value("Id: ", sandbox_id)
+                BaseCommand.url(prefix_message="URL: ", message=self.manager.get_sandbox_ui_link(sandbox_id))
+
+            except Exception as e:
+                logger.exception(e, exc_info=False)
+                return self.die()
+
+            wait_timeout_reached = Waiter.wait_for_sandbox_to_launch(
+                self.manager, sandbox_id, timeout, context_branch, wait
+            )
+
+            if wait_timeout_reached:
+                return self.die()
+            else:
+                return self.success(sandbox_id)
+
+    def _update_missing_artifacts_and_inputs_with_default_values(self, artifacts, blueprint_name, inputs, repo):
         # TODO(ddovbii): This obtaining default values magic must be refactored
         logger.debug("Trying to obtain default values for artifacts and inputs from local git blueprint repo")
         try:
-            repo = BlueprintRepo(os.getcwd())
             if not repo.is_current_branch_synced():
                 logger.debug("Skipping obtaining values since local branch is not synced with remote")
             else:
@@ -151,63 +186,4 @@ class SandboxesCommand(BaseCommand):
 
         except Exception as e:
             logger.debug(f"Unable to obtain default values. Details: {e}")
-
-        branch_to_be_used = temp_working_branch or working_branch
-
-        if name is None:
-            suffix = datetime.datetime.now().strftime("%b%d-%H:%M:%S")
-            branch_name_or_type = ""
-            if working_branch:
-                branch_name_or_type = working_branch + "-"
-            if temp_working_branch:
-                branch_name_or_type = "localchanges-"
-            name = f"{blueprint_name}-{branch_name_or_type}{suffix}"
-
-        try:
-            sandbox_id = self.manager.start(
-                name, blueprint_name, duration, branch_to_be_used, commit, artifacts, inputs
-            )
-            BaseCommand.action_announcement("Starting sandbox")
-            BaseCommand.important_value("Id: ", sandbox_id)
-            BaseCommand.url(prefix_message="URL: ", message=self.manager.get_sandbox_ui_link(sandbox_id))
-
-        except Exception as e:
-            logger.exception(e, exc_info=False)
-            if temp_working_branch.startswith(UNCOMMITTED_BRANCH_NAME):
-                revert_from_temp_branch(repo, working_branch, stashed_flag)
-                delete_temp_branch(repo, temp_working_branch)
-            return self.die()
-
-        # todo: I think the below can be simplified and refactored
-        if timeout is None:
-            revert_wait_and_delete_temp_branch(
-                self.manager, blueprint_name, repo, sandbox_id, stashed_flag, temp_working_branch, working_branch
-            )
-            return self.success("The Sandbox was created")
-
-        else:
-            start_time = datetime.datetime.now()
-
-            logger.debug(f"Waiting for the Sandbox {sandbox_id} to start...")
-            # Waiting loop
-            while (datetime.datetime.now() - start_time).seconds < timeout * 60:
-                sandbox = self.manager.get(sandbox_id)
-                status = getattr(sandbox, "sandbox_status")
-                if status == "Active":
-                    revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
-                    return self.success(sandbox_id)
-
-                elif status == "Launching":
-                    progress = getattr(sandbox, "launching_progress")
-                    for check_points, properties in progress.items():
-                        logger.debug(f"{check_points}: {properties['status']}")
-                    time.sleep(30)
-
-                else:
-                    revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
-                    return self.die(f"The Sandbox {sandbox_id} has started. Current state is: {status}")
-
-            # timeout exceeded
-            logger.error(f"Sandbox {sandbox_id} was not active after the provided timeout of {timeout} minutes")
-            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
-            return self.die()
+        return repo

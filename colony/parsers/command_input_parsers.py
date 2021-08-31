@@ -60,6 +60,8 @@ class SandboxListInputParser(InputParserBase):
     @property
     def filter(self) -> str:
         list_filter = self._args.get("--filter", "my")
+        if not list_filter:
+            list_filter = "my"
         SandboxListValidator.validate_filter(list_filter)
         return list_filter
 
@@ -94,9 +96,13 @@ class SandboxStartInputParser(InputParserBase):
         return self._args["--name"]
 
     @property
+    def wait(self) -> bool:
+        return self._args["--wait_active"]
+
+    @property
     def timeout(self) -> int:
-        timeout = self._args["--wait"]
-        SandboxStartInputValidator.validate_wait(timeout)
+        timeout = self._args["--timeout"]
+        SandboxStartInputValidator.validate_timeout(timeout)
         return int(timeout) if timeout is not None else timeout
 
     @property

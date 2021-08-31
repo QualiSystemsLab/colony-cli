@@ -4,7 +4,8 @@ from collections import OrderedDict
 import tabulate
 
 from colony.blueprints import BlueprintsManager
-from colony.branch_utils import figure_out_branches, revert_and_delete_temp_branch
+from colony.branch.branch_context import ContextBranch
+from colony.branch.branch_utils import get_and_check_folder_based_repo
 from colony.commands.base import BaseCommand
 from colony.parsers.command_input_validators import CommandInputValidator
 
@@ -40,23 +41,17 @@ class BlueprintsCommand(BaseCommand):
 
         CommandInputValidator.validate_commit_and_branch_specified(branch, commit)
 
-        repo, working_branch, temp_working_branch, stashed_flag, success = figure_out_branches(branch, blueprint_name)
-
-        if not success:
-            self.error("Unable to validate Blueprint")
-            return False
-
-        validation_branch = temp_working_branch or working_branch
-
-        try:
-            bp = self.manager.validate(blueprint=blueprint_name, branch=validation_branch, commit=commit)
-
-        except Exception as e:
-            logger.exception(e, exc_info=False)
-            bp = None
-            return self.die()
-        finally:
-            revert_and_delete_temp_branch(repo, working_branch, temp_working_branch, stashed_flag)
+        repo = get_and_check_folder_based_repo(blueprint_name)
+        with ContextBranch(repo, branch) as context_branch:
+            if not context_branch:
+                return self.error("Unable to Validate BP")
+            try:
+                bp = self.manager.validate(
+                    blueprint=blueprint_name, branch=context_branch.validation_branch, commit=commit
+                )
+            except Exception as e:
+                logger.exception(e, exc_info=False)
+                return self.die()
 
         errors = getattr(bp, "errors")
 

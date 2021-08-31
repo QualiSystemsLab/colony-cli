@@ -18,7 +18,7 @@ class SandboxListValidator:
 
 class SandboxStartInputValidator:
     @staticmethod
-    def validate_wait(timeout: str):
+    def validate_timeout(timeout: str):
         if timeout is not None:
             try:
                 timeout = int(timeout)

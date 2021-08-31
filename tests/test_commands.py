@@ -84,10 +84,16 @@ class TestSandboxCommand(unittest.TestCase):
 
     def validate_command_input(self, input_line: str, func: str) -> None:
         args = input_line.split()
-        command = SandboxesCommand(command_args=args)
+        try:
+            command = SandboxesCommand(command_args=args)
+        except DocoptExit:
+            return
+        except Exception as ex:
+            print(ex)
+
         self.assertRaises(DocoptExit, getattr(command, func))
 
-    def test_start_negative_timeout(self):
+    def test_start_negative_wait(self):
         line = "sb start test --wait -10"
         func = "do_start"
         self.validate_command_input(line, func)
@@ -102,7 +108,7 @@ class TestSandboxCommand(unittest.TestCase):
         func = "do_start"
         self.validate_command_input(line, func)
 
-    def test_start_not_number_timeout(self):
+    def test_start_not_number_wait(self):
         line = "sb start test --wait abc"
         func = "do_start"
         self.validate_command_input(line, func)

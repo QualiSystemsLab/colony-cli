@@ -2,17 +2,20 @@ import unittest
 from datetime import datetime
 from unittest.mock import Mock, patch
 
-from colony import branch_utils
-from colony.constants import FINAL_SB_STATUSES, TIMEOUT, UNCOMMITTED_BRANCH_NAME
+import colony.commands.sb
+import colony.services.waiter
+from colony.branch import branch_utils
+from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
 
 
 class TestStashLogicFunctions(unittest.TestCase):
     def setUp(self):
         self.switch = branch_utils.switch_to_temp_branch
-        self.revert = branch_utils.revert_from_temp_branch
-        self.examine = branch_utils.examine_blueprint_working_branch
-        self.wait_and_delete = branch_utils.wait_and_delete_temp_branch
+        self.revert = branch_utils.revert_from_local_temp_branch
+        self.check_repo_for_errors = branch_utils.check_repo_for_errors
+        self.wait_before_delete = colony.services.waiter.Waiter.wait_for_sandbox_to_launch
+        self.debug_output_about_repo_examination = branch_utils.debug_output_about_repo_examination
 
         self.initialize_mock_vars()
 
@@ -43,7 +46,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.is_dirty = Mock(return_value=True)
         defined_branch_in_file = "defined_branch_in_file"
         # Act:
-        uncommitted_branch_name, flag = self.switch(self.repo, defined_branch_in_file)
+        uncommitted_branch_name = self.switch(self.repo, defined_branch_in_file)
         # Assert:
         create_remote_branch.assert_called_once_with(self.repo, uncommitted_branch_name)
         commit_to_local_temp_branch.assert_called_once_with(self.repo)
@@ -71,7 +74,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.untracked_files = True
         defined_branch_in_file = "defined_branch_in_file"
         # Act:
-        uncommitted_branch_name, flag = self.switch(self.repo, defined_branch_in_file)
+        uncommitted_branch_name = self.switch(self.repo, defined_branch_in_file)
         # Assert:
         create_remote_branch.assert_called_once_with(self.repo, uncommitted_branch_name)
         commit_to_local_temp_branch.assert_called_once_with(self.repo)
@@ -95,23 +98,22 @@ class TestStashLogicFunctions(unittest.TestCase):
         )
         revert_from_uncommitted_code.assert_called_once_with(self.repo)
 
-    def test_examine_blueprint_working_branch_detached(self):
+    def test_check_repo_for_errors(self):
         # Arrange:
         self.repo = Mock()
-        mock_blueprint = Mock()
         self.repo.is_repo_detached = Mock(return_value=True)
 
         # Act & Assert:
-        self.assertRaises(BadBlueprintRepo, self.examine, self.repo, mock_blueprint)
+        self.assertRaises(BadBlueprintRepo, self.check_repo_for_errors, self.repo)
 
-    def test_examine_blueprint_working_branch_attached(self):
+    def test_debug_output_about_repo_examination(self):
         # Arrange:
         self.repo = Mock()
         mock_blueprint = Mock()
         self.repo.is_repo_detached = Mock(return_value=False)
 
         # Act:
-        self.examine(self.repo, mock_blueprint)
+        self.debug_output_about_repo_examination(self.repo, mock_blueprint)
 
         # Assert:
         self.repo.is_dirty.assert_called_once()
@@ -119,66 +121,73 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.repo.is_current_branch_synced()
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
-    @patch("colony.branch_utils.delete_temp_branch")
-    def test_wait_and_delete_temp_branch_final_stage(self, delete_temp_branch, can_temp, is_k8s, time_sleep):
+    @patch("colony.services.waiter.can_temp_branch_be_deleted")
+    def test_wait_for_sandbox_to_launch_final_stage(self, can_temp, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         can_temp.return_value = False
-        is_k8s.return_value = False
+        context_branch = Mock()
 
         # Act & assert:
+
         for final_stage in FINAL_SB_STATUSES:
             self.sandbox.sandbox_status = final_stage
             start_time = datetime.now()
-            self.wait_and_delete(self.sb_manager, self.sandbox_id, self.repo, self.temp_branch, self.blueprint_name)
-            assert (datetime.now() - start_time).seconds < TIMEOUT * 60
-            delete_temp_branch.assert_called_with(self.repo, self.temp_branch)
+            self.wait_before_delete(
+                self.sb_manager,
+                self.sandbox_id,
+                DEFAULT_TIMEOUT,
+                context_branch,
+                False,
+            )
+            assert (datetime.now() - start_time).seconds < 1
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
-    @patch("colony.branch_utils.delete_temp_branch")
-    def test_wait_and_delete_temp_branch_can_be_deleted(self, delete_temp_branch, can_temp, is_k8s, time_sleep):
+    @patch("colony.services.waiter.can_temp_branch_be_deleted")
+    def test_wait_for_sandbox_to_launch_can_be_deleted(self, can_temp, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
         can_temp.return_value = True
-        is_k8s.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
-        start_time = datetime.now()
+        context_branch = Mock()
 
         # Act:
-        self.wait_and_delete(self.sb_manager, self.sandbox_id, self.repo, self.temp_branch, self.blueprint_name)
+        timeout_reached = self.wait_before_delete(
+            self.sb_manager,
+            self.sandbox_id,
+            1,
+            context_branch,
+            False,
+        )
 
         # Assert:
-        assert (datetime.now() - start_time).seconds < TIMEOUT * 60
-        delete_temp_branch.assert_called_with(self.repo, self.temp_branch)
+        self.assertFalse(timeout_reached)
 
-    @patch("colony.branch_utils.TIMEOUT", 0)
+    @patch("colony.services.waiter.DEFAULT_TIMEOUT", 0.01)
     @patch("time.sleep", return_value=None)
-    @patch("colony.branch_utils.is_k8s_blueprint")
-    @patch("colony.branch_utils.can_temp_branch_be_deleted")
-    @patch("colony.branch_utils.delete_temp_branch")
-    def test_wait_and_delete_temp_branch_cannot_be_deleted(
+    @patch("colony.services.waiter.can_temp_branch_be_deleted")
+    def test_wait_before_temp_branch_delete_cannot_be_deleted(
         self,
-        delete_temp_branch,
         can_temp,
-        is_k8s,
         time_sleep,
     ):
         # Arrange:
+
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
         can_temp.return_value = False
-        is_k8s.return_value = False
         self.sandbox.sandbox_status = mock_non_final_stage
-        start_time = datetime.now()
+        context_branch = Mock()
 
         # Act:
-        self.wait_and_delete(self.sb_manager, self.sandbox_id, self.repo, self.temp_branch, self.blueprint_name)
+        timeout_reached = self.wait_before_delete(
+            self.sb_manager,
+            self.sandbox_id,
+            0,
+            context_branch,
+            False,
+        )
 
         # Assert:
-        assert (datetime.now() - start_time).microseconds > 0
-        delete_temp_branch.assert_called_with(self.repo, self.temp_branch)
+        self.assertTrue(timeout_reached)
