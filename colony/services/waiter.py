@@ -13,11 +13,11 @@ from colony.sandboxes import SandboxesManager
 class Waiter(object):
     @staticmethod
     def wait_for_sandbox_to_launch(
-            sb_manager: SandboxesManager,
-            sandbox_id: str,
-            timeout: int,
-            context_branch: ContextBranch,
-            wait: bool,
+        sb_manager: SandboxesManager,
+        sandbox_id: str,
+        timeout: int,
+        context_branch: ContextBranch,
+        wait: bool,
     ) -> bool:
 
         if not wait and not context_branch.temp_branch_exists:
@@ -46,7 +46,7 @@ class Waiter(object):
                             spinner.green.ok("✔")
                             break
 
-                    time.sleep(10)
+                    time.sleep(5)
                     spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
                     sandbox = sb_manager.get(sandbox_id)
                     status = getattr(sandbox, "sandbox_status")

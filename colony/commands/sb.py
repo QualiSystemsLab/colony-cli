@@ -160,11 +160,7 @@ class SandboxesCommand(BaseCommand):
                 return self.die()
 
             wait_timeout_reached = Waiter.wait_for_sandbox_to_launch(
-                self.manager,
-                sandbox_id,
-                timeout,
-                context_branch,
-                wait
+                self.manager, sandbox_id, timeout, context_branch, wait
             )
 
             if wait_timeout_reached:

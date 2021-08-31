@@ -14,7 +14,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.switch = branch_utils.switch_to_temp_branch
         self.revert = branch_utils.revert_from_local_temp_branch
         self.check_repo_for_errors = branch_utils.check_repo_for_errors
-        self.wait_before_delete = colony.services.waiter.wait_for_sandbox_to_launch
+        self.wait_before_delete = colony.services.waiter.Waiter.wait_for_sandbox_to_launch
         self.debug_output_about_repo_examination = branch_utils.debug_output_about_repo_examination
 
         self.initialize_mock_vars()
