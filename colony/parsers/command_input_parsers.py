@@ -60,6 +60,8 @@ class SandboxListInputParser(InputParserBase):
     @property
     def filter(self) -> str:
         list_filter = self._args.get("--filter", "my")
+        if not list_filter:
+            list_filter = "my"
         SandboxListValidator.validate_filter(list_filter)
         return list_filter
 

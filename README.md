@@ -150,22 +150,18 @@ You can get additional help information for a particular command by specifying *
                                         specific Blueprint historic version. If this parameter is used, the
                                         Branch parameter must also be specified.
 
-       -t, --timeout  <timeout>         Set how long(default is 30 (minutes)) will the CLI-tool wait before releasing
-                                        the control back to shell prompt. The CLI-tool will release the control back in
-                                        the following situation as follows:
-                                        "wait_active" is not set:
-                                           * Remote and local are synced and no local uncommitted changes:
-                                            => Immediately once Sandbox creation has started
-                                           * Remote and local are not synced OR there are local uncommitted changes:
-                                            => Once sandbox status will safely allow to exit Or once timeout is reached
-                                        "wait_active" is set:
-                                            => Once sandbox is in an active status or once timeout was reached
-                                            * Remote and local are not synced OR there are local uncommitted changes:
-                                                - Temp branch cleanup will happen once its safe.
+       -t, --timeout <minutes>          Set how long (default timeout is 30 minutes) to block and wait before releasing
+                                        control back to shell prompt. If timeout is reached before the desired status
+                                        the wait loop will be interrupted.
+                                        If "wait_active" flag is not set and a temp branch is created for local changes,
+                                        the CLI will block and wait until the sandbox Infrastructure and Artifacts are
+                                        ready. Then the temp branch can be safely deleted and the wait loop will end.
+                                        If "wait_active" flag is set, the CLI will block and wait until the sandbox is
+                                        Active regardless if temp branch is created or not.
 
-       -w, --wait_Active <timeout>      Set the timeout in minutes to wait for the sandbox to become active. If not set,
-                                        the CLI will wait for a default timeout of 30 minutes until the sandbox is
-                                        ready.
+       -w, --wait_active                Block shell prompt and wait for the sandbox to be Active (or deployment ended
+                                        with an error) while the timeout is not reached. Default timeout is 30 minutes.
+                                        The default timeout can be changed using the "timeout" flag.
 ```
 
 ### Blueprint validation
