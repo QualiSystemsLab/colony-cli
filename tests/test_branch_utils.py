@@ -143,7 +143,7 @@ class TestStashLogicFunctions(unittest.TestCase):
             assert (datetime.now() - start_time).seconds < 1
 
     @patch("time.sleep", return_value=None)
-    @patch("colony.commands.sb.can_temp_branch_be_deleted")
+    @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
     def test_wait_for_sandbox_to_launch_can_be_deleted(self, can_temp, time_sleep):
         # Arrange:
         self.initialize_mock_vars()
@@ -166,7 +166,7 @@ class TestStashLogicFunctions(unittest.TestCase):
 
     @patch("colony.commands.sb.DEFAULT_TIMEOUT", 0.01)
     @patch("time.sleep", return_value=None)
-    @patch("colony.commands.sb.can_temp_branch_be_deleted")
+    @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
     def test_wait_before_temp_branch_delete_cannot_be_deleted(
         self,
         can_temp,
