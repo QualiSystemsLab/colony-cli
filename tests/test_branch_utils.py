@@ -164,7 +164,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         # Assert:
         self.assertFalse(timeout_reached)
 
-    @patch("colony.commands.sb.DEFAULT_TIMEOUT", 0.01)
+    @patch("colony.services.waiter.DEFAULT_TIMEOUT", 0.01)
     @patch("time.sleep", return_value=None)
     @patch("colony.branch.branch_utils.can_temp_branch_be_deleted")
     def test_wait_before_temp_branch_delete_cannot_be_deleted(
@@ -173,6 +173,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         time_sleep,
     ):
         # Arrange:
+
         self.initialize_mock_vars()
         mock_non_final_stage = "mock_non_final_stage"
         can_temp.return_value = False
