@@ -216,8 +216,6 @@ def checkout_remote_branch(repo: BlueprintRepo, active_branch: str) -> None:
 def can_temp_branch_be_deleted(sandbox: Sandbox) -> bool:
     progress = getattr(sandbox, "launching_progress")
     prep_artifacts_status = progress.get("preparing_artifacts").get("status")
-    # deploy_app_status = progress.get("deploying_applications").get("status")
     creating_infra_status = progress.get("creating_infrastructure").get("status")
-    # verifying_environment_status = progress.get("verifying_environment").get("status")
 
     return prep_artifacts_status == DONE_STATUS and creating_infra_status == DONE_STATUS
