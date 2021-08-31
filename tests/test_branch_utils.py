@@ -3,6 +3,7 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 import colony.commands.sb
+import colony.services.waiter
 from colony.branch import branch_utils
 from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES, UNCOMMITTED_BRANCH_NAME
 from colony.exceptions import BadBlueprintRepo
@@ -13,7 +14,7 @@ class TestStashLogicFunctions(unittest.TestCase):
         self.switch = branch_utils.switch_to_temp_branch
         self.revert = branch_utils.revert_from_local_temp_branch
         self.check_repo_for_errors = branch_utils.check_repo_for_errors
-        self.wait_before_delete = colony.commands.sb.wait_for_sandbox_to_launch
+        self.wait_before_delete = colony.services.waiter.wait_for_sandbox_to_launch
         self.debug_output_about_repo_examination = branch_utils.debug_output_about_repo_examination
 
         self.initialize_mock_vars()

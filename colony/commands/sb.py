@@ -1,15 +1,12 @@
-import datetime
-import time
-
 import tabulate
-from yaspin import yaspin
 
 from colony.branch.branch_context import ContextBranch
-from colony.branch.branch_utils import can_temp_branch_be_deleted, get_and_check_folder_based_repo, logger
+from colony.branch.branch_utils import get_and_check_folder_based_repo, logger
 from colony.commands.base import BaseCommand
-from colony.constants import DEFAULT_TIMEOUT, FINAL_SB_STATUSES
 from colony.parsers.command_input_validators import CommandInputValidator
 from colony.sandboxes import SandboxesManager
+from colony.services.sb_naming import generate_sandbox_name
+from colony.services.waiter import Waiter
 
 
 class SandboxesCommand(BaseCommand):
@@ -136,11 +133,9 @@ class SandboxesCommand(BaseCommand):
 
         with ContextBranch(repo, branch) as context_branch:
             # TODO move error handling to exception catch (investigate best practices of error handling)
-            if not context_branch:
-                return self.error("Unable to start Sandbox")
 
             if sandbox_name is None:
-                sandbox_name_input = self.generate_sandbox_name(
+                sandbox_name_input = generate_sandbox_name(
                     blueprint_name,
                     context_branch.temp_working_branch,
                     context_branch.working_branch,
@@ -164,7 +159,13 @@ class SandboxesCommand(BaseCommand):
                 logger.exception(e, exc_info=False)
                 return self.die()
 
-            wait_timeout_reached = wait_for_sandbox_to_launch(self.manager, sandbox_id, timeout, context_branch, wait)
+            wait_timeout_reached = Waiter.wait_for_sandbox_to_launch(
+                self.manager,
+                sandbox_id,
+                timeout,
+                context_branch,
+                wait
+            )
 
             if wait_timeout_reached:
                 return self.die()
@@ -191,69 +192,3 @@ class SandboxesCommand(BaseCommand):
         except Exception as e:
             logger.debug(f"Unable to obtain default values. Details: {e}")
         return repo
-
-    def generate_sandbox_name(self, blueprint_name: str, temp_working_branch: str, working_branch: str) -> str:
-        suffix = datetime.datetime.now().strftime("%b%d-%H:%M:%S")
-        branch_name_or_type = ""
-        if working_branch:
-            branch_name_or_type = working_branch + "-"
-        if temp_working_branch:
-            branch_name_or_type = "localchanges-"
-        return f"{blueprint_name}-{branch_name_or_type}{suffix}"
-
-
-def wait_for_sandbox_to_launch(
-    sb_manager: SandboxesManager,
-    sandbox_id: str,
-    timeout: int,
-    context_branch: ContextBranch,
-    wait: bool,
-) -> bool:
-
-    if not wait and not context_branch.temp_branch_exists:
-        return False
-    try:
-        if context_branch.temp_branch_exists:
-            context_branch.revert_from_local_temp_branch()
-
-        if not timeout:
-            timeout = DEFAULT_TIMEOUT
-
-        start_time = datetime.datetime.now()
-        sandbox = sb_manager.get(sandbox_id)
-        status = getattr(sandbox, "sandbox_status")
-
-        sandbox_start_wait_output(sandbox_id, context_branch.temp_branch_exists)
-
-        with yaspin(text="Starting...", color="yellow") as spinner:
-            while (datetime.datetime.now() - start_time).seconds < timeout * 60:
-                if status in FINAL_SB_STATUSES:
-                    spinner.green.ok("✔")
-                    break
-                if context_branch.temp_branch_exists and can_temp_branch_be_deleted(sandbox):
-                    context_branch.delete_temp_branch()
-                    if not wait:
-                        spinner.green.ok("✔")
-                        break
-
-                time.sleep(10)
-                spinner.text = f"[{int((datetime.datetime.now() - start_time).total_seconds())} sec]"
-                sandbox = sb_manager.get(sandbox_id)
-                status = getattr(sandbox, "sandbox_status")
-            else:
-                logger.error(f"Timeout Reached - Sandbox {sandbox_id} was not active after {timeout} minutes")
-                return True
-        return False
-
-    except Exception as e:
-        logger.error(f"There was an issue with waiting for sandbox deployment -> {str(e)}")
-
-
-def sandbox_start_wait_output(sandbox_id, temp_branch_exists):
-    if temp_branch_exists:
-        logger.debug(f"Waiting before deleting temp branch that was created for this sandbox (id={sandbox_id})")
-        BaseCommand.fyi_info("Canceling or exiting before the process completes may cause the sandbox to fail")
-        BaseCommand.info("Waiting for the Sandbox to start with local changes. This may take some time.")
-    else:
-        logger.debug(f"Waiting for the Sandbox {sandbox_id} to finish launching...")
-        BaseCommand.info("Waiting for the Sandbox to start. This may take some time.")
